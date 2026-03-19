@@ -3,9 +3,10 @@ import os
 from functools import wraps
 from typing import Any, Callable, Optional, Union
 
+from typing import Protocol, runtime_checkable
+
 from chameleon import PageTemplate, PageTemplateLoader
 from robyn import Headers, Response, status_codes
-from robyn.templating import TemplateInterface
 
 from chameleon_robyn.exceptions import (
     ChameleonRobynException,
@@ -161,6 +162,13 @@ def not_found(four04template_file: str = 'errors/404.pt'):
         raise ChameleonRobynNotFoundException(msg, four04template_file)
     else:
         raise ChameleonRobynNotFoundException(msg)
+
+
+@runtime_checkable
+class TemplateInterface(Protocol):
+    """Protocol matching Robyn's TemplateInterface without importing Jinja2."""
+
+    def render_template(self, *args, **kwargs) -> Response: ...
 
 
 class ChameleonTemplate(TemplateInterface):

@@ -115,7 +115,7 @@ def test_response_custom_status(setup_global_template):
 
 
 def test_chameleon_template_interface(test_templates_path):
-    from robyn.templating import TemplateInterface
+    from chameleon_robyn.engine import TemplateInterface
 
     ct = cr.ChameleonTemplate(str(test_templates_path))
     assert isinstance(ct, TemplateInterface)
