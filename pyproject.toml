@@ -1,0 +1,74 @@
+[project]
+name = "chameleon_robyn"
+version = "0.1.0"
+description = "Adds integration of the Chameleon template language to Robyn."
+readme = { file = "README.md", content-type = "text/markdown" }
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "Michael Kennedy", email = "michael@talkpython.fm" }
+]
+keywords = ["Robyn", "Chameleon", "template", "integration"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14"
+]
+dependencies = [
+    "robyn>=0.60",
+    "Chameleon"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-asyncio",
+]
+examples = [
+    "chameleon-partials",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/mikeckennedy/chameleon-robyn"
+
+
+[build-system]
+requires = ["hatchling>=1.21.0", "hatch-vcs>=0.3.0"]
+build-backend = "hatchling.build"
+
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.hatch.build.targets.sdist]
+packages = ["chameleon_robyn"]
+exclude = [
+    "/.github",
+    "/dist",
+    "/tests",
+    "/example",
+    "/example-partials",
+    "/venv",
+    "/.venv",
+    "ruff.toml",
+    "requirements-dev.txt",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["chameleon_robyn"]
+exclude = [
+    "/.github",
+    "/dist",
+    "/tests",
+    "/example",
+    "/example-partials",
+    "/venv",
+    "/.venv",
+    "ruff.toml",
+    "requirements-dev.txt",
+]

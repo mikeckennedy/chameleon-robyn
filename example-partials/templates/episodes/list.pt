@@ -1,0 +1,8 @@
+<metal:block use-macro="load: ../shared/layout.pt">
+<div metal:fill-slot="content">
+    <h2>${title}</h2>
+    <div tal:repeat="ep episodes">
+        <div tal:replace="structure render_partial('shared/episode_card.pt', ep=ep)" />
+    </div>
+</div>
+</metal:block>

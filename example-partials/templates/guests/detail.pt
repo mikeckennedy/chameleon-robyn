@@ -1,0 +1,15 @@
+<metal:block use-macro="load: ../shared/layout.pt">
+<div metal:fill-slot="content">
+    <h2>${guest['name']}</h2>
+    <div class="card">
+        <p>${guest['bio']}</p>
+        <p style="margin-top: 10px;">
+            <strong>Episodes:</strong>
+            <span tal:repeat="ep_id guest['episodes']">
+                <a href="/episodes/${ep_id}">Episode #${ep_id}</a>
+            </span>
+        </p>
+    </div>
+    <p style="margin-top: 15px;"><a href="/guests">&larr; Back to all guests</a></p>
+</div>
+</metal:block>

@@ -1,0 +1,20 @@
+<metal:block use-macro="load: ../shared/layout.pt">
+<div metal:fill-slot="content">
+    <h2>Search Episodes</h2>
+    <form class="search-form" action="/search" method="get">
+        <input type="text" name="q" value="${query}" placeholder="Search episodes or guests..." />
+        <button type="submit">Search</button>
+    </form>
+
+    <div tal:condition="query and results">
+        <p>Found <strong>${len(results)}</strong> result(s) for "<em>${query}</em>":</p>
+        <div tal:repeat="ep results">
+            <div tal:replace="structure render_partial('shared/episode_card.pt', ep=ep)" />
+        </div>
+    </div>
+
+    <div tal:condition="query and not results">
+        <p>No results found for "<em>${query}</em>".</p>
+    </div>
+</div>
+</metal:block>

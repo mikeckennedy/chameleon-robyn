@@ -1,0 +1,11 @@
+<metal:block use-macro="load: ../shared/layout.pt">
+<div metal:fill-slot="content">
+    <h2>${episode['title']}</h2>
+    <div class="card">
+        <p><strong>Episode #${episode['id']}</strong></p>
+        <p>Guest: ${episode['guest']}</p>
+        <p>Duration: ${episode['duration']}</p>
+    </div>
+    <p style="margin-top: 15px;"><a href="/episodes">&larr; Back to all episodes</a></p>
+</div>
+</metal:block>

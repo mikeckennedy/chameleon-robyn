@@ -1,0 +1,28 @@
+<metal:block use-macro="load: ../shared/layout.pt">
+<div metal:fill-slot="content">
+    <h2>Welcome to the Demo</h2>
+    <p>This example app demonstrates <strong>chameleon-robyn</strong> — Chameleon Page Templates
+       integrated with the Robyn web framework.</p>
+
+    <div class="stats">
+        <div class="stat-box">
+            <div class="number">${episode_count}</div>
+            <div class="label">Episodes</div>
+        </div>
+        <div class="stat-box">
+            <div class="number">${guest_count}</div>
+            <div class="label">Guests</div>
+        </div>
+    </div>
+
+    <h3>Features demonstrated:</h3>
+    <ul style="margin: 10px 0 0 20px;">
+        <li><code>@template</code> decorator with sync and async handlers</li>
+        <li>Response pass-through (<a href="/redirect-example">redirect example</a>)</li>
+        <li>Custom content types (<a href="/xml/episodes">XML feed</a>)</li>
+        <li>Template variables and TAL expressions</li>
+        <li>404 handling with custom templates</li>
+        <li>METAL macro-based layout inheritance</li>
+    </ul>
+</div>
+</metal:block>

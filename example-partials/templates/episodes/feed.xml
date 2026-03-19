@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<episodes>
+    <episode tal:repeat="ep episodes">
+        <id>${ep['id']}</id>
+        <title>${ep['title']}</title>
+        <guest>${ep['guest']}</guest>
+        <duration>${ep['duration']}</duration>
+    </episode>
+</episodes>

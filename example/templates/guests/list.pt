@@ -1,0 +1,11 @@
+<metal:block use-macro="load: ../shared/layout.pt">
+<div metal:fill-slot="content">
+    <h2>${title}</h2>
+    <div tal:repeat="item guests.items()">
+        <div class="card">
+            <h3><a href="/guests/${item[0]}">${item[1]['name']}</a></h3>
+            <div class="meta">${item[1]['bio']}</div>
+        </div>
+    </div>
+</div>
+</metal:block>

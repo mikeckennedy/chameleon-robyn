@@ -1,0 +1,4 @@
+<div class="card">
+    <h3><a href="/episodes/${ep['id']}">${ep['title']}</a></h3>
+    <div class="meta">Guest: ${ep['guest']} &bull; Duration: ${ep['duration']}</div>
+</div>
