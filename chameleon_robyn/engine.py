@@ -1,9 +1,7 @@
 import inspect
 import os
 from functools import wraps
-from typing import Any, Callable, Optional, Union
-
-from typing import Protocol, runtime_checkable
+from typing import Any, Callable, Optional, Protocol, Union, runtime_checkable
 
 from chameleon import PageTemplate, PageTemplateLoader
 from robyn import Headers, Response, status_codes
