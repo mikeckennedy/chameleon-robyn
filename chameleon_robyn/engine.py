@@ -145,12 +145,21 @@ def __render_response(template_file: str, response_val: Any, content_type: str, 
 
     model = response_val
 
+    # Pop framework hook before rendering — not a template variable
+    response_callback = model.pop('__response_callback__', None)
+
     html = render(template_file, **model)
-    return Response(
+    resp = Response(
         status_code=status_code,
         description=html,
         headers=Headers({'Content-Type': f'{content_type}; charset=utf-8'}),
     )
+
+    # Let the app customize the response (e.g., write session cookies)
+    if callable(response_callback):
+        response_callback(resp)
+
+    return resp
 
 
 def not_found(four04template_file: str = 'errors/404.pt'):
