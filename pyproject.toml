@@ -1,6 +1,6 @@
 [project]
 name = "chameleon_robyn"
-version = "0.1.1"
+version = "0.1.2"
 description = "Adds integration of the Chameleon template language to Robyn."
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.10"
@@ -8,9 +8,30 @@ license = { text = "MIT" }
 authors = [
     { name = "Michael Kennedy", email = "michael@talkpython.fm" }
 ]
-keywords = ["Robyn", "Chameleon", "template", "integration"]
+keywords = [
+    "Robyn",
+    "Chameleon",
+    "template",
+    "templates",
+    "templating",
+    "template engine",
+    "integration",
+    "web",
+    "web framework",
+    "async",
+    "asgi",
+    "html",
+    "rendering",
+    "view",
+    "page template",
+    "tal",
+    "tales",
+    "metal",
+    "server-side rendering",
+    "ssr",
+]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3.10",
@@ -36,6 +57,11 @@ examples = [
 
 [project.urls]
 "Homepage" = "https://github.com/mikeckennedy/chameleon-robyn"
+"Documentation" = "https://mkennedy.codes/docs/chameleon-robyn"
+"Source" = "https://github.com/mikeckennedy/chameleon-robyn"
+"Issues" = "https://github.com/mikeckennedy/chameleon-robyn/issues"
+"PyPI" = "https://pypi.org/project/chameleon-robyn/"
+"Funding" = "https://github.com/sponsors/mikeckennedy"
 
 
 [build-system]
