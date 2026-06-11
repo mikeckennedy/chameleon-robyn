@@ -128,6 +128,13 @@
     "text": "View on PyPI Source Issues Pypi Funding\n\n\n\nSkills llms.txt llms-full.txt\n\n\n\n\n\n\nMichael Kennedy\n\n\n\nAuthor\n\n  \n\n\n\n\nFull license MIT\n\n\n\nRequires: Python &gt;=3.10 Provides-Extra: dev, examples"
   },
   {
+    "objectID": "index.html#documentation",
+    "href": "index.html#documentation",
+    "title": "chameleon-robyn",
+    "section": "Documentation",
+    "text": "Documentation\nFull documentation, including a browsable API reference, lives at mkennedy.codes/docs/chameleon-robyn. This README covers the same ground in guide form if you’d rather keep reading here."
+  },
+  {
     "objectID": "index.html#installation",
     "href": "index.html#installation",
     "title": "chameleon-robyn",

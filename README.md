@@ -4,6 +4,10 @@
 
 Use [Chameleon](https://chameleon.readthedocs.io/) page templates in your [Robyn](https://robyn.tech/) web applications. If you've used Chameleon with Pyramid, Flask, or FastAPI, you'll feel right at home - same `.pt` templates, same TAL/TALES/METAL expressions, now running on Robyn's blazing-fast Rust runtime.
 
+## Documentation
+
+Full documentation, including a browsable API reference, lives at [mkennedy.codes/docs/chameleon-robyn](https://mkennedy.codes/docs/chameleon-robyn/). This README covers the same ground in guide form if you'd rather keep reading here.
+
 ## Installation
 
 ```bash
