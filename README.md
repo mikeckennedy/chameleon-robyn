@@ -140,6 +140,37 @@ def old_page(request):
     )
 ```
 
+### Modifying the response after rendering (`__response_callback__`)
+
+Sometimes you want template rendering *and* a tweak to the final `Response` - the classic case is setting a session cookie after a login. Put a callable in your model under the reserved `__response_callback__` key and the decorator invokes it with the freshly built `Response` after rendering:
+
+```python
+from robyn import Response
+
+@app.post('/account/login')
+@chameleon_robyn.template('account/welcome.pt')
+async def login(request):
+    user = await authenticate(request)
+    if not user:
+        return chameleon_robyn.response('account/login_failed.pt', status_code=401)
+
+    token = create_session_token(user)
+
+    def set_session_cookie(resp: Response):
+        resp.headers.append('Set-Cookie', f'session={token}; HttpOnly; Path=/')
+
+    return {
+        'user': user,
+        '__response_callback__': set_session_cookie,
+    }
+```
+
+A few details:
+
+- The key is popped before rendering, so it never reaches your template (and your dict isn't mutated - returning a shared model is fine).
+- Mutate the `Response` in place; the callback's return value is ignored.
+- The value must be callable - anything else raises `ChameleonRobynException`.
+
 ## Friendly 404 pages
 
 Call `not_found()` from any decorated handler to render a 404 page:
@@ -274,7 +305,7 @@ pip install -e ".[examples]"
 
 ### `example/` - Core features
 
-A Robyn app demonstrating the `@template` decorator, sync and async handlers, METAL macro layout inheritance, response pass-through redirects, friendly 404 pages, search with query parameters, and an XML feed with a custom content type.
+A Robyn app demonstrating the `@template` decorator, sync and async handlers, METAL macro layout inheritance, response pass-through redirects, a `__response_callback__` cookie example, friendly 404 pages, search with query parameters, and an XML feed with a custom content type.
 
 ```bash
 python example/app.py

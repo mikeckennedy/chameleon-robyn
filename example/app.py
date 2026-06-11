@@ -118,6 +118,23 @@ def redirect_example(request):
     )
 
 
+@app.get('/cookie-example')
+@chameleon_robyn.template('home/index.pt')
+def cookie_example(request):
+    """Demonstrates __response_callback__ — modify the rendered Response, e.g. to set cookies."""
+
+    def remember_visit(resp: Response):
+        assert isinstance(resp.headers, Headers)  # Robyn types this as Headers | dict; chameleon-robyn builds Headers
+        resp.headers.append('Set-Cookie', 'last_visit=home; Path=/')
+
+    return {
+        'title': 'Chameleon + Robyn Demo',
+        'episode_count': len(EPISODES),
+        'guest_count': len(GUESTS),
+        '__response_callback__': remember_visit,
+    }
+
+
 @app.get('/xml/episodes')
 @chameleon_robyn.template('episodes/feed.xml', content_type='application/xml', status_code=200)
 def episodes_xml(request):
