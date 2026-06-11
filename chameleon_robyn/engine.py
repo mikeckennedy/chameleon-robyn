@@ -49,12 +49,33 @@ def global_init(template_folder: str, auto_reload=False, cache_init=True, restri
 
 
 def clear():
+    """
+    Reset the template engine to its uninitialized state.
+
+    After calling this, global_init() must be called again before rendering.
+    Mostly useful in tests to isolate template configuration between cases.
+    """
     global __templates, template_path
     __templates = None
     template_path = None
 
 
 def render(template_file: str, **template_data: dict) -> str:
+    """
+    Render a Chameleon template to a string (no Response wrapping).
+
+    Useful outside of route handlers: emails, middleware, error handlers, etc.
+
+    Args:
+        template_file: The template file path, relative to the template folder (e.g. 'emails/welcome.pt').
+        **template_data: Values passed to the template as its model.
+
+    Returns:
+        The rendered template as a string.
+
+    Raises:
+        ChameleonRobynException: If global_init() has not been called.
+    """
     if not __templates:
         raise ChameleonRobynException('You must call global_init() before rendering templates.')
 
@@ -63,6 +84,18 @@ def render(template_file: str, **template_data: dict) -> str:
 
 
 def response(template_file: str, content_type='text/html', status_code=200, **template_data) -> Response:
+    """
+    Render a Chameleon template and wrap it in a fully-formed Robyn Response.
+
+    Args:
+        template_file: The template file path, relative to the template folder.
+        content_type: The Content-Type header value (defaults to text/html).
+        status_code: The HTTP status code for the response (defaults to 200).
+        **template_data: Values passed to the template as its model.
+
+    Returns:
+        A Robyn Response with the rendered template as its body.
+    """
     html = render(template_file, **template_data)
     return Response(
         status_code=status_code,
@@ -79,10 +112,18 @@ def template(
     """
     Decorate a Robyn view method to render an HTML response.
 
-    :param template_file: Optional, the Chameleon template file (path relative to template folder, *.pt).
-    :param content_type: The mimetype response (defaults to text/html).
-    :param status_code: Default status code for responses.
-    :return: Decorator for Robyn route handlers
+    The decorated handler returns a dict (the template model). If the template path is
+    omitted, it is derived from the module and function name (module/function.pt, falling
+    back to module/function.html). Handlers that return a Robyn Response are passed
+    through untouched (redirects, custom errors). Works with sync and async handlers.
+
+    Args:
+        template_file: Optional, the Chameleon template file (path relative to template folder, *.pt).
+        content_type: The mimetype response (defaults to text/html).
+        status_code: Default status code for responses.
+
+    Returns:
+        Decorator for Robyn route handlers.
     """
 
     wrapped_function = None
@@ -163,6 +204,20 @@ def __render_response(template_file: str, response_val: Any, content_type: str, 
 
 
 def not_found(four04template_file: str = 'errors/404.pt'):
+    """
+    Render a friendly 404 page from within a @template-decorated handler.
+
+    Raises an exception that the @template decorator catches and converts into a
+    404 response rendered through the given template. Only works inside handlers
+    decorated with @template.
+
+    Args:
+        four04template_file: The template to render, relative to the template folder
+            (defaults to 'errors/404.pt').
+
+    Raises:
+        ChameleonRobynNotFoundException: Always; carries the 404 template path.
+    """
     msg = 'The URL resulted in a 404 response.'
 
     if four04template_file and four04template_file.strip():
@@ -179,7 +234,20 @@ class TemplateInterface(Protocol):
 
 
 class ChameleonTemplate(TemplateInterface):
-    """Chameleon template engine implementing Robyn's TemplateInterface."""
+    """
+    Chameleon template engine implementing Robyn's TemplateInterface.
+
+    A standalone alternative to the module-level API: it owns its own template
+    loader and does not require global_init(). Use it like Robyn's built-in
+    JinjaTemplate.
+
+    Args:
+        directory: Path to the template directory.
+        auto_reload: Whether to auto-reload templates on change (use True in development).
+        encoding: Output encoding for rendered templates (defaults to utf-8).
+        restricted_namespace: If True, only TAL/METAL/i18n namespaces are allowed.
+            Set to False for Alpine.js/htmx-style attributes (@click, :class, etc.).
+    """
 
     def __init__(
         self,
@@ -196,6 +264,16 @@ class ChameleonTemplate(TemplateInterface):
         self.encoding = encoding
 
     def render_template(self, template_name: str, **kwargs) -> Response:
+        """
+        Render a template and return a 200 Robyn Response.
+
+        Args:
+            template_name: The template file path, relative to the directory given at construction.
+            **kwargs: Values passed to the template as its model.
+
+        Returns:
+            A Robyn Response with the rendered template as its body.
+        """
         page: PageTemplate = self.loader[template_name]
         rendered = page.render(encoding=self.encoding, **kwargs)
         return Response(

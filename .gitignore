@@ -218,3 +218,7 @@ __marimo__/
 venv
 .venv
 .claude/settings.local.json
+
+# Great Docs ephemeral build directory (the committed site lives in /docs)
+/great-docs/
+docs/build-timings.json

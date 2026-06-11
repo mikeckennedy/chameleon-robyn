@@ -1,0 +1,36 @@
+# chameleon_robyn
+
+> Adds integration of the Chameleon template language to Robyn.
+
+## Docs
+
+### API Reference
+
+#### Setup & configuration
+> Initialize the template engine once at app startup.
+
+- [global_init](https://mkennedy.codes/docs/chameleon-robyn/reference/global_init.html): Initialize the Chameleon template engine
+- [clear](https://mkennedy.codes/docs/chameleon-robyn/reference/clear.html): Reset the template engine to its uninitialized state
+
+#### Rendering views
+> The @template decorator and friendly 404s for Robyn route handlers.
+
+- [template](https://mkennedy.codes/docs/chameleon-robyn/reference/template.html): Decorate a Robyn view method to render an HTML response
+- [not_found](https://mkennedy.codes/docs/chameleon-robyn/reference/not_found.html): Render a friendly 404 page from within a @template-decorated handler
+
+#### Lower-level rendering
+> Render templates outside the decorator (middleware, error handlers, emails).
+
+- [render](https://mkennedy.codes/docs/chameleon-robyn/reference/render.html): Render a Chameleon template to a string (no Response wrapping)
+- [response](https://mkennedy.codes/docs/chameleon-robyn/reference/response.html): Render a Chameleon template and wrap it in a fully-formed Robyn Response
+
+#### Robyn TemplateInterface
+> Standalone template engine class matching Robyn's built-in template pattern.
+
+- [ChameleonTemplate](https://mkennedy.codes/docs/chameleon-robyn/reference/ChameleonTemplate.html): Chameleon template engine implementing Robyn's TemplateInterface
+
+#### Exceptions
+> Exception types raised by the library.
+
+- [ChameleonRobynException](https://mkennedy.codes/docs/chameleon-robyn/reference/ChameleonRobynException.html): Base exception for all chameleon-robyn errors (bad configuration, invalid return types, etc.)
+- [ChameleonRobynNotFoundException](https://mkennedy.codes/docs/chameleon-robyn/reference/ChameleonRobynNotFoundException.html): Raised by not_found() to signal a 404 from within a @template-decorated handler

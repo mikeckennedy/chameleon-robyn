@@ -1,0 +1,11 @@
+{
+  "skills": [
+    {
+      "name": "chameleon-robyn",
+      "description": "Adds integration of the Chameleon template language to Robyn. Use when writing Python code that uses the chameleon_robyn package.",
+      "files": [
+        "SKILL.md"
+      ]
+    }
+  ]
+}

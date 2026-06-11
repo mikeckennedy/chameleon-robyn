@@ -1,0 +1,273 @@
+[
+  {
+    "objectID": "reference/ChameleonTemplate.html",
+    "href": "reference/ChameleonTemplate.html",
+    "title": "ChameleonTemplate",
+    "section": "",
+    "text": "Chameleon template engine implementing Robyn’s TemplateInterface.",
+    "crumbs": [
+      "API Reference",
+      "Robyn TemplateInterface",
+      "[ChameleonTemplate]{.doc-object-name .doc-class .doc-label .doc-label-class}"
+    ]
+  },
+  {
+    "objectID": "reference/ChameleonTemplate.html#render_template",
+    "href": "reference/ChameleonTemplate.html#render_template",
+    "title": "ChameleonTemplate",
+    "section": "render_template()",
+    "text": "render_template()\n\nRender a template and return a 200 Robyn Response.\n\n\nUsage\nSource\n\n\nrender_template(template_name, **kwargs)\n\n\nParameters\n\n\ntemplate_name: str\n\nThe template file path, relative to the directory given at construction.\n\n**kwargs\n\nValues passed to the template as its model.\n\n\n\n\n\nReturns\n\n\n Response\n\nA Robyn Response with the rendered template as its body.",
+    "crumbs": [
+      "API Reference",
+      "Robyn TemplateInterface",
+      "[ChameleonTemplate]{.doc-object-name .doc-class .doc-label .doc-label-class}"
+    ]
+  },
+  {
+    "objectID": "reference/template.html",
+    "href": "reference/template.html",
+    "title": "template()",
+    "section": "",
+    "text": "Decorate a Robyn view method to render an HTML response.\n\n\nUsage\nSource\n\n\ntemplate(template_file=None, content_type=\"text/html\", status_code=200)\n\n\nThe decorated handler returns a dict (the template model). If the template path is omitted, it is derived from the module and function name (module/function.pt, falling back to module/function.html). Handlers that return a Robyn Response are passed through untouched (redirects, custom errors). Works with sync and async handlers.\n\n\nParameters\n\n\ntemplate_file: Optional[Union[Callable, str]] = None\n\nOptional, the Chameleon template file (path relative to template folder, *.pt).\n\ncontent_type: str = \"text/html\"\n\nThe mimetype response (defaults to text/html).\n\nstatus_code: int = 200\n\nDefault status code for responses.\n\n\n\n\n\nReturns\n\n\n\n\nDecorator for Robyn route handlers.",
+    "crumbs": [
+      "API Reference",
+      "Rendering views",
+      "[template()]{.doc-object-name .doc-function .doc-label .doc-label-function}"
+    ]
+  },
+  {
+    "objectID": "reference/ChameleonRobynException.html",
+    "href": "reference/ChameleonRobynException.html",
+    "title": "ChameleonRobynException",
+    "section": "",
+    "text": "Base exception for all chameleon-robyn errors (bad configuration, invalid return types, etc.).\n\n\nUsage\nSource\n\n\nChameleonRobynException()",
+    "crumbs": [
+      "API Reference",
+      "Exceptions",
+      "[ChameleonRobynException]{.doc-object-name .doc-class .doc-label .doc-label-exception}"
+    ]
+  },
+  {
+    "objectID": "reference/ChameleonRobynNotFoundException.html",
+    "href": "reference/ChameleonRobynNotFoundException.html",
+    "title": "ChameleonRobynNotFoundException",
+    "section": "",
+    "text": "Raised by not_found() to signal a 404 from within a @template-decorated handler.\n\n\nUsage\nSource\n\n\nChameleonRobynNotFoundException()\n\n\nThe @template decorator catches this exception and renders the template it carries with a 404 status code.\n\n\nParameters\n\n\nmessage: Optional[str] = None\n\nOptional human-readable description of the 404.\n\nfour04template_file: str = \"errors/404.pt\"\n\nThe 404 template to render, relative to the template folder.",
+    "crumbs": [
+      "API Reference",
+      "Exceptions",
+      "[ChameleonRobynNotFoundException]{.doc-object-name .doc-class .doc-label .doc-label-class}"
+    ]
+  },
+  {
+    "objectID": "reference/clear.html",
+    "href": "reference/clear.html",
+    "title": "clear()",
+    "section": "",
+    "text": "Reset the template engine to its uninitialized state.\n\n\nUsage\nSource\n\n\nclear()\n\n\nAfter calling this, global_init() must be called again before rendering. Mostly useful in tests to isolate template configuration between cases.",
+    "crumbs": [
+      "API Reference",
+      "Setup & configuration",
+      "[clear()]{.doc-object-name .doc-function .doc-label .doc-label-function}"
+    ]
+  },
+  {
+    "objectID": "license.html",
+    "href": "license.html",
+    "title": "License",
+    "section": "",
+    "text": "▶\n    License features — MIT License\n\n\n\n\n\nPermissions\n\nCommercial use\nModification\nDistribution\nPrivate use\n\n\nConditions\n\nLicense and copyright notice\n\n\nLimitations\n\nLiability\nWarranty\n\n\n\n\nMIT License\n\nCopyright (c) 2026 Michael Kennedy\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE."
+  },
+  {
+    "objectID": "skill.html",
+    "href": "skill.html",
+    "title": "chameleon-robyn",
+    "section": "",
+    "text": "Adds integration of the Chameleon template language to Robyn."
+  },
+  {
+    "objectID": "skill.html#setup-configuration",
+    "href": "skill.html#setup-configuration",
+    "title": "chameleon-robyn",
+    "section": "Setup & configuration",
+    "text": "Setup & configuration\nInitialize the template engine once at app startup.\n\nglobal_init: Initialize the Chameleon template engine\nclear: Reset the template engine to its uninitialized state"
+  },
+  {
+    "objectID": "skill.html#rendering-views",
+    "href": "skill.html#rendering-views",
+    "title": "chameleon-robyn",
+    "section": "Rendering views",
+    "text": "Rendering views\nThe @template decorator and friendly 404s for Robyn route handlers.\n\ntemplate: Decorate a Robyn view method to render an HTML response\nnot_found: Render a friendly 404 page from within a @template-decorated handler"
+  },
+  {
+    "objectID": "skill.html#lower-level-rendering",
+    "href": "skill.html#lower-level-rendering",
+    "title": "chameleon-robyn",
+    "section": "Lower-level rendering",
+    "text": "Lower-level rendering\nRender templates outside the decorator (middleware, error handlers, emails).\n\nrender: Render a Chameleon template to a string (no Response wrapping)\nresponse: Render a Chameleon template and wrap it in a fully-formed Robyn Response"
+  },
+  {
+    "objectID": "skill.html#robyn-templateinterface",
+    "href": "skill.html#robyn-templateinterface",
+    "title": "chameleon-robyn",
+    "section": "Robyn TemplateInterface",
+    "text": "Robyn TemplateInterface\nStandalone template engine class matching Robyn’s built-in template pattern.\n\nChameleonTemplate: Chameleon template engine implementing Robyn’s TemplateInterface"
+  },
+  {
+    "objectID": "skill.html#exceptions",
+    "href": "skill.html#exceptions",
+    "title": "chameleon-robyn",
+    "section": "Exceptions",
+    "text": "Exceptions\nException types raised by the library.\n\nChameleonRobynException: Base exception for all chameleon-robyn errors (bad configuration, invalid return types, etc.)\nChameleonRobynNotFoundException: Raised by not_found() to signal a 404 from within a @template-decorated handler"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "chameleon-robyn",
+    "section": "",
+    "text": "View on PyPI Source Issues Pypi Funding\n\n\n\nSkills llms.txt llms-full.txt\n\n\n\n\n\n\nMichael Kennedy\n\n\n\nAuthor\n\n  \n\n\n\n\nFull license MIT\n\n\n\nRequires: Python &gt;=3.10 Provides-Extra: dev, examples"
+  },
+  {
+    "objectID": "index.html#installation",
+    "href": "index.html#installation",
+    "title": "chameleon-robyn",
+    "section": "Installation",
+    "text": "Installation\nuv pip install chameleon-robyn\nThis pulls in chameleon and robyn as dependencies."
+  },
+  {
+    "objectID": "index.html#quick-start",
+    "href": "index.html#quick-start",
+    "title": "chameleon-robyn",
+    "section": "Quick start",
+    "text": "Quick start\n1. Set up your project structure:\nmy_app/\n├── app.py\n└── templates/\n    └── home/\n        └── index.pt\n2. Create a template (templates/home/index.pt):\n&lt;!DOCTYPE html&gt;\n&lt;html&gt;\n&lt;body&gt;\n    &lt;h1&gt;Hello, ${name}!&lt;/h1&gt;\n    &lt;ul&gt;\n        &lt;li tal:repeat=\"item items\"&gt;${item}&lt;/li&gt;\n    &lt;/ul&gt;\n&lt;/body&gt;\n&lt;/html&gt;\n3. Wire it up (app.py):\nfrom pathlib import Path\nfrom robyn import Robyn\nimport chameleon_robyn\n\napp = Robyn(__file__)\n\n## Point Chameleon at your templates folder (do this once at startup)\ntemplate_folder = (Path(__file__).resolve().parent / 'templates').as_posix()\nchameleon_robyn.global_init(template_folder, auto_reload=True)\n\n@app.get('/')\n@chameleon_robyn.template('home/index.pt')\nasync def index(request):\n    return {'name': 'World', 'items': ['Robyn', 'Chameleon', 'Python']}\n\napp.start(host='127.0.0.1', port=8000)\nThat’s it. Your handler returns a dict, the @template decorator renders it through the Chameleon template and wraps the result in a Robyn Response."
+  },
+  {
+    "objectID": "index.html#the-template-decorator",
+    "href": "index.html#the-template-decorator",
+    "title": "chameleon-robyn",
+    "section": "The @template decorator",
+    "text": "The @template decorator\nThe decorator is the main way you’ll use this package. It intercepts your handler’s return value and renders it through a Chameleon template.\n\nExplicit template path\n@app.get('/episodes')\n@chameleon_robyn.template('episodes/list.pt')\ndef episode_list(request):\n    return {'episodes': get_all_episodes()}\n\n\nAuto-naming (convention over configuration)\nIf you omit the template path, it’s derived from the module and function name. A function called index in a module called home_views looks for home_views/index.pt (falling back to home_views/index.html):\n## Looks for templates/home_views/index.pt\n@app.get('/')\n@chameleon_robyn.template()\ndef index(request):\n    return {'message': 'Hello!'}\nYou can even skip the parentheses:\n@app.get('/')\n@chameleon_robyn.template\ndef index(request):\n    return {'message': 'Hello!'}\n\n\nAsync handlers - just works\n@app.get('/dashboard')\n@chameleon_robyn.template('dashboard.pt')\nasync def dashboard(request):\n    stats = await fetch_stats_from_db()\n    return {'stats': stats}\n\n\nCustom status codes and content types\n## Return a 201 after creating a resource\n@app.post('/items')\n@chameleon_robyn.template('items/created.pt', status_code=201)\nasync def create_item(request):\n    item = await save_item(request.json())\n    return {'item': item}\n\n## Serve an XML feed\n@app.get('/feed.xml')\n@chameleon_robyn.template('feed.xml', content_type='application/xml')\ndef xml_feed(request):\n    return {'episodes': get_recent_episodes()}\n\n\nResponse pass-through (redirects, errors, etc.)\nIf your handler returns a Robyn Response object directly, the decorator passes it through untouched. This is how you handle redirects, custom error responses, or anything that shouldn’t be rendered through a template:\nfrom robyn import Response, Headers\n\n@app.get('/old-page')\n@chameleon_robyn.template('home/index.pt')\ndef old_page(request):\n    # This Response is returned as-is - no template rendering\n    return Response(\n        status_code=302,\n        description='',\n        headers=Headers({'Location': '/new-page'}),\n    )"
+  },
+  {
+    "objectID": "index.html#friendly-404-pages",
+    "href": "index.html#friendly-404-pages",
+    "title": "chameleon-robyn",
+    "section": "Friendly 404 pages",
+    "text": "Friendly 404 pages\nCall not_found() from any decorated handler to render a 404 page:\n@app.get('/episodes/:episode_id')\n@chameleon_robyn.template('episodes/detail.pt')\nasync def episode_detail(request, episode_id: int):\n    episode = await get_episode(episode_id)\n    if not episode:\n        chameleon_robyn.not_found()  # Renders errors/404.pt with status 404\n\n    return {'episode': episode}\nBy default it renders errors/404.pt, but you can specify any template:\nchameleon_robyn.not_found(four04template_file='errors/custom_404.pt')"
+  },
+  {
+    "objectID": "index.html#lower-level-api",
+    "href": "index.html#lower-level-api",
+    "title": "chameleon-robyn",
+    "section": "Lower-level API",
+    "text": "Lower-level API\nSometimes you need to render a template outside of a decorator - in middleware, error handlers, or helper functions.\n\nrender() - get an HTML string\nhtml = chameleon_robyn.render('emails/welcome.pt', username='Michael')\n## Returns a string, no Response wrapping\n\n\nresponse() - get a Robyn Response\nresp = chameleon_robyn.response('errors/500.pt', status_code=500, error=str(e))\n## Returns a fully-formed Robyn Response object"
+  },
+  {
+    "objectID": "index.html#chameleontemplate-class-robyns-templateinterface",
+    "href": "index.html#chameleontemplate-class-robyns-templateinterface",
+    "title": "chameleon-robyn",
+    "section": "ChameleonTemplate class (Robyn’s TemplateInterface)",
+    "text": "ChameleonTemplate class (Robyn’s TemplateInterface)\nIf you prefer Robyn’s built-in template pattern, ChameleonTemplate implements TemplateInterface - the same abstract base class that Robyn’s JinjaTemplate uses:\nfrom chameleon_robyn import ChameleonTemplate\n\nchameleon = ChameleonTemplate('templates/', auto_reload=True)\n\n@app.get('/page')\ndef page(request):\n    return chameleon.render_template('page.pt', title='Hello')\nThis is a standalone class with its own template loader - it doesn’t require global_init()."
+  },
+  {
+    "objectID": "index.html#global_init-reference",
+    "href": "index.html#global_init-reference",
+    "title": "chameleon-robyn",
+    "section": "global_init() reference",
+    "text": "global_init() reference\nchameleon_robyn.global_init(\n    template_folder,              # Path to your templates directory (required)\n    auto_reload=False,            # Watch for template changes - use True in development\n    cache_init=True,              # Skip re-initialization if already called\n    restricted_namespace=True,    # Set to False if using Alpine.js, htmx @attributes, etc.\n)\n\nAlpine.js / htmx compatibility\nChameleon’s default namespace rules reject attributes like @click or :class because they look like XML namespace prefixes. If you’re using Alpine.js, htmx, or similar libraries, set restricted_namespace=False:\nchameleon_robyn.global_init(template_folder, restricted_namespace=False)\nThis tells Chameleon to allow any attribute syntax in your templates."
+  },
+  {
+    "objectID": "index.html#works-with-chameleon-partials",
+    "href": "index.html#works-with-chameleon-partials",
+    "title": "chameleon-robyn",
+    "section": "Works with chameleon-partials",
+    "text": "Works with chameleon-partials\nchameleon-partials provides render_partial() for rendering sub-templates (think: reusable components). It works alongside chameleon-robyn with no extra configuration - just initialize both at startup:\nimport chameleon_partials\nimport chameleon_robyn\n\nchameleon_robyn.global_init(template_folder, auto_reload=dev_mode)\nchameleon_partials.register_extensions(template_folder, auto_reload=dev_mode)\nThen pass render_partial through your template context:\nimport chameleon_partials\n\n@app.get('/')\n@chameleon_robyn.template('home/index.pt')\ndef index(request):\n    return {\n        'render_partial': chameleon_partials.render_partial,\n        'episodes': get_episodes(),\n    }\nAnd use it in your templates with tal:replace=\"structure ...\":\n&lt;div tal:repeat=\"ep episodes\"&gt;\n    &lt;div tal:replace=\"structure render_partial('shared/episode_card.pt', ep=ep)\" /&gt;\n&lt;/div&gt;\nNote: use tal:replace=\"structure ...\" (not ${structure ...}) when rendering partials. The structure keyword tells Chameleon to insert the HTML without escaping, and tal:replace swaps out the placeholder element entirely."
+  },
+  {
+    "objectID": "index.html#example-apps",
+    "href": "index.html#example-apps",
+    "title": "chameleon-robyn",
+    "section": "Example apps",
+    "text": "Example apps\nThe repo includes two example apps you can run to see everything in action.\n\nSetup\nClone the repo and install with the extras you need:\ngit clone https://github.com/mikeckennedy/chameleon-robyn.git\ncd chameleon-robyn\npython -m venv venv\nsource venv/bin/activate      # Windows: venv\\Scripts\\activate\n\n## Install the package with example dependencies\npip install -e \".[examples]\"\n\n\nexample/ - Core features\nA Robyn app demonstrating the @template decorator, sync and async handlers, METAL macro layout inheritance, response pass-through redirects, friendly 404 pages, search with query parameters, and an XML feed with a custom content type.\npython example/app.py\n## Open http://127.0.0.1:5555\n\n\nexample-partials/ - With chameleon-partials\nThe same app, but refactored to use chameleon-partials for reusable template components. The episode card markup lives in a single shared/episode_card.pt partial that’s shared across the episodes list and search results pages.\npython example-partials/app.py\n## Open http://127.0.0.1:5555\nCompare the two to see how partials reduce template duplication - the episode list and search results templates go from inline card markup to a single tal:replace call each."
+  },
+  {
+    "objectID": "index.html#template-language-cheat-sheet",
+    "href": "index.html#template-language-cheat-sheet",
+    "title": "chameleon-robyn",
+    "section": "Template language cheat sheet",
+    "text": "Template language cheat sheet\nChameleon uses TAL (Template Attribute Language) - a few patterns to get you going:\n&lt;!-- Variable substitution --&gt;\n&lt;h1&gt;${title}&lt;/h1&gt;\n&lt;p&gt;${user.name}&lt;/p&gt;\n\n&lt;!-- HTML-safe output (skip auto-escaping) --&gt;\n&lt;div tal:replace=\"structure rich_html_content\" /&gt;\n\n&lt;!-- Conditionals --&gt;\n&lt;div tal:condition=\"show_banner\"&gt;Special offer!&lt;/div&gt;\n&lt;div tal:condition=\"not items\"&gt;Nothing here yet.&lt;/div&gt;\n\n&lt;!-- Loops --&gt;\n&lt;li tal:repeat=\"item items\"&gt;${item.name} - $${item.price}&lt;/li&gt;\n\n&lt;!-- Repeat with index --&gt;\n&lt;tr tal:repeat=\"row data\" class=\"${'odd' if repeat.row.odd else 'even'}\"&gt;\n    &lt;td&gt;${repeat.row.number}. ${row.title}&lt;/td&gt;\n&lt;/tr&gt;\n\n&lt;!-- Attributes --&gt;\n&lt;a href=\"/items/${item.id}\" class=\"${'active' if is_current else ''}\"&gt;\n    ${item.name}\n&lt;/a&gt;\n\n&lt;!-- Layout inheritance with METAL macros --&gt;\n&lt;!-- layout.pt --&gt;\n&lt;html&gt;\n&lt;body&gt;\n    &lt;main metal:define-slot=\"content\"&gt;Default content&lt;/main&gt;\n&lt;/body&gt;\n&lt;/html&gt;\n\n&lt;!-- page.pt --&gt;\n&lt;metal:block use-macro=\"load: shared/layout.pt\"&gt;\n&lt;div metal:fill-slot=\"content\"&gt;\n    &lt;h1&gt;My page content here&lt;/h1&gt;\n&lt;/div&gt;\n&lt;/metal:block&gt;\nFull docs: chameleon.readthedocs.io"
+  },
+  {
+    "objectID": "index.html#license",
+    "href": "index.html#license",
+    "title": "chameleon-robyn",
+    "section": "License",
+    "text": "License\nMIT"
+  },
+  {
+    "objectID": "skills.html",
+    "href": "skills.html",
+    "title": "Skills",
+    "section": "",
+    "text": "A skill is a package of structured files that teaches an AI coding agent how to work with a specific tool or framework. The skill below was generated by Great Docs from this project’s documentation. Install it in your agent and it will be able to run commands, edit configuration, write content, and troubleshoot problems without step-by-step guidance from you.\n\n  \n    ▶    Install this skill\n  \n  \n    \n      \nAny agent — install with npx:\nnpx skills add https://mkennedy.codes/docs/chameleon-robyn/\nCodex / OpenCode\nTell the agent:Fetch the skill file at https://mkennedy.codes/docs/chameleon-robyn/skill.md and follow the instructions.\nManual — download the skill file:\ncurl -O https://mkennedy.codes/docs/chameleon-robyn/skill.md\nOr browse the SKILL.md file.\n      \n    \n  \n\n\nSKILL.md\n---\nname: chameleon-robyn\ndescription: &gt;\n  Adds integration of the Chameleon template language to Robyn. Use when writing Python code that uses the chameleon_robyn package.\nlicense: MIT\ncompatibility: Requires Python &gt;=3.10.\n---\n\n# chameleon-robyn\n\nAdds integration of the Chameleon template language to Robyn.\n\n## Installation\n\n```bash\npip install chameleon-robyn\n```\n\n## API overview\n\n### Setup & configuration\n\nInitialize the template engine once at app startup.\n\n- `global_init`: Initialize the Chameleon template engine\n- `clear`: Reset the template engine to its uninitialized state\n\n### Rendering views\n\nThe @template decorator and friendly 404s for Robyn route handlers.\n\n- `template`: Decorate a Robyn view method to render an HTML response\n- `not_found`: Render a friendly 404 page from within a @template-decorated handler\n\n### Lower-level rendering\n\nRender templates outside the decorator (middleware, error handlers, emails).\n\n- `render`: Render a Chameleon template to a string (no Response wrapping)\n- `response`: Render a Chameleon template and wrap it in a fully-formed Robyn Response\n\n### Robyn TemplateInterface\n\nStandalone template engine class matching Robyn's built-in template pattern.\n\n- `ChameleonTemplate`: Chameleon template engine implementing Robyn's TemplateInterface\n\n### Exceptions\n\nException types raised by the library.\n\n- `ChameleonRobynException`: Base exception for all chameleon-robyn errors (bad configuration, invalid return types, etc.)\n- `ChameleonRobynNotFoundException`: Raised by not_found() to signal a 404 from within a @template-decorated handler\n\n## Resources\n\n- [Full documentation](https://mkennedy.codes/docs/chameleon-robyn/)\n- [llms.txt](llms.txt) — Indexed API reference for LLMs\n- [llms-full.txt](llms-full.txt) — Comprehensive documentation for LLMs\n- [Source code](https://github.com/mikeckennedy/chameleon-robyn)"
+  },
+  {
+    "objectID": "reference/response.html",
+    "href": "reference/response.html",
+    "title": "response()",
+    "section": "",
+    "text": "Render a Chameleon template and wrap it in a fully-formed Robyn Response.\n\n\nUsage\nSource\n\n\nresponse(\n    template_file, content_type=\"text/html\", status_code=200, **template_data\n)\n\n\nParameters\n\n\ntemplate_file: str\n\nThe template file path, relative to the template folder.\n\ncontent_type=\"text/html\"\n\nThe Content-Type header value (defaults to text/html).\n\nstatus_code=200\n\nThe HTTP status code for the response (defaults to 200).\n\n**template_data\n\nValues passed to the template as its model.\n\n\n\n\n\nReturns\n\n\n Response\n\nA Robyn Response with the rendered template as its body.",
+    "crumbs": [
+      "API Reference",
+      "Lower-level rendering",
+      "[response()]{.doc-object-name .doc-function .doc-label .doc-label-function}"
+    ]
+  },
+  {
+    "objectID": "reference/global_init.html",
+    "href": "reference/global_init.html",
+    "title": "global_init()",
+    "section": "",
+    "text": "Initialize the Chameleon template engine.\n\n\nUsage\nSource\n\n\nglobal_init(\n    template_folder,\n    auto_reload=False,\n    cache_init=True,\n    restricted_namespace=True\n)\n\n\nParameters\n\n\ntemplate_folder: str\n\nPath to the template directory\n\nauto_reload=False\n\nWhether to auto-reload templates on change\n\ncache_init=True\n\nWhether to cache initialization (skip if already initialized)\n\nrestricted_namespace=True\n\nIf True, only TAL/METAL/i18n namespaces are allowed. If False, allows attribute-based JS frameworks like Alpine.js to use shorthand syntax (@click, :class, etc.)",
+    "crumbs": [
+      "API Reference",
+      "Setup & configuration",
+      "[global_init()]{.doc-object-name .doc-function .doc-label .doc-label-function}"
+    ]
+  },
+  {
+    "objectID": "reference/index.html",
+    "href": "reference/index.html",
+    "title": "API Reference",
+    "section": "",
+    "text": "Everything chameleon-robyn exports: setup, the @template decorator, lower-level rendering, and the Robyn TemplateInterface implementation.\n\n\nSetup & configuration\n\nInitialize the template engine once at app startup.\n\n\nglobal_init()\n\nInitialize the Chameleon template engine.\n\nclear()\n\nReset the template engine to its uninitialized state.\n\n\n\n\nRendering views\n\nThe @template decorator and friendly 404s for Robyn route handlers.\n\n\ntemplate()\n\nDecorate a Robyn view method to render an HTML response.\n\nnot_found()\n\nRender a friendly 404 page from within a @template-decorated handler.\n\n\n\n\nLower-level rendering\n\nRender templates outside the decorator (middleware, error handlers, emails).\n\n\nrender()\n\nRender a Chameleon template to a string (no Response wrapping).\n\nresponse()\n\nRender a Chameleon template and wrap it in a fully-formed Robyn Response.\n\n\n\n\nRobyn TemplateInterface\n\nStandalone template engine class matching Robyn’s built-in template pattern.\n\n\nChameleonTemplate\n\nChameleon template engine implementing Robyn’s TemplateInterface.\n\n\n\n\nExceptions\n\nException types raised by the library.\n\n\nChameleonRobynException\n\nBase exception for all chameleon-robyn errors (bad configuration, invalid return types, etc.).\n\nChameleonRobynNotFoundException\n\nRaised by not_found() to signal a 404 from within a @template-decorated handler.",
+    "crumbs": [
+      "API Reference",
+      "API Index"
+    ]
+  },
+  {
+    "objectID": "reference/render.html",
+    "href": "reference/render.html",
+    "title": "render()",
+    "section": "",
+    "text": "Render a Chameleon template to a string (no Response wrapping).\n\n\nUsage\nSource\n\n\nrender(template_file, **template_data)\n\n\nUseful outside of route handlers: emails, middleware, error handlers, etc.\n\n\nParameters\n\n\ntemplate_file: str\n\nThe template file path, relative to the template folder (e.g. ‘emails/welcome.pt’).\n\n**template_data: dict\n\nValues passed to the template as its model.\n\n\n\n\n\nReturns\n\n\n str\n\nThe rendered template as a string.\n\n\n\n\n\nRaises\n\n\n ChameleonRobynException\n\nIf global_init() has not been called.",
+    "crumbs": [
+      "API Reference",
+      "Lower-level rendering",
+      "[render()]{.doc-object-name .doc-function .doc-label .doc-label-function}"
+    ]
+  },
+  {
+    "objectID": "reference/not_found.html",
+    "href": "reference/not_found.html",
+    "title": "not_found()",
+    "section": "",
+    "text": "Render a friendly 404 page from within a @template-decorated handler.\n\n\nUsage\nSource\n\n\nnot_found(four04template_file=\"errors/404.pt\")\n\n\nRaises an exception that the @template decorator catches and converts into a 404 response rendered through the given template. Only works inside handlers decorated with @template.\n\n\nParameters\n\n\nfour04template_file: str = \"errors/404.pt\"\n\nThe template to render, relative to the template folder (defaults to ‘errors/404.pt’).\n\n\n\n\n\nRaises\n\n\n ChameleonRobynNotFoundException\n\nAlways; carries the 404 template path.",
+    "crumbs": [
+      "API Reference",
+      "Rendering views",
+      "[not_found()]{.doc-object-name .doc-function .doc-label .doc-label-function}"
+    ]
+  }
+]

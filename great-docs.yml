@@ -1,0 +1,72 @@
+# Great Docs Configuration
+# See https://posit-dev.github.io/great-docs/user-guide/configuration.html
+
+display_name: chameleon-robyn
+parser: google        # pinned; don't rely on auto-detect
+dynamic: true
+
+# Subpath hosting: drives Quarto's base path so CSS/JS/nav resolve. Keep trailing slash.
+site_url: "https://mkennedy.codes/docs/chameleon-robyn/"
+
+# sitemap/robots/canonical/og:url use a SEPARATE base URL that Great Docs auto-detects
+# from the GitHub repo (-> owner.github.io/repo) and does NOT fall back to site_url.
+# Set it explicitly, or the sitemap points at the wrong domain.
+seo:
+  canonical:
+    base_url: "https://mkennedy.codes/docs/chameleon-robyn/"
+
+repo: https://github.com/mikeckennedy/chameleon-robyn
+github_style: widget
+source: { enabled: true, branch: main, placement: usage }
+pypi: true
+
+# Great Docs defaults mcp.enabled to true, rendering an empty "MCP" tab even with no MCP
+# server. This project doesn't ship one, so disable it.
+mcp:
+  enabled: false
+
+authors:
+  - name: Michael Kennedy
+    role: Author
+    email: michael@talkpython.fm
+    github: mikeckennedy
+    homepage: https://mkennedy.codes
+
+# API Reference Structure
+# -----------------------
+# Grouped by task rather than by kind.
+reference:
+  title: "API Reference"
+  desc: "Everything chameleon-robyn exports: setup, the @template decorator, lower-level rendering, and the Robyn TemplateInterface implementation."
+  sections:
+    - title: Setup & configuration
+      desc: Initialize the template engine once at app startup.
+      contents:
+        - global_init
+        - clear
+
+    - title: Rendering views
+      desc: The @template decorator and friendly 404s for Robyn route handlers.
+      contents:
+        - template
+        - not_found
+
+    - title: Lower-level rendering
+      desc: Render templates outside the decorator (middleware, error handlers, emails).
+      contents:
+        - render
+        - response
+
+    - title: Robyn TemplateInterface
+      desc: Standalone template engine class matching Robyn's built-in template pattern.
+      contents:
+        - ChameleonTemplate
+
+    - title: Exceptions
+      desc: Exception types raised by the library.
+      contents:
+        - ChameleonRobynException
+        - ChameleonRobynNotFoundException
+
+# Jupyter kernel for executing code cells in .qmd files.
+jupyter: python3
