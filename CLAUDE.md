@@ -18,6 +18,7 @@ venv/bin/pytest tests/test_render.py::test_default_template_name_pt   # run a si
 ruff check .                             # lint (rules in ruff.toml: E, F, I; line-length 120; single quotes)
 ruff format .                            # format
 pyrefly check                            # type check (pyrefly.toml; assumes py3.13/linux)
+ty check                                 # type check (ty + pyrefly are the checkers of choice; keep both green)
 
 python example/app.py                    # run the core-features demo app → http://127.0.0.1:5555
 python example-partials/app.py           # same app refactored with chameleon-partials
@@ -40,14 +41,14 @@ All real logic lives in `chameleon_robyn/engine.py`. The package exposes two par
 ### How the `@template` decorator works (`engine.py`)
 
 - Usable three ways: `@template('path/file.pt')`, `@template()`, or bare `@template` (detected by `callable(template_file)`).
-- Auto-naming: with no path, it derives `<module>/<function>.html`, falling back to `<module>/<function>.pt` if the `.html` file doesn't exist on disk.
+- Auto-naming: with no path, it derives `<module>/<function>.html`, falling back to `<module>/<function>.pt` if the `.html` file doesn't exist on disk. Resolution happens lazily at first request (and is only cached once `global_init()` has set the template folder), so apps can decorate routes at import time and init later in `main()`.
 - Wraps the handler in a sync or async wrapper chosen via `inspect.iscoroutinefunction` — both paths must be kept in sync when changing behavior.
 - Handler return contract, enforced in `__render_response`:
   - a Robyn `Response` is passed through untouched (redirects, custom errors);
   - a `dict` is the template model and gets rendered;
   - anything else raises `ChameleonRobynException`.
-- `__response_callback__` is a reserved key popped from the model dict before rendering; if callable, it's invoked with the built `Response` so apps can mutate it (e.g. set session cookies). It is not passed to the template.
-- `not_found()` works by raising `ChameleonRobynNotFoundException` (carries the 404 template path, default `errors/404.pt`); the decorator wrappers catch it and render that template with status 404. It only works inside `@template`-decorated handlers.
+- `__response_callback__` is a reserved key popped before rendering (from a copy — the handler's dict is never mutated); it must be callable (else `ChameleonRobynException`) and is invoked with the built `Response` so apps can mutate it (e.g. set session cookies). It is not passed to the template.
+- `not_found()` works by raising `ChameleonRobynNotFoundException` (carries the 404 template path, default `errors/404.pt`); the decorator wrappers catch it and render that template with status 404, passing the exception's message to the template as `message`. It only works inside `@template`-decorated handlers.
 
 ### Tests
 

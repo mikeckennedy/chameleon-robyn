@@ -19,13 +19,13 @@ response(
 `template_file: str`  
 The template file path, relative to the template folder.
 
-`content_type=``"text/html"`  
+`content_type: str = ``"text/html"`  
 The Content-Type header value (defaults to text/html).
 
-`status_code=``200`  
+`status_code: int = ``200`  
 The HTTP status code for the response (defaults to 200).
 
-`**template_data`  
+`**template_data: Any`  
 Values passed to the template as its model.
 
 

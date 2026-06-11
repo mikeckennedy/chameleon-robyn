@@ -31,7 +31,7 @@ keywords = [
     "ssr",
 ]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 3 - Alpha",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3.10",
@@ -66,7 +66,7 @@ examples = [
 
 
 [build-system]
-requires = ["hatchling>=1.21.0", "hatch-vcs>=0.3.0"]
+requires = ["hatchling>=1.21.0"]
 build-backend = "hatchling.build"
 
 

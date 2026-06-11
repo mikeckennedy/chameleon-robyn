@@ -76,7 +76,7 @@ def episode_list(request):
 
 ### Auto-naming (convention over configuration)
 
-If you omit the template path, it's derived from the module and function name. A function called `index` in a module called `home_views` looks for `home_views/index.pt` (falling back to `home_views/index.html`):
+If you omit the template path, it's derived from the module and function name. A function called `index` in a module called `home_views` looks for `home_views/index.html` first and, if that file doesn't exist, uses `home_views/index.pt`:
 
 ```python
 # Looks for templates/home_views/index.pt
@@ -161,6 +161,8 @@ By default it renders `errors/404.pt`, but you can specify any template:
 chameleon_robyn.not_found(four04template_file='errors/custom_404.pt')
 ```
 
+The 404 template receives a `message` variable describing the 404, which you can render with `${message}` if you want.
+
 ## Lower-level API
 
 Sometimes you need to render a template outside of a decorator - in middleware, error handlers, or helper functions.
@@ -181,7 +183,7 @@ resp = chameleon_robyn.response('errors/500.pt', status_code=500, error=str(e))
 
 ## `ChameleonTemplate` class (Robyn's TemplateInterface)
 
-If you prefer Robyn's built-in template pattern, `ChameleonTemplate` implements `TemplateInterface` - the same abstract base class that Robyn's `JinjaTemplate` uses:
+If you prefer Robyn's built-in template pattern, `ChameleonTemplate` implements the same `render_template()` interface as Robyn's `JinjaTemplate` (via a structural protocol, so importing `chameleon_robyn` never pulls in Jinja2):
 
 ```python
 from chameleon_robyn import ChameleonTemplate

@@ -8,7 +8,7 @@ This is the API documentation for the chameleon_robyn library.
 Initialize the template engine once at app startup.
 
 
-global_init(template_folder: str, auto_reload=False, cache_init=True, restricted_namespace=True)
+global_init(template_folder: str, auto_reload: bool = False, cache_init: bool = True, restricted_namespace: bool = True) -> None
 
 Initialize the Chameleon template engine.
 
@@ -20,7 +20,7 @@ Args:
                         If False, allows attribute-based JS frameworks like Alpine.js
                         to use shorthand syntax (@click, :class, etc.)
 
-clear()
+clear() -> None
 
 Reset the template engine to its uninitialized state.
 
@@ -33,30 +33,33 @@ Mostly useful in tests to isolate template configuration between cases.
 The @template decorator and friendly 404s for Robyn route handlers.
 
 
-template(template_file: Callable | str | None = None, content_type: str = 'text/html', status_code: int = 200)
+template(template_file: Callable | str | None = None, content_type: str = 'text/html', status_code: int = 200) -> Callable
 
 Decorate a Robyn view method to render an HTML response.
 
 The decorated handler returns a dict (the template model). If the template path is
-omitted, it is derived from the module and function name (module/function.pt, falling
-back to module/function.html). Handlers that return a Robyn Response are passed
-through untouched (redirects, custom errors). Works with sync and async handlers.
+omitted, it is derived from the module and function name: module/function.html if that
+file exists, otherwise module/function.pt. The auto-derived name is resolved at first
+request, so global_init() may be called after route decoration. Handlers that return a
+Robyn Response are passed through untouched (redirects, custom errors). Works with sync
+and async handlers.
 
 Args:
     template_file: Optional, the Chameleon template file (path relative to template folder, *.pt).
-    content_type: The mimetype response (defaults to text/html).
-    status_code: Default status code for responses.
+    content_type: The Content-Type header value for rendered responses (defaults to text/html).
+    status_code: The HTTP status code for rendered responses (defaults to 200).
 
 Returns:
     Decorator for Robyn route handlers.
 
-not_found(four04template_file: str = 'errors/404.pt')
+not_found(four04template_file: str = 'errors/404.pt') -> NoReturn
 
 Render a friendly 404 page from within a @template-decorated handler.
 
 Raises an exception that the @template decorator catches and converts into a
-404 response rendered through the given template. Only works inside handlers
-decorated with @template.
+404 response rendered through the given template. The template receives a
+`message` variable describing the 404. Only works inside handlers decorated
+with @template.
 
 Args:
     four04template_file: The template to render, relative to the template folder
@@ -71,7 +74,7 @@ Raises:
 Render templates outside the decorator (middleware, error handlers, emails).
 
 
-render(template_file: str, **template_data: dict) -> str
+render(template_file: str, **template_data: Any) -> str
 
 Render a Chameleon template to a string (no Response wrapping).
 
@@ -87,7 +90,7 @@ Returns:
 Raises:
     ChameleonRobynException: If global_init() has not been called.
 
-response(template_file: str, content_type='text/html', status_code=200, **template_data) -> Response
+response(template_file: str, content_type: str = 'text/html', status_code: int = 200, **template_data: Any) -> Response
 
 Render a Chameleon template and wrap it in a fully-formed Robyn Response.
 
@@ -106,7 +109,7 @@ Returns:
 Standalone template engine class matching Robyn's built-in template pattern.
 
 
-ChameleonTemplate(directory: str, auto_reload=False, encoding='utf-8', restricted_namespace=True)
+ChameleonTemplate(directory: str, auto_reload: bool = False, encoding: str = 'utf-8', restricted_namespace: bool = True)
 
 Chameleon template engine implementing Robyn's TemplateInterface.
 
@@ -136,7 +139,7 @@ ChameleonRobynNotFoundException(message: str | None = None, four04template_file:
 Raised by not_found() to signal a 404 from within a @template-decorated handler.
 
 The @template decorator catches this exception and renders the template it
-carries with a 404 status code.
+carries with a 404 status code, passing the message to the template as `message`.
 
 Args:
     message: Optional human-readable description of the 404.

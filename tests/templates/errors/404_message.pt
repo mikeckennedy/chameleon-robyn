@@ -1,0 +1,7 @@
+<!DOCTYPE html>
+<html>
+<body>
+<h1>Message 404 page</h1>
+<p>${message}</p>
+</body>
+</html>

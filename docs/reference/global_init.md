@@ -22,11 +22,11 @@ global_init(
 `template_folder: str`  
 Path to the template directory
 
-`auto_reload=``False`  
+`auto_reload: bool = ``False`  
 Whether to auto-reload templates on change
 
-`cache_init=``True`  
+`cache_init: bool = ``True`  
 Whether to cache initialization (skip if already initialized)
 
-`restricted_namespace=``True`  
+`restricted_namespace: bool = ``True`  
 If True, only TAL/METAL/i18n namespaces are allowed. If False, allows attribute-based JS frameworks like Alpine.js to use shorthand syntax (<span class="citation" cites="click">@click</span>, :class, etc.)

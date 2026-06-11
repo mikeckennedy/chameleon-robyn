@@ -23,7 +23,7 @@ Useful outside of route handlers: emails, middleware, error handlers, etc.
 `template_file: str`  
 The template file path, relative to the template folder (e.g. 'emails/welcome.pt').
 
-`**template_data: dict`  
+`**template_data: Any`  
 Values passed to the template as its model.
 
 

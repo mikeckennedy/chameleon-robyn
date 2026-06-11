@@ -35,8 +35,6 @@ replace-imports-with-any = ["quart.*"]
 ignore-missing-imports = ["quart.*"]
 # should Pyrefly skip type checking if we find a generated file?
 ignore-errors-in-generated-code = false
-# should Pyrefly do a check to see if a `<library>-stubs` library also has `<library>` installed?
-ignore-missing-source = false
 # what should Pyrefly do when it encounters a function that is untyped?
 untyped-def-behavior = "check-and-infer-return-type"
 # can Pyrefly recognize ignore directives other than `# pyrefly: ignore` and `# type: ignore`

@@ -20,13 +20,13 @@ A standalone alternative to the module-level API: it owns its own template loade
 `directory: str`  
 Path to the template directory.
 
-`auto_reload=``False`  
+`auto_reload: bool = ``False`  
 Whether to auto-reload templates on change (use True in development).
 
-`encoding=``"utf-8"`  
+`encoding: str = ``"utf-8"`  
 Output encoding for rendered templates (defaults to utf-8).
 
-`restricted_namespace=``True`  
+`restricted_namespace: bool = ``True`  
 If True, only TAL/METAL/i18n namespaces are allowed. Set to False for Alpine.js/htmx-style attributes (<span class="citation" cites="click">@click</span>, :class, etc.).
 
 
@@ -58,7 +58,7 @@ render_template(template_name, **kwargs)
 `template_name: str`  
 The template file path, relative to the directory given at construction.
 
-`**kwargs`  
+`**kwargs: Any`  
 Values passed to the template as its model.
 
 

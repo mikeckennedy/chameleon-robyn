@@ -283,7 +283,7 @@ section.level2:first-of-type > h2:first-child,
 </section>
 <section id="auto-naming-convention-over-configuration" class="level3">
 <h3 class="anchored" data-anchor-id="auto-naming-convention-over-configuration">Auto-naming (convention over configuration)</h3>
-<p>If you omit the template path, it’s derived from the module and function name. A function called <code>index</code> in a module called <code>home_views</code> looks for <code>home_views/index.pt</code> (falling back to <code>home_views/index.html</code>):</p>
+<p>If you omit the template path, it’s derived from the module and function name. A function called <code>index</code> in a module called <code>home_views</code> looks for <code>home_views/index.html</code> first and, if that file doesn’t exist, uses <code>home_views/index.pt</code>:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">## Looks for templates/home_views/index.pt</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="at">@app.get</span>(<span class="st">'/'</span>)</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="at">@chameleon_robyn.template</span>()</span>
@@ -347,6 +347,7 @@ section.level2:first-of-type > h2:first-child,
 <span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {<span class="st">'episode'</span>: episode}</span></code></pre></div>
 <p>By default it renders <code>errors/404.pt</code>, but you can specify any template:</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>chameleon_robyn.not_found(four04template_file<span class="op">=</span><span class="st">'errors/custom_404.pt'</span>)</span></code></pre></div>
+<p>The 404 template receives a <code>message</code> variable describing the 404, which you can render with <code>${message}</code> if you want.</p>
 </section>
 <section id="lower-level-api" class="level2">
 <h2 class="anchored" data-anchor-id="lower-level-api">Lower-level API</h2>
@@ -364,7 +365,7 @@ section.level2:first-of-type > h2:first-child,
 </section>
 <section id="chameleontemplate-class-robyns-templateinterface" class="level2">
 <h2 class="anchored" data-anchor-id="chameleontemplate-class-robyns-templateinterface"><a href="reference/ChameleonTemplate.html#chameleon_robyn.ChameleonTemplate" class="gdls-link gdls-code">ChameleonTemplate</a> class (Robyn’s TemplateInterface)</h2>
-<p>If you prefer Robyn’s built-in template pattern, <a href="reference/ChameleonTemplate.html#chameleon_robyn.ChameleonTemplate" class="gdls-link gdls-code">ChameleonTemplate</a> implements <code>TemplateInterface</code> - the same abstract base class that Robyn’s <code>JinjaTemplate</code> uses:</p>
+<p>If you prefer Robyn’s built-in template pattern, <a href="reference/ChameleonTemplate.html#chameleon_robyn.ChameleonTemplate" class="gdls-link gdls-code">ChameleonTemplate</a> implements the same <a href="reference/ChameleonTemplate.html#chameleon_robyn.ChameleonTemplate.render_template" class="gdls-link gdls-code">render_template()</a> interface as Robyn’s <code>JinjaTemplate</code> (via a structural protocol, so importing <code>chameleon_robyn</code> never pulls in Jinja2):</p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chameleon_robyn <span class="im">import</span> ChameleonTemplate</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>chameleon <span class="op">=</span> ChameleonTemplate(<span class="st">'templates/'</span>, auto_reload<span class="op">=</span><span class="va">True</span>)</span>

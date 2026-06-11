@@ -12,7 +12,7 @@ class ChameleonRobynNotFoundException(ChameleonRobynException):
     Raised by not_found() to signal a 404 from within a @template-decorated handler.
 
     The @template decorator catches this exception and renders the template it
-    carries with a 404 status code.
+    carries with a 404 status code, passing the message to the template as `message`.
 
     Args:
         message: Optional human-readable description of the 404.

@@ -1,5 +1,6 @@
 import asyncio
 from pathlib import Path
+from typing import TypedDict
 
 import chameleon_partials
 from robyn import Headers, Response, Robyn
@@ -10,7 +11,15 @@ app = Robyn(__file__)
 
 # --- Sample data (simulating a database) ---
 
-EPISODES = [
+
+class Episode(TypedDict):
+    id: int
+    title: str
+    guest: str
+    duration: str
+
+
+EPISODES: list[Episode] = [
     {'id': 1, 'title': 'Welcome to the Show', 'guest': 'Guido van Rossum', 'duration': '45 min'},
     {'id': 2, 'title': 'Async All the Things', 'guest': 'Andrew Godwin', 'duration': '52 min'},
     {'id': 3, 'title': 'Rust-Powered Python', 'guest': 'Samuel Colvin', 'duration': '38 min'},

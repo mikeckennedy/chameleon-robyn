@@ -11,7 +11,7 @@ not_found(four04template_file="errors/404.pt")
 ```
 
 
-Raises an exception that the <span class="citation" cites="template">@template</span> decorator catches and converts into a 404 response rendered through the given template. Only works inside handlers decorated with <span class="citation" cites="template">@template</span>.
+Raises an exception that the <span class="citation" cites="template">@template</span> decorator catches and converts into a 404 response rendered through the given template. The template receives a `message` variable describing the 404. Only works inside handlers decorated with <span class="citation" cites="template">@template</span>.
 
 
 ## Parameters

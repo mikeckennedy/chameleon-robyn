@@ -11,7 +11,7 @@ ChameleonRobynNotFoundException()
 ```
 
 
-The <span class="citation" cites="template">@template</span> decorator catches this exception and renders the template it carries with a 404 status code.
+The <span class="citation" cites="template">@template</span> decorator catches this exception and renders the template it carries with a 404 status code, passing the message to the template as `message`.
 
 
 ## Parameters

@@ -15,6 +15,7 @@ def test_friendly_404_sync_method(setup_global_template):
     resp = view_method(1, 2, 3)
     assert isinstance(resp, Response)
     assert resp.status_code == 404
+    assert isinstance(resp.description, str)
     assert '<h1>This is a pretty 404 page.</h1>' in resp.description
 
 
@@ -27,16 +28,30 @@ def test_friendly_404_custom_template_sync_method(setup_global_template):
     resp = view_method(1, 2, 3)
     assert isinstance(resp, Response)
     assert resp.status_code == 404
+    assert isinstance(resp.description, str)
     assert '<h1>Another pretty 404 page.</h1>' in resp.description
+
+
+def test_friendly_404_message_passed_to_template(setup_global_template):
+    @cr.template('home/index.pt')
+    def view_method(a, b, c):
+        chameleon_robyn.not_found(four04template_file='errors/404_message.pt')
+
+    resp = view_method(1, 2, 3)
+    assert isinstance(resp, Response)
+    assert resp.status_code == 404
+    assert isinstance(resp.description, str)
+    assert 'The URL resulted in a 404 response.' in resp.description
 
 
 def test_friendly_404_async_method(setup_global_template):
     @cr.template('home/index.pt')
-    async def view_method(a, b, c) -> Response:
+    async def view_method(a, b, c):
         chameleon_robyn.not_found()
         return {'a': a, 'b': b, 'c': c}
 
     resp = asyncio.run(view_method(1, 2, 3))
     assert isinstance(resp, Response)
     assert resp.status_code == 404
+    assert isinstance(resp.description, str)
     assert '<h1>This is a pretty 404 page.</h1>' in resp.description

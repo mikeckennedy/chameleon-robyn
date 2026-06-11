@@ -344,7 +344,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div class="doc-usage-source">
 <p>Usage</p>
-<p><a href="https://github.com/mikeckennedy/chameleon-robyn/blob/main/chameleon_robyn/engine.py#L236-L283" target="_blank" rel="noopener">Source</a></p>
+<p><a href="https://github.com/mikeckennedy/chameleon-robyn/blob/main/chameleon_robyn/engine.py#L259-L306" target="_blank" rel="noopener">Source</a></p>
 </div>
 <div class="doc-signature doc-Kind.CLASS">
 <div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="sig-name">ChameleonTemplate</span>()</span></code></pre></div>
@@ -360,15 +360,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <dd>
 <p>Path to the template directory.</p>
 </dd>
-<dt><code><span class="doc-parameter-name">auto_reload</span><span class="doc-parameter-default-sep op">=</span><span class="doc-parameter-default"><span class="va">False</span></span></code></dt>
+<dt><code><span class="doc-parameter-name">auto_reload</span><span class="doc-parameter-annotation-sep">:</span> <span class="doc-parameter-annotation">bool</span> <span class="doc-parameter-default-sep op">=</span> <span class="doc-parameter-default"><span class="va">False</span></span></code></dt>
 <dd>
 <p>Whether to auto-reload templates on change (use True in development).</p>
 </dd>
-<dt><code><span class="doc-parameter-name">encoding</span><span class="doc-parameter-default-sep op">=</span><span class="doc-parameter-default"><span class="st">"utf-8"</span></span></code></dt>
+<dt><code><span class="doc-parameter-name">encoding</span><span class="doc-parameter-annotation-sep">:</span> <span class="doc-parameter-annotation">str</span> <span class="doc-parameter-default-sep op">=</span> <span class="doc-parameter-default"><span class="st">"utf-8"</span></span></code></dt>
 <dd>
 <p>Output encoding for rendered templates (defaults to utf-8).</p>
 </dd>
-<dt><code><span class="doc-parameter-name">restricted_namespace</span><span class="doc-parameter-default-sep op">=</span><span class="doc-parameter-default"><span class="va">True</span></span></code></dt>
+<dt><code><span class="doc-parameter-name">restricted_namespace</span><span class="doc-parameter-annotation-sep">:</span> <span class="doc-parameter-annotation">bool</span> <span class="doc-parameter-default-sep op">=</span> <span class="doc-parameter-default"><span class="va">True</span></span></code></dt>
 <dd>
 If True, only TAL/METAL/i18n namespaces are allowed. Set to False for Alpine.js/htmx-style attributes (<span class="citation" data-cites="click">@click</span>, :class, etc.).
 </dd>
@@ -407,7 +407,7 @@ Render a template and return a 200 Robyn Response.
 </div>
 <div class="doc-usage-source">
 <p>Usage</p>
-<p><a href="https://github.com/mikeckennedy/chameleon-robyn/blob/main/chameleon_robyn/engine.py#L266-L283" target="_blank" rel="noopener">Source</a></p>
+<p><a href="https://github.com/mikeckennedy/chameleon-robyn/blob/main/chameleon_robyn/engine.py#L289-L306" target="_blank" rel="noopener">Source</a></p>
 </div>
 <div class="doc-signature doc-Kind.FUNCTION">
 <div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>render_template(template_name, <span class="op">**</span>kwargs)</span></code></pre></div>
@@ -420,7 +420,7 @@ Render a template and return a 200 Robyn Response.
 <dd>
 <p>The template file path, relative to the directory given at construction.</p>
 </dd>
-<dt><code><span class="doc-parameter-name">**kwargs</span></code></dt>
+<dt><code><span class="doc-parameter-name">**kwargs</span><span class="doc-parameter-annotation-sep">:</span> <span class="doc-parameter-annotation">Any</span></code></dt>
 <dd>
 Values passed to the template as its model.
 </dd>
