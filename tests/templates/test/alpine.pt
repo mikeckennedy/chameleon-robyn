@@ -1,0 +1,6 @@
+<!DOCTYPE html>
+<html>
+<body>
+<button @click="count++" :class="{'active': open}">Increment</button>
+</body>
+</html>

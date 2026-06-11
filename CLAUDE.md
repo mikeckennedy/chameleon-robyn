@@ -54,6 +54,8 @@ All real logic lives in `chameleon_robyn/engine.py`. The package exposes two par
 
 Tests don't start a Robyn server — they call decorated handler functions directly and assert on the returned `Response` (status_code, description). Async handlers are exercised with `asyncio.run()`. Test templates live under `tests/templates/`, with directory names matching the auto-naming convention (e.g. `tests/templates/test_render/index.pt` for a function named `index` defined in `test_render.py`).
 
+conftest.py provides `view_style` (a `['sync', 'async']` parametrized fixture) plus `make_view`/`call_view` fixtures — use them for any test of the decorator's contract behavior so both wrapper code paths stay covered. Don't test Chameleon's own rendering semantics (escaping, TAL loops) or exact error-message wording.
+
 ### Examples
 
 `example/` and `example-partials/` are the same demo app (episodes/guests/search, METAL layout inheritance, XML feed, redirect pass-through, friendly 404); the second one factors the episode card into a shared partial via [chameleon-partials](https://github.com/mikeckennedy/chameleon-partials). When adding a user-facing feature, demonstrate it in `example/app.py` and document it in README.md — the README is the de facto API reference.

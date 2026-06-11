@@ -4,25 +4,24 @@ import pytest
 from robyn import Response
 
 import chameleon_robyn as cr
+from chameleon_robyn.exceptions import ChameleonRobynException
 
 
 def test_cannot_decorate_missing_template(setup_global_template):
+    @cr.template('home/missing.pt')
+    def view_method():
+        return {}
+
     with pytest.raises(ValueError):
-
-        @cr.template('home/missing.pt')
-        def view_method():
-            return {}
-
         view_method()
 
 
 def test_requires_template_for_default_name(setup_global_template):
+    @cr.template(None)
+    def view_method():
+        return {}
+
     with pytest.raises(ValueError):
-
-        @cr.template(None)
-        def view_method():
-            return {}
-
         view_method()
 
 
@@ -102,21 +101,62 @@ def test_can_decorate_dict_async_method(setup_global_template):
     assert resp.status_code == 200
 
 
-def test_direct_response_pass_through():
+def test_direct_response_pass_through(setup_global_template, view_style, make_view, call_view):
     from robyn import Headers
 
-    @cr.template('home/index.pt')
-    def view_method(a, b, c):
+    def body(a, b, c):
         return Response(
             status_code=418,
             description='abc',
             headers=Headers({}),
         )
 
-    resp = view_method(1, 2, 3)
+    view = make_view(view_style, cr.template('home/index.pt'), body)
+    resp = call_view(view, 1, 2, 3)
     assert isinstance(resp, Response)
     assert resp.status_code == 418
     assert resp.description == 'abc'
+
+
+@pytest.mark.parametrize('bad_value', ['just a string', None, 42])
+def test_invalid_return_type_raises(setup_global_template, view_style, make_view, call_view, bad_value):
+    def body():
+        return bad_value
+
+    view = make_view(view_style, cr.template('home/index.pt'), body)
+    with pytest.raises(ChameleonRobynException):
+        call_view(view)
+
+
+def test_decorator_instance_can_be_reused(setup_global_template):
+    # One @template() instance applied to several functions must auto-derive
+    # each function's own template, not leak the first one resolved.
+    shared_decorator = cr.template()
+
+    @shared_decorator
+    def reuse_one():
+        return {}
+
+    @shared_decorator
+    def reuse_two():
+        return {}
+
+    resp_one = reuse_one()
+    resp_two = reuse_two()
+    assert isinstance(resp_one.description, str)
+    assert isinstance(resp_two.description, str)
+    assert 'Reuse template ONE' in resp_one.description
+    assert 'Reuse template TWO' in resp_two.description
+
+
+def test_template_custom_status_and_content_type(setup_global_template):
+    @cr.template('test/hello.pt', content_type='application/xml', status_code=201)
+    def view_method():
+        return {'name': 'World'}
+
+    resp = view_method()
+    assert resp.status_code == 201
+    assert 'application/xml' in (resp.headers.get('content-type') or '')
 
 
 def test_render_basic(setup_global_template):
@@ -136,6 +176,11 @@ def test_response_returns_robyn_response(setup_global_template):
 def test_response_custom_status(setup_global_template):
     resp = cr.response('test/hello.pt', status_code=404, name='Not Found')
     assert resp.status_code == 404
+
+
+def test_response_custom_content_type(setup_global_template):
+    resp = cr.response('test/hello.pt', content_type='application/xml', name='World')
+    assert 'application/xml' in (resp.headers.get('content-type') or '')
 
 
 def test_chameleon_template_interface(test_templates_path):

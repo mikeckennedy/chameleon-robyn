@@ -49,7 +49,6 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pytest",
-    "pytest-asyncio",
     "great-docs; python_version >= '3.11'",
 ]
 examples = [
