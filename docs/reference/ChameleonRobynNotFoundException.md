@@ -7,7 +7,9 @@ Raised by not_found() to signal a 404 from within a <span class="citation" cites
 Usage
 
 ``` python
-ChameleonRobynNotFoundException()
+ChameleonRobynNotFoundException(
+    message=None, four04template_file="errors/404.pt"
+)
 ```
 
 

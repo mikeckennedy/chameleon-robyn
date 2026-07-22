@@ -7,7 +7,9 @@ Chameleon template engine implementing Robyn's TemplateInterface.
 Usage
 
 ``` python
-ChameleonTemplate()
+ChameleonTemplate(
+    directory, auto_reload=False, encoding="utf-8", restricted_namespace=True
+)
 ```
 
 

@@ -31,6 +31,42 @@ include_in_header:
   - text: |
       <script async src="https://uma.mkennedy.codes/script.js" data-website-id="fc9b6770-3b44-4073-944e-4a4f0e79f66a"></script>
 
+# Agent skill (skill.md + /.well-known/agent-skills/) is generated automatically; these
+# enrich it with knowledge agents can't infer from the API signatures.
+# See https://posit-dev.github.io/great-docs/skills.html
+skill:
+  # Hand-written prose injected into the generated skill body — things the API
+  # signatures can't convey. Adapted from the chameleon-robyn_reference.md agent guide.
+  extra_body: skill_extra_body.md
+  gotchas:
+    - "global_init() is one-shot by default: with cache_init=True, later calls are silently ignored. Pass cache_init=False or call chameleon_robyn.clear() to re-initialize."
+    - "Bare @template auto-naming resolves lazily at the FIRST REQUEST, not at decoration time — so global_init() may be called after routes are decorated, but the derived {module}/{function}.html|.pt file must exist under the template folder by then."
+    - "Decorated handlers must return a dict (the template model) or a robyn.Response; any other return type raises ChameleonRobynException at request time."
+    - "Chameleon's restricted namespace (the default) rejects Alpine.js/htmx shorthand attributes like @click, :class, and x-data. Pass restricted_namespace=False to global_init() to allow them."
+    - "The 404 path from not_found() always renders with text/html and status 404; the handler's own content_type and status_code do not apply. not_found() only works inside @template-decorated handlers."
+    - "__response_callback__ is a reserved model key: it must be callable (else ChameleonRobynException), is popped before rendering, and never reaches the template."
+  best_practices:
+    - "Call global_init(template_folder, auto_reload=dev_mode) exactly once at app startup — e.g. in main() before app.start(); decorating routes at import time first is fine."
+    - "Return plain dicts from handlers; return a robyn.Response only for redirects and other pass-through cases."
+    - "Enable auto_reload only during development so templates stay cached in production."
+    - "Put @template below the Robyn route decorator (closest to the function)."
+    - "Use chameleon_robyn.response() or render() in error handlers, middleware, and emails where the decorator doesn't fit."
+  decision_table:
+    - need: "Render a Chameleon template from a Robyn route handler"
+      use: "@chameleon_robyn.template('home/index.pt') on the handler"
+    - need: "Return a friendly 404 page from a handler"
+      use: "chameleon_robyn.not_found()"
+    - need: "Set a cookie or header on a rendered page"
+      use: "'__response_callback__': callable in the returned dict"
+    - need: "Build a rendered Response outside a decorated handler"
+      use: "chameleon_robyn.response(template_file, **model)"
+    - need: "Get rendered HTML as a plain string"
+      use: "chameleon_robyn.render(template_file, **model)"
+    - need: "Use Robyn's built-in template-engine pattern instead of the global API"
+      use: "ChameleonTemplate(directory).render_template(name, **model)"
+    - need: "Use Alpine.js/htmx shorthand attributes in templates"
+      use: "global_init(..., restricted_namespace=False)"
+
 authors:
   - name: Michael Kennedy
     role: Author

@@ -77,7 +77,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-2de4c26ee36d61e771850f62d491bbdc.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-b44a80f981ffe4e8ffda970bb00820f2.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -108,9 +108,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script async="" src="https://uma.mkennedy.codes/script.js" data-website-id="fc9b6770-3b44-4073-944e-4a4f0e79f66a"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script>document.head.appendChild(Object.assign(document.createElement('link'),{rel:'stylesheet',href:(document.querySelector('meta[name="quarto:offset"]')||{content:''}).content+'termshow.css'}));</script>
+<script>document.head.appendChild(Object.assign(document.createElement('link'),{rel:'stylesheet',href:(document.querySelector('meta[name="quarto:offset"]')||{content:''}).content+'gd-lightbox.css'}));</script>
+<script>(function(){var s=document.createElement('script');var m=document.querySelector('meta[name="quarto:offset"]');s.src=(m?m.content:'')+'gd-lightbox.js';s.defer=true;document.head.appendChild(s);})();</script>
+<script>document.head.appendChild(Object.assign(document.createElement('link'),{rel:'stylesheet',href:(document.querySelector('meta[name="quarto:offset"]')||{content:''}).content+'gd-lightbox-compare.css'}));</script>
+<script>(function(){var s=document.createElement('script');var m=document.querySelector('meta[name="quarto:offset"]');s.src=(m?m.content:'')+'gd-lightbox-compare.js';s.defer=true;document.head.appendChild(s);})();</script>
+<script>document.head.appendChild(Object.assign(document.createElement('link'),{rel:'stylesheet',href:(document.querySelector('meta[name="quarto:offset"]')||{content:''}).content+'gd-lightbox-annotate.css'}));</script>
+<script>(function(){var s=document.createElement('script');var m=document.querySelector('meta[name="quarto:offset"]');s.src=(m?m.content:'')+'gd-lightbox-annotate.js';s.defer=true;document.head.appendChild(s);})();</script>
 <script src="theme-init.js"></script>
 
 
+  <link rel="canonical" href="https://mkennedy.codes/docs/chameleon-robyn/">
   <meta name="description" content="Adds integration of the Chameleon template language to Robyn.">
   <script type="application/ld+json">
 {
@@ -162,7 +169,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
     <span class="nav-link">
-<div id="github-widget" data-owner="mikeckennedy" data-repo="chameleon-robyn" data-stars="1" data-forks="0"></div>
+<div id="github-widget" data-owner="mikeckennedy" data-repo="chameleon-robyn" data-stars="2" data-forks="0"></div>
     </span>
   </li>  
 </ul>
@@ -222,7 +229,7 @@ section.level2:first-of-type > h2:first-child,
 </section>
 <section id="meta" class="level3">
 <h3 class="anchored" data-anchor-id="meta">Meta</h3>
-<p><strong>Requires:</strong> Python <code>&gt;=3.10</code><br> <strong>Provides-Extra:</strong> <code>dev</code>, <code>examples</code></p>
+<p><strong>Requires:</strong> Python <code>&gt;=3.10</code><br> <strong>Provides-Extra:</strong> <code>dev</code>, <code>examples</code><br> <a href="package-info.html">Package Info</a></p>
 </section>
 </div></div><section id="chameleon-robyn" class="level1">
 <h1>chameleon-robyn</h1>
@@ -264,7 +271,7 @@ section.level2:first-of-type > h2:first-child,
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>app <span class="op">=</span> Robyn(<span class="va">__file__</span>)</span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">## Point Chameleon at your templates folder (do this once at startup)</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Point Chameleon at your templates folder (do this once at startup)</span></span>
 <span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>template_folder <span class="op">=</span> (Path(<span class="va">__file__</span>).resolve().parent <span class="op">/</span> <span class="st">'templates'</span>).as_posix()</span>
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>chameleon_robyn.global_init(template_folder, auto_reload<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
@@ -289,7 +296,7 @@ section.level2:first-of-type > h2:first-child,
 <section id="auto-naming-convention-over-configuration" class="level3">
 <h3 class="anchored" data-anchor-id="auto-naming-convention-over-configuration">Auto-naming (convention over configuration)</h3>
 <p>If you omit the template path, it’s derived from the module and function name. A function called <code>index</code> in a module called <code>home_views</code> looks for <code>home_views/index.html</code> first and, if that file doesn’t exist, uses <code>home_views/index.pt</code>:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">## Looks for templates/home_views/index.pt</span></span>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Looks for templates/home_views/index.pt</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="at">@app.get</span>(<span class="st">'/'</span>)</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="at">@chameleon_robyn.template</span>()</span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> index(request):</span>
@@ -310,14 +317,14 @@ section.level2:first-of-type > h2:first-child,
 </section>
 <section id="custom-status-codes-and-content-types" class="level3">
 <h3 class="anchored" data-anchor-id="custom-status-codes-and-content-types">Custom status codes and content types</h3>
-<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">## Return a 201 after creating a resource</span></span>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Return a 201 after creating a resource</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="at">@app.post</span>(<span class="st">'/items'</span>)</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="at">@chameleon_robyn.template</span>(<span class="st">'items/created.pt'</span>, status_code<span class="op">=</span><span class="dv">201</span>)</span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> create_item(request):</span>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    item <span class="op">=</span> <span class="cf">await</span> save_item(request.json())</span>
 <span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {<span class="st">'item'</span>: item}</span>
 <span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co">## Serve an XML feed</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Serve an XML feed</span></span>
 <span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="at">@app.get</span>(<span class="st">'/feed.xml'</span>)</span>
 <span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="at">@chameleon_robyn.template</span>(<span class="st">'feed.xml'</span>, content_type<span class="op">=</span><span class="st">'application/xml'</span>)</span>
 <span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> xml_feed(request):</span>
@@ -388,12 +395,12 @@ section.level2:first-of-type > h2:first-child,
 <section id="render---get-an-html-string" class="level3">
 <h3 class="anchored" data-anchor-id="render---get-an-html-string"><a href="reference/render.html#chameleon_robyn.render" class="gdls-link gdls-code">render()</a> - get an HTML string</h3>
 <div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>html <span class="op">=</span> chameleon_robyn.render(<span class="st">'emails/welcome.pt'</span>, username<span class="op">=</span><span class="st">'Michael'</span>)</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co">## Returns a string, no Response wrapping</span></span></code></pre></div>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Returns a string, no Response wrapping</span></span></code></pre></div>
 </section>
 <section id="response---get-a-robyn-response" class="level3">
 <h3 class="anchored" data-anchor-id="response---get-a-robyn-response"><a href="reference/response.html#chameleon_robyn.response" class="gdls-link gdls-code">response()</a> - get a Robyn Response</h3>
 <div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>resp <span class="op">=</span> chameleon_robyn.response(<span class="st">'errors/500.pt'</span>, status_code<span class="op">=</span><span class="dv">500</span>, error<span class="op">=</span><span class="bu">str</span>(e))</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="co">## Returns a fully-formed Robyn Response object</span></span></code></pre></div>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Returns a fully-formed Robyn Response object</span></span></code></pre></div>
 </section>
 </section>
 <section id="chameleontemplate-class-robyns-templateinterface" class="level2">
@@ -458,20 +465,20 @@ section.level2:first-of-type > h2:first-child,
 <span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> venv venv</span>
 <span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> venv/bin/activate      <span class="co"># Windows: venv\Scripts\activate</span></span>
 <span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="co">## Install the package with example dependencies</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Install the package with example dependencies</span></span>
 <span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install <span class="at">-e</span> <span class="st">".[examples]"</span></span></code></pre></div>
 </section>
 <section id="example---core-features" class="level3">
 <h3 class="anchored" data-anchor-id="example---core-features"><code>example/</code> - Core features</h3>
 <p>A Robyn app demonstrating the <code>@template</code> decorator, sync and async handlers, METAL macro layout inheritance, response pass-through redirects, a <code>__response_callback__</code> cookie example, friendly 404 pages, search with query parameters, and an XML feed with a custom content type.</p>
 <div class="sourceCode" id="cb23"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> example/app.py</span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="co">## Open http://127.0.0.1:5555</span></span></code></pre></div>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Open http://127.0.0.1:5555</span></span></code></pre></div>
 </section>
 <section id="example-partials---with-chameleon-partials" class="level3">
 <h3 class="anchored" data-anchor-id="example-partials---with-chameleon-partials"><code>example-partials/</code> - With chameleon-partials</h3>
 <p>The same app, but refactored to use <a href="https://github.com/mikeckennedy/chameleon-partials">chameleon-partials</a> for reusable template components. The episode card markup lives in a single <code>shared/episode_card.pt</code> partial that’s shared across the episodes list and search results pages.</p>
 <div class="sourceCode" id="cb24"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> example-partials/app.py</span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="co">## Open http://127.0.0.1:5555</span></span></code></pre></div>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Open http://127.0.0.1:5555</span></span></code></pre></div>
 <p>Compare the two to see how partials reduce template duplication - the episode list and search results templates go from inline card markup to a single <code>tal:replace</code> call each.</p>
 </section>
 </section>
@@ -885,9 +892,9 @@ section.level2:first-of-type > h2:first-child,
 <script src="details.js"></script>
 <script src="mermaid-renderer.js"></script>
 <script src="tooltips.js"></script>
-<script>(function(){var s=document.createElement('script');s.src=(document.querySelector('link[rel="canonical"]')||{href:location.href}).href.replace(/\/[^\/]*$/,'').replace(/\/[^\/]*$/,'')+'/color-swatch.js';var h=document.currentScript;h.parentNode.insertBefore(s,h.nextSibling);})()</script>
+<script>(function(){var s=document.createElement('script');var m=document.querySelector('meta[name="quarto:offset"]');s.src=(m?m.content:'')+'color-swatch.js';document.body.appendChild(s);})();</script>
 <script src="responsive-tables.js"></script>
-<script src="video-embed.js"></script>
+<script>(function(){var s=document.createElement('script');var m=document.querySelector('meta[name="quarto:offset"]');s.src=(m?m.content:'')+'video-embed.js';document.body.appendChild(s);})();</script>
 <script>(function(){var s=document.createElement('script');var m=document.querySelector('meta[name="quarto:offset"]');s.src=(m?m.content:'')+'termshow.js';document.body.appendChild(s);})();</script>
 <script src="navbar-widgets.js"></script>
 
