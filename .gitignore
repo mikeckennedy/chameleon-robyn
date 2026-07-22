@@ -222,3 +222,4 @@ venv
 # Great Docs ephemeral build directory (the committed site lives in /docs)
 /great-docs/
 docs/build-timings.json
+.DS_Store
