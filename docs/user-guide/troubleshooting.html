@@ -121,15 +121,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
   <link rel="alternate" type="text/markdown" href="troubleshooting.md">
   <link rel="canonical" href="https://mkennedy.codes/docs/chameleon-robyn/user-guide/troubleshooting.html">
-  <meta name="description" content="Every error below was reproduced against the current release. The exception type tells you which layer raised it: ChameleonRobynException comes from...">
+  <meta name="description" content="Consider this a field guide. Every error below was reproduced against the current release, and each entry tells you what the message means and what to...">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Errors and how to fix them – chameleon-robyn | chameleon-robyn">
-  <meta property="og:description" content="Every error below was reproduced against the current release. The exception type tells you which layer raised it: ChameleonRobynException comes from...">
+  <meta property="og:description" content="Consider this a field guide. Every error below was reproduced against the current release, and each entry tells you what the message means and what to...">
   <meta property="og:url" content="https://mkennedy.codes/docs/chameleon-robyn/user-guide/troubleshooting.html">
   <meta property="og:site_name" content="chameleon-robyn">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Errors and how to fix them – chameleon-robyn | chameleon-robyn">
-  <meta name="twitter:description" content="Every error below was reproduced against the current release. The exception type tells you which layer raised it: ChameleonRobynException comes from...">
+  <meta name="twitter:description" content="Consider this a field guide. Every error below was reproduced against the current release, and each entry tells you what the message means and what to...">
 </head>
 
 <body class="nav-sidebar floating nav-fixed quarto-light">
@@ -140,7 +140,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../index.html">
-    <span class="navbar-title">chameleon-robyn</span>
+    <span class="navbar-title">chameleon-robyn <span class="version-badge" title="Released 2026-11-07">v0.1.2</span></span>
     </a>
   </div>
             <div id="quarto-search" class=""></div>
@@ -156,6 +156,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li class="nav-item">
     <a class="nav-link" href="../reference/index.html"> 
 <span class="menu-text">API Reference</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../changelog.html"> 
+<span class="menu-text">Changelog</span></a>
   </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
@@ -329,7 +333,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>Every error below was reproduced against the current release. The exception type tells you which layer raised it: <a href="../reference/ChameleonRobynException.html#chameleon_robyn.ChameleonRobynException" class="gdls-link gdls-code">ChameleonRobynException</a> comes from this package, while <code>ValueError</code>, <code>NameError</code> and <code>KeyError</code> come from Chameleon.</p>
+<p>Consider this a field guide. Every error below was reproduced against the current release, and each entry tells you what the message means and what to change. The exception type is your first clue about where to look: <a href="../reference/ChameleonRobynException.html#chameleon_robyn.ChameleonRobynException" class="gdls-link gdls-code">ChameleonRobynException</a> comes from this package and usually means a wiring problem, while <code>ValueError</code>, <code>NameError</code> and <code>KeyError</code> come from Chameleon and usually mean a template problem.</p>
 <section id="from-chameleon-robyn" class="level1">
 <h1>From chameleon-robyn</h1>
 <section id="you-must-call-global_init-before-rendering-templates." class="level2">
@@ -338,12 +342,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="the-specified-template-folder-must-be-a-folder-its-not-..." class="level2">
 <h2 class="anchored" data-anchor-id="the-specified-template-folder-must-be-a-folder-its-not-..."><code>The specified template folder must be a folder, it's not: ...</code></h2>
-<p>The path passed to <a href="../reference/global_init.html#chameleon_robyn.global_init" class="gdls-link gdls-code">global_init()</a> does not exist or is a file. Build it from <code>__file__</code> rather than relying on the working directory:</p>
+<p>The path passed to <a href="../reference/global_init.html#chameleon_robyn.global_init" class="gdls-link gdls-code">global_init()</a> does not exist or is a file. Nine times out of ten it is a relative path that was correct from one working directory and wrong from another. Build it from <code>__file__</code>:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>template_folder <span class="op">=</span> (Path(<span class="va">__file__</span>).resolve().parent <span class="op">/</span> <span class="st">'templates'</span>).as_posix()</span></code></pre></div>
 </section>
 <section id="invalid-return-type-class-...-we-expected-a-dict-or-response-as-the-return-value." class="level2">
 <h2 class="anchored" data-anchor-id="invalid-return-type-class-...-we-expected-a-dict-or-response-as-the-return-value."><code>Invalid return type &lt;class '...'&gt;, we expected a dict or Response as the return value.</code></h2>
-<p>A decorated handler returned something other than a <code>dict</code> or a Robyn <code>Response</code>. Returning <code>None</code> by falling off the end of the function is the common cause, often after a <a href="../reference/not_found.html#chameleon_robyn.not_found" class="gdls-link gdls-code">not_found()</a> call that was commented out. Return the model dict.</p>
+<p>A decorated handler returned something other than a <code>dict</code> or a Robyn <code>Response</code>. The most common culprit is <code>&lt;class 'NoneType'&gt;</code>: the handler fell off the end without a <code>return</code>, often after a <a href="../reference/not_found.html#chameleon_robyn.not_found" class="gdls-link gdls-code">not_found()</a> call was commented out during debugging. Return the model dict.</p>
 </section>
 <section id="response_callback__-must-be-callable-got-class-...." class="level2">
 <h2 class="anchored" data-anchor-id="response_callback__-must-be-callable-got-class-...."><code>__response_callback__ must be callable, got &lt;class '...'&gt;.</code></h2>
@@ -351,7 +355,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="encoding-is-reserved-by-chameleons-render-and-cannot-be-a-template-variable-rename-the-key." class="level2">
 <h2 class="anchored" data-anchor-id="encoding-is-reserved-by-chameleons-render-and-cannot-be-a-template-variable-rename-the-key."><code>'encoding' is reserved by Chameleon's render() and cannot be a template variable; rename the key.</code></h2>
-<p>Chameleon’s <a href="../reference/render.html#chameleon_robyn.render" class="gdls-link gdls-code">render()</a> takes <code>encoding</code> as a named parameter. Pick another name for that variable, such as <code>charset</code> or <code>file_encoding</code>.</p>
+<p>Chameleon’s <a href="../reference/render.html#chameleon_robyn.render" class="gdls-link gdls-code">render()</a> takes <code>encoding</code> as a named parameter, so the two would collide. Pick another name for that variable, such as <code>charset</code> or <code>file_encoding</code>.</p>
 </section>
 <section id="chameleonrobynnotfoundexception-escapes-to-robyn" class="level2">
 <h2 class="anchored" data-anchor-id="chameleonrobynnotfoundexception-escapes-to-robyn"><a href="../reference/ChameleonRobynNotFoundException.html#chameleon_robyn.ChameleonRobynNotFoundException" class="gdls-link gdls-code">ChameleonRobynNotFoundException</a> escapes to Robyn</h2>
@@ -371,15 +375,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="nameerror-name" class="level2">
 <h2 class="anchored" data-anchor-id="nameerror-name"><code>NameError: &lt;name&gt;</code></h2>
-<p>The template uses a variable the handler did not pass. Chameleon reports the expression, the file and the line. Add the key to the returned dict, or guard the expression in the template with <code>tal:condition</code>.</p>
+<p>The template uses a variable the handler did not pass. Chameleon’s message is generous here: it reports the expression, the file and the line. Add the key to the returned dict, or guard the expression in the template with <code>tal:condition</code>.</p>
 </section>
 <section id="keyerror-class-keyerror-click-or-similar" class="level2">
 <h2 class="anchored" data-anchor-id="keyerror-class-keyerror-click-or-similar"><code>KeyError: ':class'</code>, <code>KeyError: '@click'</code> or similar</h2>
-<p>An Alpine.js, htmx or Vue-style attribute was parsed under Chameleon’s restricted namespace. Pass <code>restricted_namespace=False</code> to <a href="../reference/global_init.html#chameleon_robyn.global_init" class="gdls-link gdls-code">global_init()</a> or to <a href="../reference/ChameleonTemplate.html#chameleon_robyn.ChameleonTemplate" class="gdls-link gdls-code">ChameleonTemplate</a>. See <a href="../user-guide/templates.html#alpine-htmx">Writing templates</a>.</p>
+<p>An Alpine.js, htmx or Vue-style attribute was parsed under Chameleon’s restricted namespace, which mistakes it for an unknown XML prefix. Pass <code>restricted_namespace=False</code> to <a href="../reference/global_init.html#chameleon_robyn.global_init" class="gdls-link gdls-code">global_init()</a> or to <a href="../reference/ChameleonTemplate.html#chameleon_robyn.ChameleonTemplate" class="gdls-link gdls-code">ChameleonTemplate</a>. See <a href="../user-guide/templates.html#alpine-htmx">Writing templates</a>.</p>
 </section>
 <section id="a-parse-error-naming-a-file-and-line" class="level2">
 <h2 class="anchored" data-anchor-id="a-parse-error-naming-a-file-and-line">A parse error naming a file and line</h2>
-<p>Chameleon templates must be well-formed. Unclosed tags, a stray <code>&lt;</code> in text, or an attribute without quotes stop the parser. Fix the markup at the reported line. Write <code>&amp;lt;</code> for a literal less-than sign and <code>&amp;amp;</code> for an ampersand in text.</p>
+<p>Chameleon templates must be well-formed. Unclosed tags, a stray <code>&lt;</code> in text, or an attribute without quotes stop the parser cold. Fix the markup at the reported line. Write <code>&amp;lt;</code> for a literal less-than sign and <code>&amp;amp;</code> for an ampersand in text.</p>
 </section>
 </section>
 <section id="things-that-look-like-bugs-but-are-not" class="level1">

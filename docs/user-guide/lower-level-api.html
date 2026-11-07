@@ -121,15 +121,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
   <link rel="alternate" type="text/markdown" href="lower-level-api.md">
   <link rel="canonical" href="https://mkennedy.codes/docs/chameleon-robyn/user-guide/lower-level-api.html">
-  <meta name="description" content="The decorator covers route handlers. Three other entry points cover everything else: middleware, error handlers, email bodies, and apps that prefer...">
+  <meta name="description" content="The decorator is the front door, and most requests walk through it. But a web app renders HTML in more places than route handlers: the body of a...">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Rendering outside handlers – chameleon-robyn | chameleon-robyn">
-  <meta property="og:description" content="The decorator covers route handlers. Three other entry points cover everything else: middleware, error handlers, email bodies, and apps that prefer...">
+  <meta property="og:description" content="The decorator is the front door, and most requests walk through it. But a web app renders HTML in more places than route handlers: the body of a...">
   <meta property="og:url" content="https://mkennedy.codes/docs/chameleon-robyn/user-guide/lower-level-api.html">
   <meta property="og:site_name" content="chameleon-robyn">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Rendering outside handlers – chameleon-robyn | chameleon-robyn">
-  <meta name="twitter:description" content="The decorator covers route handlers. Three other entry points cover everything else: middleware, error handlers, email bodies, and apps that prefer...">
+  <meta name="twitter:description" content="The decorator is the front door, and most requests walk through it. But a web app renders HTML in more places than route handlers: the body of a...">
 </head>
 
 <body class="nav-sidebar floating nav-fixed quarto-light">
@@ -140,7 +140,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../index.html">
-    <span class="navbar-title">chameleon-robyn</span>
+    <span class="navbar-title">chameleon-robyn <span class="version-badge" title="Released 2026-11-07">v0.1.2</span></span>
     </a>
   </div>
             <div id="quarto-search" class=""></div>
@@ -156,6 +156,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li class="nav-item">
     <a class="nav-link" href="../reference/index.html"> 
 <span class="menu-text">API Reference</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../changelog.html"> 
+<span class="menu-text">Changelog</span></a>
   </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
@@ -310,17 +314,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>The decorator covers route handlers. Three other entry points cover everything else: middleware, error handlers, email bodies, and apps that prefer Robyn’s built-in template-engine pattern.</p>
+<p>The decorator is the front door, and most requests walk through it. But a web app renders HTML in more places than route handlers: the body of a welcome email, an error page built in middleware, a fragment assembled in a helper. For those, the package has a side door with three entry points.</p>
 <section id="render-get-a-string" class="level1">
 <h1><a href="../reference/render.html#chameleon_robyn.render" class="gdls-link gdls-code">render()</a>: get a string</h1>
 <div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>html <span class="op">=</span> chameleon_robyn.render(<span class="st">'emails/welcome.pt'</span>, username<span class="op">=</span><span class="st">'Michael'</span>)</span></code></pre></div>
-<p>Returns the rendered template as a <code>str</code>. Keyword arguments are the template variables. It requires <a href="../reference/global_init.html#chameleon_robyn.global_init" class="gdls-link gdls-code">global_init()</a> to have been called and raises <a href="../reference/ChameleonRobynException.html#chameleon_robyn.ChameleonRobynException" class="gdls-link gdls-code">ChameleonRobynException</a> otherwise.</p>
+<p>Returns the rendered template as a <code>str</code>, nothing wrapped around it. Keyword arguments are the template variables. It requires <a href="../reference/global_init.html#chameleon_robyn.global_init" class="gdls-link gdls-code">global_init()</a> to have been called and raises <a href="../reference/ChameleonRobynException.html#chameleon_robyn.ChameleonRobynException" class="gdls-link gdls-code">ChameleonRobynException</a> otherwise.</p>
 </section>
 <section id="response-get-a-robyn-response" class="level1">
 <h1><a href="../reference/response.html#chameleon_robyn.response" class="gdls-link gdls-code">response()</a>: get a Robyn Response</h1>
 <div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>resp <span class="op">=</span> chameleon_robyn.response(<span class="st">'errors/500.pt'</span>, status_code<span class="op">=</span><span class="dv">500</span>, error<span class="op">=</span><span class="bu">str</span>(e))</span></code></pre></div>
 <p>Renders the template and wraps it in a <code>Response</code> with the given status (default 200) and content type (default <code>text/html</code>, with <code>charset=utf-8</code> appended). The remaining keyword arguments are the template variables.</p>
-<p>Because <code>@template</code> passes a returned <code>Response</code> through untouched, <a href="../reference/response.html#chameleon_robyn.response" class="gdls-link gdls-code">response()</a> is also how a decorated handler renders a different template than the one in the decorator:</p>
+<p>This is also the answer to a question that comes up on every login page: how does a decorated handler render a template other than the one in the decorator? Build it with <a href="../reference/response.html#chameleon_robyn.response" class="gdls-link gdls-code">response()</a> and return it. The decorator passes any <code>Response</code> through untouched.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="at">@app.post</span>(<span class="st">'/account/login'</span>)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="at">@chameleon_robyn.template</span>(<span class="st">'account/welcome.pt'</span>)</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> login(request):</span>
@@ -331,11 +335,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="a-reserved-variable-name" class="level1">
 <h1>A reserved variable name</h1>
-<p>Chameleon’s own <a href="../reference/render.html#chameleon_robyn.render" class="gdls-link gdls-code">render()</a> takes the output encoding as a named parameter, so a template variable called <code>encoding</code> cannot be passed. The library raises <a href="../reference/ChameleonRobynException.html#chameleon_robyn.ChameleonRobynException" class="gdls-link gdls-code">ChameleonRobynException</a> with a clear message if you try. Rename the key.</p>
+<p>Chameleon’s own <a href="../reference/render.html#chameleon_robyn.render" class="gdls-link gdls-code">render()</a> takes the output encoding as a named parameter, so a template variable called <code>encoding</code> cannot be passed. The library raises <a href="../reference/ChameleonRobynException.html#chameleon_robyn.ChameleonRobynException" class="gdls-link gdls-code">ChameleonRobynException</a> with a clear message if you try. Rename the key and move on.</p>
 </section>
 <section id="chameleontemplate-robyns-templateinterface-pattern" class="level1">
 <h1><a href="../reference/ChameleonTemplate.html#chameleon_robyn.ChameleonTemplate" class="gdls-link gdls-code">ChameleonTemplate</a>: Robyn’s TemplateInterface pattern</h1>
-<p>Robyn’s own templating module exposes a <code>JinjaTemplate</code> class with a <a href="../reference/ChameleonTemplate.html#chameleon_robyn.ChameleonTemplate.render_template" class="gdls-link gdls-code">render_template()</a> method. <a href="../reference/ChameleonTemplate.html#chameleon_robyn.ChameleonTemplate" class="gdls-link gdls-code">ChameleonTemplate</a> has the same shape:</p>
+<p>Robyn’s own templating module exposes a <code>JinjaTemplate</code> class with a <a href="../reference/ChameleonTemplate.html#chameleon_robyn.ChameleonTemplate.render_template" class="gdls-link gdls-code">render_template()</a> method. If that is the shape you already use, <a href="../reference/ChameleonTemplate.html#chameleon_robyn.ChameleonTemplate" class="gdls-link gdls-code">ChameleonTemplate</a> has the same one:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chameleon_robyn <span class="im">import</span> ChameleonTemplate</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>chameleon <span class="op">=</span> ChameleonTemplate(<span class="st">'templates/'</span>, auto_reload<span class="op">=</span><span class="va">True</span>)</span>
@@ -345,10 +349,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> chameleon.render_template(<span class="st">'page.pt'</span>, title<span class="op">=</span><span class="st">'Hello'</span>)</span></code></pre></div>
 <p>Points to know:</p>
 <ul>
-<li>It owns its own template loader and does not use or require <a href="../reference/global_init.html#chameleon_robyn.global_init" class="gdls-link gdls-code">global_init()</a>. You can mix it with the decorator API in one app, but each has its own folder setting.</li>
+<li>It owns its own template loader and neither uses nor requires <a href="../reference/global_init.html#chameleon_robyn.global_init" class="gdls-link gdls-code">global_init()</a>. You can mix it with the decorator API in one app, but each has its own folder setting.</li>
 <li><a href="../reference/ChameleonTemplate.html#chameleon_robyn.ChameleonTemplate.render_template" class="gdls-link gdls-code">render_template()</a> always returns status 200 with <code>text/html</code>. For other statuses use <a href="../reference/response.html#chameleon_robyn.response" class="gdls-link gdls-code">response()</a>.</li>
 <li>The constructor takes <code>directory</code>, <code>auto_reload</code>, <code>encoding</code> and <code>restricted_namespace</code>. See the <a href="../reference/ChameleonTemplate.html">reference</a>.</li>
-<li>It matches Robyn’s <code>TemplateInterface</code> through a structural Protocol rather than by subclassing Robyn’s abstract class. Importing Robyn’s class would import Jinja2, and this package deliberately has no Jinja2 dependency.</li>
+<li>It matches Robyn’s <code>TemplateInterface</code> through a structural Protocol rather than by subclassing Robyn’s abstract class. Importing that class would import Jinja2, and this package deliberately has no Jinja2 dependency. <a href="../user-guide/how-it-works.html">How it works</a> tells the rest of that story.</li>
 </ul>
 
 

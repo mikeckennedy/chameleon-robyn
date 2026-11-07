@@ -1,6 +1,6 @@
 # Errors and how to fix them
 
-Every error below was reproduced against the current release. The exception type tells you which layer raised it: [ChameleonRobynException](../reference/ChameleonRobynException.md#chameleon_robyn.ChameleonRobynException) comes from this package, while `ValueError`, `NameError` and `KeyError` come from Chameleon.
+Consider this a field guide. Every error below was reproduced against the current release, and each entry tells you what the message means and what to change. The exception type is your first clue about where to look: [ChameleonRobynException](../reference/ChameleonRobynException.md#chameleon_robyn.ChameleonRobynException) comes from this package and usually means a wiring problem, while `ValueError`, `NameError` and `KeyError` come from Chameleon and usually mean a template problem.
 
 
 # From chameleon-robyn
@@ -13,7 +13,7 @@ A template was rendered before the engine was initialized. Call [global_init()](
 
 ## `The specified template folder must be a folder, it's not: ...`
 
-The path passed to [global_init()](../reference/global_init.md#chameleon_robyn.global_init) does not exist or is a file. Build it from `__file__` rather than relying on the working directory:
+The path passed to [global_init()](../reference/global_init.md#chameleon_robyn.global_init) does not exist or is a file. Nine times out of ten it is a relative path that was correct from one working directory and wrong from another. Build it from `__file__`:
 
 ``` python
 template_folder = (Path(__file__).resolve().parent / 'templates').as_posix()
@@ -22,7 +22,7 @@ template_folder = (Path(__file__).resolve().parent / 'templates').as_posix()
 
 ## `Invalid return type <class '...'>, we expected a dict or Response as the return value.`
 
-A decorated handler returned something other than a `dict` or a Robyn `Response`. Returning `None` by falling off the end of the function is the common cause, often after a [not_found()](../reference/not_found.md#chameleon_robyn.not_found) call that was commented out. Return the model dict.
+A decorated handler returned something other than a `dict` or a Robyn `Response`. The most common culprit is `<class 'NoneType'>`: the handler fell off the end without a `return`, often after a [not_found()](../reference/not_found.md#chameleon_robyn.not_found) call was commented out during debugging. Return the model dict.
 
 
 ## `__response_callback__ must be callable, got <class '...'>.`
@@ -32,7 +32,7 @@ The reserved key holds a value that is not a function. Pass the function itself,
 
 ## `'encoding' is reserved by Chameleon's render() and cannot be a template variable; rename the key.`
 
-Chameleon's [render()](../reference/render.md#chameleon_robyn.render) takes `encoding` as a named parameter. Pick another name for that variable, such as `charset` or `file_encoding`.
+Chameleon's [render()](../reference/render.md#chameleon_robyn.render) takes `encoding` as a named parameter, so the two would collide. Pick another name for that variable, such as `charset` or `file_encoding`.
 
 
 ## [ChameleonRobynNotFoundException](../reference/ChameleonRobynNotFoundException.md#chameleon_robyn.ChameleonRobynNotFoundException) escapes to Robyn
@@ -54,17 +54,17 @@ The template does not exist under the template folder. Check these in order:
 
 ## `NameError: <name>`
 
-The template uses a variable the handler did not pass. Chameleon reports the expression, the file and the line. Add the key to the returned dict, or guard the expression in the template with `tal:condition`.
+The template uses a variable the handler did not pass. Chameleon's message is generous here: it reports the expression, the file and the line. Add the key to the returned dict, or guard the expression in the template with `tal:condition`.
 
 
 ## `KeyError: ':class'`, `KeyError: '@click'` or similar
 
-An Alpine.js, htmx or Vue-style attribute was parsed under Chameleon's restricted namespace. Pass `restricted_namespace=False` to [global_init()](../reference/global_init.md#chameleon_robyn.global_init) or to [ChameleonTemplate](../reference/ChameleonTemplate.md#chameleon_robyn.ChameleonTemplate). See [Writing templates](templates.md#alpine-htmx).
+An Alpine.js, htmx or Vue-style attribute was parsed under Chameleon's restricted namespace, which mistakes it for an unknown XML prefix. Pass `restricted_namespace=False` to [global_init()](../reference/global_init.md#chameleon_robyn.global_init) or to [ChameleonTemplate](../reference/ChameleonTemplate.md#chameleon_robyn.ChameleonTemplate). See [Writing templates](templates.md#alpine-htmx).
 
 
 ## A parse error naming a file and line
 
-Chameleon templates must be well-formed. Unclosed tags, a stray `<` in text, or an attribute without quotes stop the parser. Fix the markup at the reported line. Write `<` for a literal less-than sign and `&` for an ampersand in text.
+Chameleon templates must be well-formed. Unclosed tags, a stray `<` in text, or an attribute without quotes stop the parser cold. Fix the markup at the reported line. Write `<` for a literal less-than sign and `&` for an ampersand in text.
 
 
 # Things that look like bugs but are not

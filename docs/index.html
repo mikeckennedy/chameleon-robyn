@@ -152,7 +152,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="./index.html">
-    <span class="navbar-title">chameleon-robyn</span>
+    <span class="navbar-title">chameleon-robyn <span class="version-badge" title="Released 2026-11-07">v0.1.2</span></span>
     </a>
   </div>
             <div id="quarto-search" class=""></div>
@@ -168,6 +168,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li class="nav-item">
     <a class="nav-link" href="./reference/index.html"> 
 <span class="menu-text">API Reference</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./changelog.html"> 
+<span class="menu-text">Changelog</span></a>
   </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
@@ -240,10 +244,11 @@ section.level2:first-of-type > h2:first-child,
 <blockquote class="blockquote">
 <p><strong>Note:</strong> This project is very much in the alpha and early stages of development. Feel free to use it, but no promises on API stability for a few versions.</p>
 </blockquote>
-<p>Use <a href="https://chameleon.readthedocs.io/">Chameleon</a> page templates in your <a href="https://robyn.tech/">Robyn</a> web applications. If you’ve used Chameleon with Pyramid, Flask, or FastAPI, you’ll feel right at home - same <code>.pt</code> templates, same TAL/TALES/METAL expressions, now running on Robyn’s blazing-fast Rust runtime.</p>
+<p>Every web framework eventually asks the same question: how do you turn data into HTML? <a href="https://robyn.tech/">Robyn</a> answers with Jinja2 out of the box. This package offers a second answer, the one people who built on Pyramid or Zope tend to miss the moment they leave: <a href="https://chameleon.readthedocs.io/">Chameleon</a> page templates. Same <code>.pt</code> files, same TAL/TALES/METAL expressions, now running on Robyn’s Rust-powered runtime.</p>
+<p>A Chameleon template is an ordinary HTML file. Open one in a browser before it has ever been rendered and you still see a page, because the logic lives inside attributes the browser ignores. <code>tal:repeat</code> loops, <code>tal:condition</code> hides, and <code>${...}</code> fills in values with real Python expressions. chameleon-robyn wires those templates into Robyn with a single decorator: your handler returns a <code>dict</code>, and a rendered <code>Response</code> comes out the other side.</p>
 <section id="documentation" class="level2">
 <h2 class="anchored" data-anchor-id="documentation">Documentation</h2>
-<p>Full documentation lives at <a href="https://mkennedy.codes/docs/chameleon-robyn/">mkennedy.codes/docs/chameleon-robyn</a>. This README covers the same ground in short form; the user guide goes deeper on each section:</p>
+<p>Full documentation lives at <a href="https://mkennedy.codes/docs/chameleon-robyn/">mkennedy.codes/docs/chameleon-robyn</a>. This README covers the same ground in short form; the user guide follows one podcast website from its first page to its last error message and goes deeper on each section:</p>
 <ul>
 <li><a href="https://mkennedy.codes/docs/chameleon-robyn/user-guide/getting-started.html">Getting started</a>, <a href="https://mkennedy.codes/docs/chameleon-robyn/user-guide/template-decorator.html">the <span class="citation" data-cites="template">@template</span> decorator</a>, <a href="https://mkennedy.codes/docs/chameleon-robyn/user-guide/templates.html">writing templates</a>, <a href="https://mkennedy.codes/docs/chameleon-robyn/user-guide/not-found.html">friendly 404 pages</a></li>
 <li><a href="https://mkennedy.codes/docs/chameleon-robyn/user-guide/lower-level-api.html">Rendering outside handlers</a>, <a href="https://mkennedy.codes/docs/chameleon-robyn/user-guide/configuration.html">configuration</a>, <a href="https://mkennedy.codes/docs/chameleon-robyn/user-guide/testing.html">testing your handlers</a>, <a href="https://mkennedy.codes/docs/chameleon-robyn/user-guide/troubleshooting.html">errors and how to fix them</a></li>
@@ -254,17 +259,18 @@ section.level2:first-of-type > h2:first-child,
 <section id="installation" class="level2">
 <h2 class="anchored" data-anchor-id="installation">Installation</h2>
 <div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> pip install chameleon-robyn</span></code></pre></div>
-<p>This pulls in <code>chameleon</code> and <code>robyn</code> as dependencies.</p>
+<p>This pulls in <code>chameleon</code> and <code>robyn</code> as dependencies. Python 3.10 or newer is required.</p>
 </section>
 <section id="quick-start" class="level2">
 <h2 class="anchored" data-anchor-id="quick-start">Quick start</h2>
+<p>Three files, three minutes. Here is the shortest path from an empty folder to a rendered page.</p>
 <p><strong>1. Set up your project structure:</strong></p>
-<pre><code>my_app/
+<pre class="text"><code>my_app/
 ├── app.py
 └── templates/
     └── home/
         └── index.pt</code></pre>
-<p><strong>2. Create a template</strong> (<code>templates/home/index.pt</code>):</p>
+<p><strong>2. Create a template</strong> (<code>templates/home/index.pt</code>). It is plain HTML with two new ideas: <code>${name}</code> drops in a value, and <code>tal:repeat</code> on an element makes that element repeat.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode xml"><code class="sourceCode xml"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;!DOCTYPE</span> <span class="dt">html&gt;</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>&lt;<span class="kw">html</span>&gt;</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>&lt;<span class="kw">body</span>&gt;</span>
@@ -274,7 +280,7 @@ section.level2:first-of-type > h2:first-child,
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    &lt;/<span class="kw">ul</span>&gt;</span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>&lt;/<span class="kw">body</span>&gt;</span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>&lt;/<span class="kw">html</span>&gt;</span></code></pre></div>
-<p><strong>3. Wire it up</strong> (<code>app.py</code>):</p>
+<p><strong>3. Wire it up</strong> (<code>app.py</code>). Three lines matter: the import, the <a href="reference/global_init.html#chameleon_robyn.global_init" class="gdls-link gdls-code">global_init()</a> call that says where templates live, and the decorator above the handler.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> robyn <span class="im">import</span> Robyn</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> chameleon_robyn</span>
@@ -291,11 +297,11 @@ section.level2:first-of-type > h2:first-child,
 <span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {<span class="st">'name'</span>: <span class="st">'World'</span>, <span class="st">'items'</span>: [<span class="st">'Robyn'</span>, <span class="st">'Chameleon'</span>, <span class="st">'Python'</span>]}</span>
 <span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>app.start(host<span class="op">=</span><span class="st">'127.0.0.1'</span>, port<span class="op">=</span><span class="dv">8000</span>)</span></code></pre></div>
-<p>That’s it. Your handler returns a <code>dict</code>, the <code>@template</code> decorator renders it through the Chameleon template and wraps the result in a Robyn <code>Response</code>. The <a href="https://mkennedy.codes/docs/chameleon-robyn/user-guide/getting-started.html">getting started guide</a> walks through this in more detail.</p>
+<p>That’s it. Your handler returns a <code>dict</code>, the <code>@template</code> decorator renders it through the Chameleon template and wraps the result in a Robyn <code>Response</code>. The handler never touched a string of HTML, and it never will. The <a href="https://mkennedy.codes/docs/chameleon-robyn/user-guide/getting-started.html">getting started guide</a> walks through this in more detail.</p>
 </section>
 <section id="the-template-decorator" class="level2">
 <h2 class="anchored" data-anchor-id="the-template-decorator">The <code>@template</code> decorator</h2>
-<p>The decorator is the main way you’ll use this package. It intercepts your handler’s return value and renders it through a Chameleon template.</p>
+<p>A route handler has two jobs: decide what to show, and show it. <code>@template</code> takes the second job away entirely. It intercepts your handler’s return value and renders it through a Chameleon template, so the handler reads like a description of the page rather than a construction of it.</p>
 <section id="explicit-template-path" class="level3">
 <h3 class="anchored" data-anchor-id="explicit-template-path">Explicit template path</h3>
 <div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="at">@app.get</span>(<span class="st">'/episodes'</span>)</span>
@@ -305,7 +311,7 @@ section.level2:first-of-type > h2:first-child,
 </section>
 <section id="auto-naming-convention-over-configuration" class="level3">
 <h3 class="anchored" data-anchor-id="auto-naming-convention-over-configuration">Auto-naming (convention over configuration)</h3>
-<p>If you omit the template path, it’s derived from the module and function name. A function called <code>index</code> in a module called <code>home_views</code> looks for <code>home_views/index.html</code> first and, if that file doesn’t exist, uses <code>home_views/index.pt</code>:</p>
+<p>Leave the path out and the template is named after the code that renders it. A function called <code>index</code> in a module called <code>home_views</code> looks for <code>home_views/index.html</code> first and, if that file doesn’t exist, uses <code>home_views/index.pt</code>. Your template folder ends up mirroring your view modules, which is a pleasant thing to discover six months later.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Looks for templates/home_views/index.pt</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="at">@app.get</span>(<span class="st">'/'</span>)</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="at">@chameleon_robyn.template</span>()</span>
@@ -320,6 +326,7 @@ section.level2:first-of-type > h2:first-child,
 </section>
 <section id="async-handlers---just-works" class="level3">
 <h3 class="anchored" data-anchor-id="async-handlers---just-works">Async handlers - just works</h3>
+<p>The decorator notices <code>async def</code> and awaits the handler. Nothing to configure.</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="at">@app.get</span>(<span class="st">'/dashboard'</span>)</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="at">@chameleon_robyn.template</span>(<span class="st">'dashboard.pt'</span>)</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> dashboard(request):</span>
@@ -328,6 +335,7 @@ section.level2:first-of-type > h2:first-child,
 </section>
 <section id="custom-status-codes-and-content-types" class="level3">
 <h3 class="anchored" data-anchor-id="custom-status-codes-and-content-types">Custom status codes and content types</h3>
+<p>Templates are not only for HTML pages. An XML feed is a template too, and so is the “created” page after a form post.</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Return a 201 after creating a resource</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="at">@app.post</span>(<span class="st">'/items'</span>)</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="at">@chameleon_robyn.template</span>(<span class="st">'items/created.pt'</span>, status_code<span class="op">=</span><span class="dv">201</span>)</span>
@@ -343,7 +351,7 @@ section.level2:first-of-type > h2:first-child,
 </section>
 <section id="response-pass-through-redirects-errors-etc." class="level3">
 <h3 class="anchored" data-anchor-id="response-pass-through-redirects-errors-etc.">Response pass-through (redirects, errors, etc.)</h3>
-<p>If your handler returns a Robyn <code>Response</code> object directly, the decorator passes it through untouched. This is how you handle redirects, custom error responses, or anything that shouldn’t be rendered through a template:</p>
+<p>Sometimes the right answer is not a page at all. If your handler returns a Robyn <code>Response</code> object directly, the decorator steps aside and passes it through untouched. This is how you handle redirects, custom error responses, or anything that shouldn’t be rendered through a template:</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> robyn <span class="im">import</span> Response, Headers</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="at">@app.get</span>(<span class="st">'/old-page'</span>)</span>
@@ -358,7 +366,8 @@ section.level2:first-of-type > h2:first-child,
 </section>
 <section id="modifying-the-response-after-rendering-__response_callback__" class="level3">
 <h3 class="anchored" data-anchor-id="modifying-the-response-after-rendering-__response_callback__">Modifying the response after rendering (<code>__response_callback__</code>)</h3>
-<p>Sometimes you want template rendering <em>and</em> a tweak to the final <code>Response</code> - the classic case is setting a session cookie after a login. Put a callable in your model under the reserved <code>__response_callback__</code> key and the decorator invokes it with the freshly built <code>Response</code> after rendering:</p>
+<p>Here is the classic puzzle. A visitor logs in. You want to render the welcome page, which means returning a dict, and you also want to set a session cookie, which means touching the <code>Response</code>. You cannot do both from a dict. Or can you?</p>
+<p>Put a callable in your model under the reserved <code>__response_callback__</code> key and the decorator invokes it with the freshly built <code>Response</code> after rendering:</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> robyn <span class="im">import</span> Response</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="at">@app.post</span>(<span class="st">'/account/login'</span>)</span>
@@ -388,7 +397,7 @@ section.level2:first-of-type > h2:first-child,
 </section>
 <section id="friendly-404-pages" class="level2">
 <h2 class="anchored" data-anchor-id="friendly-404-pages">Friendly 404 pages</h2>
-<p>Call <a href="reference/not_found.html#chameleon_robyn.not_found" class="gdls-link gdls-code">not_found()</a> from any decorated handler to render a 404 page:</p>
+<p>Sooner or later someone will visit <code>/episodes/9999</code>. What they should get is a page in your site’s own clothes that points the way home, not a stack trace. Call <a href="reference/not_found.html#chameleon_robyn.not_found" class="gdls-link gdls-code">not_found()</a> from any decorated handler:</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="at">@app.get</span>(<span class="st">'/episodes/:episode_id'</span>)</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="at">@chameleon_robyn.template</span>(<span class="st">'episodes/detail.pt'</span>)</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> episode_detail(request, episode_id: <span class="bu">int</span>):</span>
@@ -397,13 +406,13 @@ section.level2:first-of-type > h2:first-child,
 <span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>        chameleon_robyn.not_found()  <span class="co"># Renders errors/404.pt with status 404</span></span>
 <span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {<span class="st">'episode'</span>: episode}</span></code></pre></div>
-<p>By default it renders <code>errors/404.pt</code>, but you can specify any template:</p>
+<p>Notice there is no <code>return</code> in front of <a href="reference/not_found.html#chameleon_robyn.not_found" class="gdls-link gdls-code">not_found()</a>. It never returns; the decorator catches what it raises and sends the 404 page instead. By default it renders <code>errors/404.pt</code>, but you can specify any template:</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>chameleon_robyn.not_found(four04template_file<span class="op">=</span><span class="st">'errors/custom_404.pt'</span>)</span></code></pre></div>
 <p>The 404 template receives a <code>message</code> variable describing the 404, which you can render with <code>${message}</code> if you want. To supply your own message, raise <code>ChameleonRobynNotFoundException('your text')</code> directly; the decorator handles it the same way. <a href="reference/not_found.html#chameleon_robyn.not_found" class="gdls-link gdls-code">not_found()</a> only works inside <code>@template</code>-decorated handlers; see <a href="https://mkennedy.codes/docs/chameleon-robyn/user-guide/not-found.html">friendly 404 pages</a> for the alternatives.</p>
 </section>
 <section id="lower-level-api" class="level2">
 <h2 class="anchored" data-anchor-id="lower-level-api">Lower-level API</h2>
-<p>Sometimes you need to render a template outside of a decorator - in middleware, error handlers, or helper functions.</p>
+<p>The decorator is the front door. A web app renders HTML in more places than route handlers, though: the body of a welcome email, an error page built in middleware, a fragment assembled in a helper. For those there is a side door.</p>
 <section id="render---get-an-html-string" class="level3">
 <h3 class="anchored" data-anchor-id="render---get-an-html-string"><a href="reference/render.html#chameleon_robyn.render" class="gdls-link gdls-code">render()</a> - get an HTML string</h3>
 <div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>html <span class="op">=</span> chameleon_robyn.render(<span class="st">'emails/welcome.pt'</span>, username<span class="op">=</span><span class="st">'Michael'</span>)</span>
@@ -430,6 +439,7 @@ section.level2:first-of-type > h2:first-child,
 </section>
 <section id="global_init-reference" class="level2">
 <h2 class="anchored" data-anchor-id="global_init-reference"><a href="reference/global_init.html#chameleon_robyn.global_init" class="gdls-link gdls-code">global_init()</a> reference</h2>
+<p>All configuration is one call at startup. No environment variables, no config files.</p>
 <div class="sourceCode" id="cb17"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>chameleon_robyn.global_init(</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    template_folder,              <span class="co"># Path to your templates directory (required)</span></span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    auto_reload<span class="op">=</span><span class="va">False</span>,            <span class="co"># Watch for template changes - use True in development</span></span>
@@ -438,14 +448,14 @@ section.level2:first-of-type > h2:first-child,
 <span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 <section id="alpine.js-htmx-compatibility" class="level3">
 <h3 class="anchored" data-anchor-id="alpine.js-htmx-compatibility">Alpine.js / htmx compatibility</h3>
-<p>Chameleon’s default namespace rules reject attributes like <code>@click</code> or <code>:class</code> because they look like XML namespace prefixes. If you’re using Alpine.js, htmx, or similar libraries, set <code>restricted_namespace=False</code>:</p>
+<p>Here is a surprise waiting for anyone who adds a sprinkle of Alpine.js to a Chameleon page. Chameleon’s default namespace rules reject attributes like <code>@click</code> or <code>:class</code> because they look like XML namespace prefixes it has never heard of. If you’re using Alpine.js, htmx, or similar libraries, set <code>restricted_namespace=False</code>:</p>
 <div class="sourceCode" id="cb18"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>chameleon_robyn.global_init(template_folder, restricted_namespace<span class="op">=</span><span class="va">False</span>)</span></code></pre></div>
 <p>This tells Chameleon to allow any attribute syntax in your templates. Every <a href="reference/global_init.html#chameleon_robyn.global_init" class="gdls-link gdls-code">global_init()</a> setting is described in <a href="https://mkennedy.codes/docs/chameleon-robyn/user-guide/configuration.html">configuration</a>.</p>
 </section>
 </section>
 <section id="works-with-chameleon-partials" class="level2">
 <h2 class="anchored" data-anchor-id="works-with-chameleon-partials">Works with chameleon-partials</h2>
-<p><a href="https://github.com/mikeckennedy/chameleon-partials">chameleon-partials</a> provides <code>render_partial()</code> for rendering sub-templates (think: reusable components). It works alongside <code>chameleon-robyn</code> with no extra configuration - just initialize both at startup:</p>
+<p>The episode card appears on the list page and again in search results. Copying it once is fine; copying it a third time is how layouts drift. <a href="https://github.com/mikeckennedy/chameleon-partials">chameleon-partials</a> provides <code>render_partial()</code> for rendering sub-templates (think: reusable components). It works alongside <code>chameleon-robyn</code> with no extra configuration - just initialize both at startup:</p>
 <div class="sourceCode" id="cb19"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> chameleon_partials</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> chameleon_robyn</span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -469,7 +479,7 @@ section.level2:first-of-type > h2:first-child,
 </section>
 <section id="example-apps" class="level2">
 <h2 class="anchored" data-anchor-id="example-apps">Example apps</h2>
-<p>The repo includes two example apps you can run to see everything in action.</p>
+<p>The repo includes two example apps you can run to see everything in action. Both are the website for a small podcast: episodes, guests, search, a feed, and the occasional lost visitor.</p>
 <section id="setup" class="level3">
 <h3 class="anchored" data-anchor-id="setup">Setup</h3>
 <p>Clone the repo and install with the extras you need:</p>
@@ -492,12 +502,12 @@ section.level2:first-of-type > h2:first-child,
 <p>The same app, but refactored to use <a href="https://github.com/mikeckennedy/chameleon-partials">chameleon-partials</a> for reusable template components. The episode card markup lives in a single <code>shared/episode_card.pt</code> partial that’s shared across the episodes list and search results pages.</p>
 <div class="sourceCode" id="cb24"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> example-partials/app.py</span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Open http://127.0.0.1:5555</span></span></code></pre></div>
-<p>Compare the two to see how partials reduce template duplication - the episode list and search results templates go from inline card markup to a single <code>tal:replace</code> call each.</p>
+<p>Open the two episode list templates side by side and watch a block of card markup collapse into a single <code>tal:replace</code> call.</p>
 </section>
 </section>
 <section id="template-language-cheat-sheet" class="level2">
 <h2 class="anchored" data-anchor-id="template-language-cheat-sheet">Template language cheat sheet</h2>
-<p>Chameleon uses TAL (Template Attribute Language) - a few patterns to get you going:</p>
+<p>Chameleon uses TAL (Template Attribute Language). Most template languages ask you to learn a second syntax; Chameleon asks you to learn a handful of attributes. Here are the ones you will reach for every day:</p>
 <div class="sourceCode" id="cb25"><pre class="sourceCode xml"><code class="sourceCode xml"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co">&lt;!-- Variable substitution --&gt;</span></span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>&lt;<span class="kw">h1</span>&gt;${title}&lt;/<span class="kw">h1</span>&gt;</span>
 <span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>&lt;<span class="kw">p</span>&gt;${user.name}&lt;/<span class="kw">p</span>&gt;</span>
@@ -540,7 +550,7 @@ section.level2:first-of-type > h2:first-child,
 </section>
 <section id="testing-and-troubleshooting" class="level2">
 <h2 class="anchored" data-anchor-id="testing-and-troubleshooting">Testing and troubleshooting</h2>
-<p>Decorated handlers are plain functions that return a Robyn <code>Response</code>, so tests call them directly without starting a server; see <a href="https://mkennedy.codes/docs/chameleon-robyn/user-guide/testing.html">testing your handlers</a>. When something goes wrong, <a href="https://mkennedy.codes/docs/chameleon-robyn/user-guide/troubleshooting.html">errors and how to fix them</a> lists every exception the library and Chameleon raise and what to change.</p>
+<p>The best thing about a decorated handler is that it is still a function. Tests call it directly and assert on the returned Robyn <code>Response</code>, with no server to start; see <a href="https://mkennedy.codes/docs/chameleon-robyn/user-guide/testing.html">testing your handlers</a>. When something goes wrong, <a href="https://mkennedy.codes/docs/chameleon-robyn/user-guide/troubleshooting.html">errors and how to fix them</a> is a field guide to every exception the library and Chameleon raise, and what to change.</p>
 </section>
 <section id="license" class="level2">
 <h2 class="anchored" data-anchor-id="license">License</h2>

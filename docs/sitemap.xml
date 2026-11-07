@@ -127,6 +127,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://mkennedy.codes/docs/chameleon-robyn/changelog.html</loc>
+    <lastmod>2026-11-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://mkennedy.codes/docs/chameleon-robyn/license.html</loc>
     <lastmod>2026-11-07</lastmod>
     <changefreq>monthly</changefreq>

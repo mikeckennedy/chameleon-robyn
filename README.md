@@ -2,11 +2,13 @@
 
 > **Note:** This project is very much in the alpha and early stages of development. Feel free to use it, but no promises on API stability for a few versions.
 
-Use [Chameleon](https://chameleon.readthedocs.io/) page templates in your [Robyn](https://robyn.tech/) web applications. If you've used Chameleon with Pyramid, Flask, or FastAPI, you'll feel right at home - same `.pt` templates, same TAL/TALES/METAL expressions, now running on Robyn's blazing-fast Rust runtime.
+Every web framework eventually asks the same question: how do you turn data into HTML? [Robyn](https://robyn.tech/) answers with Jinja2 out of the box. This package offers a second answer, the one people who built on Pyramid or Zope tend to miss the moment they leave: [Chameleon](https://chameleon.readthedocs.io/) page templates. Same `.pt` files, same TAL/TALES/METAL expressions, now running on Robyn's Rust-powered runtime.
+
+A Chameleon template is an ordinary HTML file. Open one in a browser before it has ever been rendered and you still see a page, because the logic lives inside attributes the browser ignores. `tal:repeat` loops, `tal:condition` hides, and `${...}` fills in values with real Python expressions. chameleon-robyn wires those templates into Robyn with a single decorator: your handler returns a `dict`, and a rendered `Response` comes out the other side.
 
 ## Documentation
 
-Full documentation lives at [mkennedy.codes/docs/chameleon-robyn](https://mkennedy.codes/docs/chameleon-robyn/). This README covers the same ground in short form; the user guide goes deeper on each section:
+Full documentation lives at [mkennedy.codes/docs/chameleon-robyn](https://mkennedy.codes/docs/chameleon-robyn/). This README covers the same ground in short form; the user guide follows one podcast website from its first page to its last error message and goes deeper on each section:
 
 - [Getting started](https://mkennedy.codes/docs/chameleon-robyn/user-guide/getting-started.html), [the @template decorator](https://mkennedy.codes/docs/chameleon-robyn/user-guide/template-decorator.html), [writing templates](https://mkennedy.codes/docs/chameleon-robyn/user-guide/templates.html), [friendly 404 pages](https://mkennedy.codes/docs/chameleon-robyn/user-guide/not-found.html)
 - [Rendering outside handlers](https://mkennedy.codes/docs/chameleon-robyn/user-guide/lower-level-api.html), [configuration](https://mkennedy.codes/docs/chameleon-robyn/user-guide/configuration.html), [testing your handlers](https://mkennedy.codes/docs/chameleon-robyn/user-guide/testing.html), [errors and how to fix them](https://mkennedy.codes/docs/chameleon-robyn/user-guide/troubleshooting.html)
@@ -20,13 +22,15 @@ Coding agents can read [llms-full.txt](https://mkennedy.codes/docs/chameleon-rob
 uv pip install chameleon-robyn
 ```
 
-This pulls in `chameleon` and `robyn` as dependencies.
+This pulls in `chameleon` and `robyn` as dependencies. Python 3.10 or newer is required.
 
 ## Quick start
 
+Three files, three minutes. Here is the shortest path from an empty folder to a rendered page.
+
 **1. Set up your project structure:**
 
-```
+```text
 my_app/
 ├── app.py
 └── templates/
@@ -34,7 +38,7 @@ my_app/
         └── index.pt
 ```
 
-**2. Create a template** (`templates/home/index.pt`):
+**2. Create a template** (`templates/home/index.pt`). It is plain HTML with two new ideas: `${name}` drops in a value, and `tal:repeat` on an element makes that element repeat.
 
 ```xml
 <!DOCTYPE html>
@@ -48,7 +52,7 @@ my_app/
 </html>
 ```
 
-**3. Wire it up** (`app.py`):
+**3. Wire it up** (`app.py`). Three lines matter: the import, the `global_init()` call that says where templates live, and the decorator above the handler.
 
 ```python
 from pathlib import Path
@@ -69,11 +73,11 @@ async def index(request):
 app.start(host='127.0.0.1', port=8000)
 ```
 
-That's it. Your handler returns a `dict`, the `@template` decorator renders it through the Chameleon template and wraps the result in a Robyn `Response`. The [getting started guide](https://mkennedy.codes/docs/chameleon-robyn/user-guide/getting-started.html) walks through this in more detail.
+That's it. Your handler returns a `dict`, the `@template` decorator renders it through the Chameleon template and wraps the result in a Robyn `Response`. The handler never touched a string of HTML, and it never will. The [getting started guide](https://mkennedy.codes/docs/chameleon-robyn/user-guide/getting-started.html) walks through this in more detail.
 
 ## The `@template` decorator
 
-The decorator is the main way you'll use this package. It intercepts your handler's return value and renders it through a Chameleon template.
+A route handler has two jobs: decide what to show, and show it. `@template` takes the second job away entirely. It intercepts your handler's return value and renders it through a Chameleon template, so the handler reads like a description of the page rather than a construction of it.
 
 ### Explicit template path
 
@@ -86,7 +90,7 @@ def episode_list(request):
 
 ### Auto-naming (convention over configuration)
 
-If you omit the template path, it's derived from the module and function name. A function called `index` in a module called `home_views` looks for `home_views/index.html` first and, if that file doesn't exist, uses `home_views/index.pt`:
+Leave the path out and the template is named after the code that renders it. A function called `index` in a module called `home_views` looks for `home_views/index.html` first and, if that file doesn't exist, uses `home_views/index.pt`. Your template folder ends up mirroring your view modules, which is a pleasant thing to discover six months later.
 
 ```python
 # Looks for templates/home_views/index.pt
@@ -109,6 +113,8 @@ Two details: a script run directly (`python app.py`) has the module name `__main
 
 ### Async handlers - just works
 
+The decorator notices `async def` and awaits the handler. Nothing to configure.
+
 ```python
 @app.get('/dashboard')
 @chameleon_robyn.template('dashboard.pt')
@@ -118,6 +124,8 @@ async def dashboard(request):
 ```
 
 ### Custom status codes and content types
+
+Templates are not only for HTML pages. An XML feed is a template too, and so is the "created" page after a form post.
 
 ```python
 # Return a 201 after creating a resource
@@ -136,7 +144,7 @@ def xml_feed(request):
 
 ### Response pass-through (redirects, errors, etc.)
 
-If your handler returns a Robyn `Response` object directly, the decorator passes it through untouched. This is how you handle redirects, custom error responses, or anything that shouldn't be rendered through a template:
+Sometimes the right answer is not a page at all. If your handler returns a Robyn `Response` object directly, the decorator steps aside and passes it through untouched. This is how you handle redirects, custom error responses, or anything that shouldn't be rendered through a template:
 
 ```python
 from robyn import Response, Headers
@@ -154,7 +162,9 @@ def old_page(request):
 
 ### Modifying the response after rendering (`__response_callback__`)
 
-Sometimes you want template rendering *and* a tweak to the final `Response` - the classic case is setting a session cookie after a login. Put a callable in your model under the reserved `__response_callback__` key and the decorator invokes it with the freshly built `Response` after rendering:
+Here is the classic puzzle. A visitor logs in. You want to render the welcome page, which means returning a dict, and you also want to set a session cookie, which means touching the `Response`. You cannot do both from a dict. Or can you?
+
+Put a callable in your model under the reserved `__response_callback__` key and the decorator invokes it with the freshly built `Response` after rendering:
 
 ```python
 from robyn import Response
@@ -187,7 +197,7 @@ Everything the decorator does, including the exact return-value contract, is in 
 
 ## Friendly 404 pages
 
-Call `not_found()` from any decorated handler to render a 404 page:
+Sooner or later someone will visit `/episodes/9999`. What they should get is a page in your site's own clothes that points the way home, not a stack trace. Call `not_found()` from any decorated handler:
 
 ```python
 @app.get('/episodes/:episode_id')
@@ -200,7 +210,7 @@ async def episode_detail(request, episode_id: int):
     return {'episode': episode}
 ```
 
-By default it renders `errors/404.pt`, but you can specify any template:
+Notice there is no `return` in front of `not_found()`. It never returns; the decorator catches what it raises and sends the 404 page instead. By default it renders `errors/404.pt`, but you can specify any template:
 
 ```python
 chameleon_robyn.not_found(four04template_file='errors/custom_404.pt')
@@ -210,7 +220,7 @@ The 404 template receives a `message` variable describing the 404, which you can
 
 ## Lower-level API
 
-Sometimes you need to render a template outside of a decorator - in middleware, error handlers, or helper functions.
+The decorator is the front door. A web app renders HTML in more places than route handlers, though: the body of a welcome email, an error page built in middleware, a fragment assembled in a helper. For those there is a side door.
 
 ### `render()` - get an HTML string
 
@@ -246,6 +256,8 @@ This is a standalone class with its own template loader - it doesn't require `gl
 
 ## `global_init()` reference
 
+All configuration is one call at startup. No environment variables, no config files.
+
 ```python
 chameleon_robyn.global_init(
     template_folder,              # Path to your templates directory (required)
@@ -257,7 +269,7 @@ chameleon_robyn.global_init(
 
 ### Alpine.js / htmx compatibility
 
-Chameleon's default namespace rules reject attributes like `@click` or `:class` because they look like XML namespace prefixes. If you're using Alpine.js, htmx, or similar libraries, set `restricted_namespace=False`:
+Here is a surprise waiting for anyone who adds a sprinkle of Alpine.js to a Chameleon page. Chameleon's default namespace rules reject attributes like `@click` or `:class` because they look like XML namespace prefixes it has never heard of. If you're using Alpine.js, htmx, or similar libraries, set `restricted_namespace=False`:
 
 ```python
 chameleon_robyn.global_init(template_folder, restricted_namespace=False)
@@ -267,7 +279,7 @@ This tells Chameleon to allow any attribute syntax in your templates. Every `glo
 
 ## Works with chameleon-partials
 
-[chameleon-partials](https://github.com/mikeckennedy/chameleon-partials) provides `render_partial()` for rendering sub-templates (think: reusable components). It works alongside `chameleon-robyn` with no extra configuration - just initialize both at startup:
+The episode card appears on the list page and again in search results. Copying it once is fine; copying it a third time is how layouts drift. [chameleon-partials](https://github.com/mikeckennedy/chameleon-partials) provides `render_partial()` for rendering sub-templates (think: reusable components). It works alongside `chameleon-robyn` with no extra configuration - just initialize both at startup:
 
 ```python
 import chameleon_partials
@@ -303,7 +315,7 @@ Note: use `tal:replace="structure ..."` (not `${structure ...}`) when rendering 
 
 ## Example apps
 
-The repo includes two example apps you can run to see everything in action.
+The repo includes two example apps you can run to see everything in action. Both are the website for a small podcast: episodes, guests, search, a feed, and the occasional lost visitor.
 
 ### Setup
 
@@ -337,11 +349,11 @@ python example-partials/app.py
 # Open http://127.0.0.1:5555
 ```
 
-Compare the two to see how partials reduce template duplication - the episode list and search results templates go from inline card markup to a single `tal:replace` call each.
+Open the two episode list templates side by side and watch a block of card markup collapse into a single `tal:replace` call.
 
 ## Template language cheat sheet
 
-Chameleon uses TAL (Template Attribute Language) - a few patterns to get you going:
+Chameleon uses TAL (Template Attribute Language). Most template languages ask you to learn a second syntax; Chameleon asks you to learn a handful of attributes. Here are the ones you will reach for every day:
 
 ```xml
 <!-- Variable substitution -->
@@ -388,7 +400,7 @@ Full docs: [chameleon.readthedocs.io](https://chameleon.readthedocs.io/). The [w
 
 ## Testing and troubleshooting
 
-Decorated handlers are plain functions that return a Robyn `Response`, so tests call them directly without starting a server; see [testing your handlers](https://mkennedy.codes/docs/chameleon-robyn/user-guide/testing.html). When something goes wrong, [errors and how to fix them](https://mkennedy.codes/docs/chameleon-robyn/user-guide/troubleshooting.html) lists every exception the library and Chameleon raise and what to change.
+The best thing about a decorated handler is that it is still a function. Tests call it directly and assert on the returned Robyn `Response`, with no server to start; see [testing your handlers](https://mkennedy.codes/docs/chameleon-robyn/user-guide/testing.html). When something goes wrong, [errors and how to fix them](https://mkennedy.codes/docs/chameleon-robyn/user-guide/troubleshooting.html) is a field guide to every exception the library and Chameleon raise, and what to change.
 
 ## License
 

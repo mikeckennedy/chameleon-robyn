@@ -3,7 +3,7 @@
 
 # Do I have to call [global_init()](../reference/global_init.md#chameleon_robyn.global_init) before decorating routes?
 
-No. Explicit template paths are only used at request time, and auto-named templates are resolved at the first request. Decorate routes at import and call [global_init()](../reference/global_init.md#chameleon_robyn.global_init) from `main()` if you prefer.
+No. Explicit template paths are only used at request time, and auto-named templates are resolved at the first request. Decorate routes at import and call [global_init()](../reference/global_init.md#chameleon_robyn.global_init) from `main()` if that reads better to you.
 
 
 # Why does my second [global_init()](../reference/global_init.md#chameleon_robyn.global_init) call do nothing?
@@ -43,7 +43,7 @@ Pass `restricted_namespace=False` to [global_init()](../reference/global_init.md
 
 # Can Chameleon and Jinja2 templates coexist in one app?
 
-Yes. Nothing in this package touches Robyn's Jinja2 support. Use `@template` or [ChameleonTemplate](../reference/ChameleonTemplate.md#chameleon_robyn.ChameleonTemplate) for Chameleon pages and Robyn's `JinjaTemplate` for the rest.
+Yes. Nothing in this package touches Robyn's Jinja2 support. Use `@template` or [ChameleonTemplate](../reference/ChameleonTemplate.md#chameleon_robyn.ChameleonTemplate) for Chameleon pages and Robyn's `JinjaTemplate` for the rest, and migrate at whatever pace suits you.
 
 
 # Does it work with chameleon-partials?

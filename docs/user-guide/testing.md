@@ -1,11 +1,11 @@
 # Testing your handlers
 
-You do not need a running Robyn server to test a decorated handler. The decorator returns an ordinary function (or coroutine function) that returns a Robyn `Response`, so call it directly and assert on the result. This is how the package's own test suite works.
+The best thing about a decorated handler is that it is still a function. No server needs to start, no HTTP client needs to connect, and nothing needs to be mocked. Call the handler, get a Robyn `Response` back, and assert on it. This is how the package's own test suite works, and it keeps a full run of the suite well under a second.
 
 
 # Point the engine at test templates
 
-Use a fixture that initializes the engine with `cache_init=False`, so each test gets the folder it asks for, and clears it afterwards:
+The one piece of setup is telling the engine where the test templates live. Use a fixture that initializes with `cache_init=False`, so each test gets the folder it asks for, and clears afterwards:
 
 ``` python
 # conftest.py
@@ -21,7 +21,7 @@ def templates():
     chameleon_robyn.clear()
 ```
 
-Without `cache_init=False`, the first [global_init()](../reference/global_init.md#chameleon_robyn.global_init) in the test session would win and later fixtures would silently keep its settings.
+Skip `cache_init=False` and you meet the sharp edge from [Configuration](configuration.md#calling-it-twice): the first [global_init()](../reference/global_init.md#chameleon_robyn.global_init) in the session wins, every later fixture silently keeps its settings, and you spend an afternoon wondering why the wrong template renders.
 
 
 # Call the handler
@@ -66,6 +66,8 @@ def test_async_detail(templates):
 
 # Testing a 404
 
+The 404 path is a function call like any other, which makes the "episode does not exist" branch one of the easiest tests you will write:
+
 ``` python
 def test_missing_episode_is_404(templates):
     @chameleon_robyn.template('episodes/detail.pt')
@@ -80,7 +82,7 @@ def test_missing_episode_is_404(templates):
 
 # Testing the response callback
 
-The callback receives the built `Response`, so capture it:
+The callback receives the built `Response`, so check the header it set:
 
 ``` python
 def test_login_sets_cookie(templates):
@@ -97,7 +99,7 @@ def test_login_sets_cookie(templates):
 
 # Testing templates on their own
 
-[render()](../reference/render.md#chameleon_robyn.render) returns the HTML as a string, which keeps assertions about markup separate from handler logic:
+[render()](../reference/render.md#chameleon_robyn.render) returns the HTML as a string, which keeps assertions about markup separate from assertions about handler logic:
 
 ``` python
 def test_episode_card_shows_title(templates):
@@ -108,4 +110,4 @@ def test_episode_card_shows_title(templates):
 
 # What not to test
 
-Chameleon's own behaviour, such as escaping, `tal:repeat` ordering, or error messages, is covered by Chameleon's test suite. Test what your handlers return and what your templates show.
+Chameleon's own behaviour, such as escaping, `tal:repeat` ordering, or the wording of its error messages, is covered by Chameleon's test suite. Spend your tests on what your handlers return and what your templates show.

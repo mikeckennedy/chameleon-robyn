@@ -120,15 +120,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
   <link rel="alternate" type="text/markdown" href="getting-started.md">
   <link rel="canonical" href="https://mkennedy.codes/docs/chameleon-robyn/user-guide/getting-started.html">
-  <meta name="description" content="Robyn ships with Jinja2 templating. chameleon-robyn lets you use Chameleon page templates instead: .pt files that are valid HTML, with tal: attributes...">
+  <meta name="description" content="Every web framework eventually asks the same question: how do you turn data into HTML? Robyn’s answer out of the box is Jinja2. This package offers a...">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Getting started – chameleon-robyn | chameleon-robyn">
-  <meta property="og:description" content="Robyn ships with Jinja2 templating. chameleon-robyn lets you use Chameleon page templates instead: .pt files that are valid HTML, with tal: attributes...">
+  <meta property="og:description" content="Every web framework eventually asks the same question: how do you turn data into HTML? Robyn’s answer out of the box is Jinja2. This package offers a...">
   <meta property="og:url" content="https://mkennedy.codes/docs/chameleon-robyn/user-guide/getting-started.html">
   <meta property="og:site_name" content="chameleon-robyn">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Getting started – chameleon-robyn | chameleon-robyn">
-  <meta name="twitter:description" content="Robyn ships with Jinja2 templating. chameleon-robyn lets you use Chameleon page templates instead: .pt files that are valid HTML, with tal: attributes...">
+  <meta name="twitter:description" content="Every web framework eventually asks the same question: how do you turn data into HTML? Robyn’s answer out of the box is Jinja2. This package offers a...">
 </head>
 
 <body class="nav-sidebar floating nav-fixed quarto-light">
@@ -139,7 +139,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../index.html">
-    <span class="navbar-title">chameleon-robyn</span>
+    <span class="navbar-title">chameleon-robyn <span class="version-badge" title="Released 2026-11-07">v0.1.2</span></span>
     </a>
   </div>
             <div id="quarto-search" class=""></div>
@@ -155,6 +155,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li class="nav-item">
     <a class="nav-link" href="../reference/index.html"> 
 <span class="menu-text">API Reference</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../changelog.html"> 
+<span class="menu-text">Changelog</span></a>
   </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
@@ -281,10 +285,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul class="collapse">
   <li><a href="#install" id="toc-install" class="nav-link active" data-scroll-target="#install">Install</a></li>
+  <li><a href="#the-site-we-are-building" id="toc-the-site-we-are-building" class="nav-link" data-scroll-target="#the-site-we-are-building">The site we are building</a></li>
   <li><a href="#project-layout" id="toc-project-layout" class="nav-link" data-scroll-target="#project-layout">Project layout</a></li>
   <li><a href="#your-first-page" id="toc-your-first-page" class="nav-link" data-scroll-target="#your-first-page">Your first page</a></li>
   <li><a href="#what-just-happened" id="toc-what-just-happened" class="nav-link" data-scroll-target="#what-just-happened">What just happened</a></li>
-  <li><a href="#example-apps" id="toc-example-apps" class="nav-link" data-scroll-target="#example-apps">Example apps</a></li>
+  <li><a href="#run-the-finished-examples" id="toc-run-the-finished-examples" class="nav-link" data-scroll-target="#run-the-finished-examples">Run the finished examples</a></li>
   <li><a href="#where-to-go-next" id="toc-where-to-go-next" class="nav-link" data-scroll-target="#where-to-go-next">Where to go next</a></li>
   </ul>
 </nav>
@@ -311,27 +316,33 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>Robyn ships with Jinja2 templating. chameleon-robyn lets you use <a href="https://chameleon.readthedocs.io/">Chameleon</a> page templates instead: <code>.pt</code> files that are valid HTML, with <code>tal:</code> attributes for logic and METAL macros for shared layouts. If you have used Chameleon with Pyramid, Flask, or FastAPI, the templates are the same. The package adds a <code>@template</code> decorator so a Robyn handler returns a plain <code>dict</code> and the caller gets back a rendered Robyn <code>Response</code>.</p>
-<p>The project is in alpha. The API is small and unlikely to change much, but there are no stability promises yet.</p>
+<p>Every web framework eventually asks the same question: how do you turn data into HTML? Robyn’s answer out of the box is Jinja2. This package offers a second answer, the one people who built on Pyramid or Zope tend to miss the moment they leave: <a href="https://chameleon.readthedocs.io/">Chameleon</a> page templates.</p>
+<p>A Chameleon template is an ordinary HTML file. Open one in a browser before it has ever been rendered and you still see a page, placeholders and all, because the logic lives inside attributes the browser ignores. <code>tal:repeat</code> loops, <code>tal:condition</code> hides, and <code>${...}</code> fills in values with real Python expressions. There is no second language layered over your markup. Your designer can open the file. Your editor can validate it. And chameleon-robyn wires those templates into Robyn with a single decorator: your handler returns a <code>dict</code>, and a rendered <code>Response</code> comes out the other side.</p>
+<p>One honest note before we begin: the project is in alpha. The API is small and unlikely to change much, but there are no stability promises yet.</p>
 <section id="install" class="level1">
 <h1>Install</h1>
 <div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> pip install chameleon-robyn</span></code></pre></div>
 <p>Or with pip:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install chameleon-robyn</span></code></pre></div>
-<p>This installs <code>robyn</code> and <code>chameleon</code> as dependencies. Python 3.10 or newer is required.</p>
+<p>This brings in <code>robyn</code> and <code>chameleon</code> as dependencies. Python 3.10 or newer is required.</p>
+</section>
+<section id="the-site-we-are-building" class="level1">
+<h1>The site we are building</h1>
+<p>This guide follows one project from the first page to the last error message: the website for a small podcast. It has an episode list, a page per episode, a guest directory, a search box, an XML feed for the robots, and the occasional visitor who types a URL that does not exist. Every snippet in the guide comes from that site, and the repository’s <code>example/</code> folder holds the finished version.</p>
 </section>
 <section id="project-layout" class="level1">
 <h1>Project layout</h1>
+<p>Nothing about the layout is enforced, but this is the shape that makes the rest of the guide read naturally:</p>
 <pre class="text"><code>my_app/
 ├── app.py
 └── templates/
     └── home/
         └── index.pt</code></pre>
-<p>Every template path you give the library is relative to the <code>templates/</code> folder you register at startup. The folder name itself is up to you.</p>
+<p>Every template path you hand the library is relative to the <code>templates/</code> folder you register at startup. The folder name is yours to choose.</p>
 </section>
 <section id="your-first-page" class="level1">
 <h1>Your first page</h1>
-<p>Create <code>templates/home/index.pt</code>:</p>
+<p>Start with <code>templates/home/index.pt</code>. Notice that it is just HTML with two extra ideas: <code>${name}</code> to drop in a value, and <code>tal:repeat</code> on the element that should repeat.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode xml"><code class="sourceCode xml"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;!DOCTYPE</span> <span class="dt">html&gt;</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>&lt;<span class="kw">html</span>&gt;</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>&lt;<span class="kw">body</span>&gt;</span>
@@ -341,7 +352,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    &lt;/<span class="kw">ul</span>&gt;</span>
 <span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>&lt;/<span class="kw">body</span>&gt;</span>
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>&lt;/<span class="kw">html</span>&gt;</span></code></pre></div>
-<p>Create <code>app.py</code>:</p>
+<p>Now <code>app.py</code>. Three lines matter: the import, the <a href="../reference/global_init.html#chameleon_robyn.global_init" class="gdls-link gdls-code">global_init()</a> call that says where templates live, and the decorator above the handler.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> robyn <span class="im">import</span> Robyn</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> chameleon_robyn</span>
@@ -358,20 +369,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {<span class="st">'name'</span>: <span class="st">'World'</span>, <span class="st">'items'</span>: [<span class="st">'Robyn'</span>, <span class="st">'Chameleon'</span>, <span class="st">'Python'</span>]}</span>
 <span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>app.start(host<span class="op">=</span><span class="st">'127.0.0.1'</span>, port<span class="op">=</span><span class="dv">8000</span>)</span></code></pre></div>
-<p>Run <code>python app.py</code> and open <a href="http://127.0.0.1:8000/" class="uri">http://127.0.0.1:8000/</a>. You should see the heading and a three-item list.</p>
+<p>Run <code>python app.py</code> and open <a href="http://127.0.0.1:8000/" class="uri">http://127.0.0.1:8000/</a>. A heading and a three-item list greet you. That handler never touched a string of HTML, and it never will.</p>
 </section>
 <section id="what-just-happened" class="level1">
 <h1>What just happened</h1>
 <ul>
-<li><a href="../reference/global_init.html#chameleon_robyn.global_init" class="gdls-link gdls-code">global_init()</a> told Chameleon where the templates live. It runs once at startup. The settings are covered in <a href="../user-guide/configuration.html">Configuration</a>.</li>
-<li><code>@template('home/index.pt')</code> wrapped the handler. The handler returned a <code>dict</code>, and every key in it became a variable in the template.</li>
-<li>The decorator rendered the template and returned a Robyn <code>Response</code> with status 200 and a <code>Content-Type</code> of <code>text/html; charset=utf-8</code>.</li>
-<li>Robyn’s route decorator stayed on the outside. <code>@template</code> goes directly above the function, and it works for both <code>def</code> and <code>async def</code> handlers.</li>
+<li><a href="../reference/global_init.html#chameleon_robyn.global_init" class="gdls-link gdls-code">global_init()</a> told Chameleon where the templates live. It runs once at startup, and its settings are the subject of <a href="../user-guide/configuration.html">Configuration</a>.</li>
+<li><code>@template('home/index.pt')</code> wrapped the handler. The handler returned a <code>dict</code>, and every key in it became a variable the template could see.</li>
+<li>The decorator rendered the template and handed back a Robyn <code>Response</code> with status 200 and a <code>Content-Type</code> of <code>text/html; charset=utf-8</code>.</li>
+<li>Robyn’s route decorator stayed on the outside. <code>@template</code> sits directly above the function, and it is equally happy with <code>def</code> and <code>async def</code>.</li>
 </ul>
+<p>That is the whole mental model. Everything else in this guide is a refinement of it.</p>
 </section>
-<section id="example-apps" class="level1">
-<h1>Example apps</h1>
-<p>The repository has two runnable apps that show every feature: episodes and guests pages, a shared METAL layout, a search page using query parameters, an XML feed, a redirect, a cookie set from a rendered page, and a friendly 404.</p>
+<section id="run-the-finished-examples" class="level1">
+<h1>Run the finished examples</h1>
+<p>Two runnable apps live in the repository. The first shows every feature on the podcast site: episodes and guests, a shared METAL layout, search by query string, the XML feed, a redirect, a cookie set from a rendered page, and a friendly 404. The second is the same app with the episode card pulled out into a reusable partial.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/mikeckennedy/chameleon-robyn.git</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> chameleon-robyn</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> venv venv</span>
@@ -385,14 +397,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="where-to-go-next" class="level1">
 <h1>Where to go next</h1>
 <ul>
-<li><a href="../user-guide/template-decorator.html">The <span class="citation" data-cites="template">@template</span> decorator</a>: explicit and auto-named templates, async handlers, status codes, redirects, and setting cookies on a rendered page.</li>
-<li><a href="../user-guide/templates.html">Writing templates</a>: a TAL cheat sheet, METAL layouts, escaping, Alpine.js and htmx attributes, and chameleon-partials.</li>
-<li><a href="../user-guide/not-found.html">Friendly 404 pages</a>: <a href="../reference/not_found.html#chameleon_robyn.not_found" class="gdls-link gdls-code">not_found()</a> and custom 404 templates.</li>
+<li><a href="../user-guide/template-decorator.html">The <span class="citation" data-cites="template">@template</span> decorator</a>: the return-value contract, templates that name themselves, async handlers, status codes, redirects, and setting a cookie on a rendered page.</li>
+<li><a href="../user-guide/templates.html">Writing templates</a>: a TAL cheat sheet, shared layouts with METAL, escaping, Alpine.js and htmx attributes, and chameleon-partials.</li>
+<li><a href="../user-guide/not-found.html">Friendly 404 pages</a>: one call to <a href="../reference/not_found.html#chameleon_robyn.not_found" class="gdls-link gdls-code">not_found()</a> and the stack trace never reaches the visitor.</li>
 <li><a href="../user-guide/lower-level-api.html">Rendering outside handlers</a>: <a href="../reference/render.html#chameleon_robyn.render" class="gdls-link gdls-code">render()</a>, <a href="../reference/response.html#chameleon_robyn.response" class="gdls-link gdls-code">response()</a>, and the standalone <a href="../reference/ChameleonTemplate.html#chameleon_robyn.ChameleonTemplate" class="gdls-link gdls-code">ChameleonTemplate</a> class.</li>
-<li><a href="../user-guide/configuration.html">Configuration</a>: every <a href="../reference/global_init.html#chameleon_robyn.global_init" class="gdls-link gdls-code">global_init()</a> setting, and development versus production.</li>
-<li><a href="../user-guide/testing.html">Testing your handlers</a>: call decorated handlers directly, without starting a server.</li>
-<li><a href="../user-guide/troubleshooting.html">Errors and how to fix them</a>: what each exception means and what to change.</li>
-<li><a href="../user-guide/how-it-works.html">How it works</a>: the three source files and the design choices behind them.</li>
+<li><a href="../user-guide/configuration.html">Configuration</a>: every <a href="../reference/global_init.html#chameleon_robyn.global_init" class="gdls-link gdls-code">global_init()</a> setting, and the one that bites people in tests.</li>
+<li><a href="../user-guide/testing.html">Testing your handlers</a>: no server, no client, just function calls.</li>
+<li><a href="../user-guide/troubleshooting.html">Errors and how to fix them</a>: a field guide to every exception you can meet.</li>
+<li><a href="../user-guide/how-it-works.html">How it works</a>: a tour of the three source files.</li>
 <li><a href="../user-guide/faq.html">FAQ</a></li>
 <li><a href="../reference/index.html">API reference</a></li>
 </ul>

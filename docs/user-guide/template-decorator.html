@@ -121,15 +121,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
   <link rel="alternate" type="text/markdown" href="template-decorator.md">
   <link rel="canonical" href="https://mkennedy.codes/docs/chameleon-robyn/user-guide/template-decorator.html">
-  <meta name="description" content="The decorator is the main way you use this package. It wraps a Robyn route handler, takes the handler’s return value, and turns it into a Robyn Response.">
+  <meta name="description" content="A route handler has two jobs: decide what to show, and show it. @template takes the second job away entirely. Your handler gathers data and returns a...">
   <meta property="og:type" content="website">
   <meta property="og:title" content="The @template decorator – chameleon-robyn | chameleon-robyn">
-  <meta property="og:description" content="The decorator is the main way you use this package. It wraps a Robyn route handler, takes the handler’s return value, and turns it into a Robyn Response.">
+  <meta property="og:description" content="A route handler has two jobs: decide what to show, and show it. @template takes the second job away entirely. Your handler gathers data and returns a...">
   <meta property="og:url" content="https://mkennedy.codes/docs/chameleon-robyn/user-guide/template-decorator.html">
   <meta property="og:site_name" content="chameleon-robyn">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="The @template decorator – chameleon-robyn | chameleon-robyn">
-  <meta name="twitter:description" content="The decorator is the main way you use this package. It wraps a Robyn route handler, takes the handler’s return value, and turns it into a Robyn Response.">
+  <meta name="twitter:description" content="A route handler has two jobs: decide what to show, and show it. @template takes the second job away entirely. Your handler gathers data and returns a...">
 </head>
 
 <body class="nav-sidebar floating nav-fixed quarto-light">
@@ -140,7 +140,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../index.html">
-    <span class="navbar-title">chameleon-robyn</span>
+    <span class="navbar-title">chameleon-robyn <span class="version-badge" title="Released 2026-11-07">v0.1.2</span></span>
     </a>
   </div>
             <div id="quarto-search" class=""></div>
@@ -156,6 +156,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li class="nav-item">
     <a class="nav-link" href="../reference/index.html"> 
 <span class="menu-text">API Reference</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../changelog.html"> 
+<span class="menu-text">Changelog</span></a>
   </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
@@ -281,7 +285,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul class="collapse">
-  <li><a href="#what-the-handler-returns" id="toc-what-the-handler-returns" class="nav-link active" data-scroll-target="#what-the-handler-returns">What the handler returns</a></li>
+  <li><a href="#the-contract" id="toc-the-contract" class="nav-link active" data-scroll-target="#the-contract">The contract</a></li>
   <li><a href="#explicit-template-path" id="toc-explicit-template-path" class="nav-link" data-scroll-target="#explicit-template-path">Explicit template path</a></li>
   <li><a href="#auto-naming" id="toc-auto-naming" class="nav-link" data-scroll-target="#auto-naming">Auto-naming</a></li>
   <li><a href="#async-handlers" id="toc-async-handlers" class="nav-link" data-scroll-target="#async-handlers">Async handlers</a></li>
@@ -314,9 +318,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>The decorator is the main way you use this package. It wraps a Robyn route handler, takes the handler’s return value, and turns it into a Robyn <code>Response</code>.</p>
-<section id="what-the-handler-returns" class="level1">
-<h1>What the handler returns</h1>
+<p>A route handler has two jobs: decide what to show, and show it. <code>@template</code> takes the second job away entirely. Your handler gathers data and returns a <code>dict</code>. The decorator finds the template, renders it, builds the <code>Response</code>, and sets the headers. You never see a string of HTML in Python again, and the handler reads like a description of the page rather than a construction of it.</p>
+<section id="the-contract" class="level1">
+<h1>The contract</h1>
+<p>Everything the decorator does follows from one rule about what your handler returns:</p>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -331,7 +336,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="even">
 <td>a Robyn <code>Response</code></td>
-<td>Returns it untouched. No template is rendered. Use this for redirects and hand-built responses.</td>
+<td>Returns it untouched. No template is rendered. This is the escape hatch for redirects and hand-built responses.</td>
 </tr>
 <tr class="odd">
 <td>anything else</td>
@@ -343,21 +348,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="explicit-template-path" class="level1">
 <h1>Explicit template path</h1>
+<p>The podcast’s episode list is the plainest possible case:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="at">@app.get</span>(<span class="st">'/episodes'</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="at">@chameleon_robyn.template</span>(<span class="st">'episodes/list.pt'</span>)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> episode_list(request):</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {<span class="st">'episodes'</span>: get_all_episodes()}</span></code></pre></div>
-<p>The path is relative to the folder passed to <a href="../reference/global_init.html#chameleon_robyn.global_init" class="gdls-link gdls-code">global_init()</a>. Any file extension works; <code>.pt</code> is the convention, and the example apps also render a <code>.xml</code> feed.</p>
+<p>The path is relative to the folder passed to <a href="../reference/global_init.html#chameleon_robyn.global_init" class="gdls-link gdls-code">global_init()</a>. Any file extension works; <code>.pt</code> is the convention, and the same site renders a <code>.xml</code> feed with the same decorator.</p>
 </section>
 <section id="auto-naming" class="level1">
 <h1>Auto-naming</h1>
-<p>Omit the path and the template name is derived from the handler’s location:</p>
+<p>Leave the path out and the decorator names the template after the code that renders it. The rule has three steps:</p>
 <ol type="1">
 <li>Take the last segment of the handler’s module name and the function name.</li>
 <li>Look for <code>&lt;module&gt;/&lt;function&gt;.html</code> under the template folder.</li>
 <li>If that file does not exist, use <code>&lt;module&gt;/&lt;function&gt;.pt</code>.</li>
 </ol>
-<p>So <code>index()</code> in <code>views/home_views.py</code> renders <code>home_views/index.html</code> if it exists, otherwise <code>home_views/index.pt</code>.</p>
+<p>So <code>index()</code> in <code>views/home_views.py</code> renders <code>home_views/index.html</code> if it exists, otherwise <code>home_views/index.pt</code>. Your template folder ends up mirroring your view modules, which is a pleasant thing to discover six months later.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Looks for templates/home_views/index.pt</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="at">@app.get</span>(<span class="st">'/'</span>)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="at">@chameleon_robyn.template</span>()</span>
@@ -368,15 +374,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="at">@chameleon_robyn.template</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> index(request):</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {<span class="st">'message'</span>: <span class="st">'Hello!'</span>}</span></code></pre></div>
-<p>Two details worth knowing:</p>
+<p>Two details are worth knowing:</p>
 <ul>
-<li>A script run directly (<code>python app.py</code>) has the module name <code>__main__</code>. The library uses the script’s file name instead, so <code>index()</code> in <code>app.py</code> maps to <code>app/index.pt</code>. If no such file exists but <code>__main__/index.html</code> or <code>__main__/index.pt</code> does, that is used, so apps built on the old behavior keep working.</li>
-<li>The name is resolved at the first request, not when the decorator runs. That is why routes can be decorated at import time and <a href="../reference/global_init.html#chameleon_robyn.global_init" class="gdls-link gdls-code">global_init()</a> can be called later from <code>main()</code>. The <code>.html</code> or <code>.pt</code> file has to exist by the time the first request arrives.</li>
+<li>A script run directly (<code>python app.py</code>) has the module name <code>__main__</code>, which would make for a strange folder name. The library uses the script’s file name instead, so <code>index()</code> in <code>app.py</code> maps to <code>app/index.pt</code>. If no such file exists but <code>__main__/index.html</code> or <code>__main__/index.pt</code> does, that is used, so apps built on the old behavior keep working.</li>
+<li>The name is resolved at the first request, not when the decorator runs. That is what lets you decorate routes at import time and call <a href="../reference/global_init.html#chameleon_robyn.global_init" class="gdls-link gdls-code">global_init()</a> later from <code>main()</code>. The file only has to exist by the time the first visitor arrives.</li>
 </ul>
 </section>
 <section id="async-handlers" class="level1">
 <h1>Async handlers</h1>
-<p>Nothing to configure. The decorator detects <code>async def</code> and awaits the handler.</p>
+<p>Nothing to configure. The decorator notices <code>async def</code> and awaits the handler, so the episode page can go to the database like any other coroutine:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="at">@app.get</span>(<span class="st">'/dashboard'</span>)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="at">@chameleon_robyn.template</span>(<span class="st">'dashboard.pt'</span>)</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> dashboard(request):</span>
@@ -390,6 +396,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="status-codes-and-content-types" class="level1">
 <h1>Status codes and content types</h1>
+<p>Templates are not only for HTML pages. The podcast feed is a Chameleon template too, and so is a “created” page after a form post:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Return a 201 after creating a resource</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="at">@app.post</span>(<span class="st">'/items'</span>)</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="at">@chameleon_robyn.template</span>(<span class="st">'items/created.pt'</span>, status_code<span class="op">=</span><span class="dv">201</span>)</span>
@@ -406,7 +413,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="redirects-and-other-pass-through-responses" class="level1">
 <h1>Redirects and other pass-through responses</h1>
-<p>Return a Robyn <code>Response</code> and the decorator hands it back unchanged:</p>
+<p>Sometimes the right answer is not a page at all. Return a Robyn <code>Response</code> and the decorator steps aside:</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> robyn <span class="im">import</span> Response, Headers</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="at">@app.get</span>(<span class="st">'/old-page'</span>)</span>
@@ -417,11 +424,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        description<span class="op">=</span><span class="st">''</span>,</span>
 <span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        headers<span class="op">=</span>Headers({<span class="st">'Location'</span>: <span class="st">'/new-page'</span>}),</span>
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div>
-<p>This also lets one handler choose between templates at runtime: build the alternative with <a href="../user-guide/lower-level-api.html"><code>response()</code></a> and return it.</p>
+<p>The same rule lets one handler choose between templates at runtime: build the alternative with <a href="../user-guide/lower-level-api.html"><code>response()</code></a> and return it.</p>
 </section>
 <section id="setting-cookies-or-headers-on-a-rendered-page" class="level1">
 <h1>Setting cookies or headers on a rendered page</h1>
-<p>Sometimes you want the template rendered and a change to the final <code>Response</code>, for example a session cookie after login. Put a callable under the reserved key <code>__response_callback__</code> in the returned dict. After rendering, the decorator calls it with the <code>Response</code> it built.</p>
+<p>Here is the classic puzzle. A visitor logs in. You want to render the welcome page, which means returning a dict, and you also want to set a session cookie, which means touching the <code>Response</code>. You cannot do both from a dict. Or can you?</p>
+<p>Put a callable under the reserved key <code>__response_callback__</code> in the returned dict. After rendering, the decorator calls it with the <code>Response</code> it just built:</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> robyn <span class="im">import</span> Response</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="at">@app.post</span>(<span class="st">'/account/login'</span>)</span>
@@ -442,15 +450,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    }</span></code></pre></div>
 <p>Rules for the callback:</p>
 <ul>
-<li>It is removed from the model before rendering, so the template never sees it. Your dict is not modified.</li>
+<li>It is removed from the model before rendering, so the template never sees it, and your dict is not modified.</li>
 <li>Change the <code>Response</code> in place. The return value is ignored.</li>
 <li>It must be callable. Anything else raises <a href="../reference/ChameleonRobynException.html#chameleon_robyn.ChameleonRobynException" class="gdls-link gdls-code">ChameleonRobynException</a>.</li>
 </ul>
 </section>
 <section id="decorator-order" class="level1">
 <h1>Decorator order</h1>
-<p>Robyn’s route decorator goes on the outside and <code>@template</code> goes directly above the function. Robyn reads the handler’s signature when the route is registered, and the decorator preserves the original signature, so request and path parameters keep working.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="at">@app.get</span>(<span class="st">'/episodes'</span>)                       <span class="co"># outermost</span></span>
+<p>Robyn’s route decorator goes on the outside and <code>@template</code> goes directly above the function. Robyn reads the handler’s signature when the route is registered, and the decorator preserves the original signature, so <code>request</code> and path parameters keep flowing exactly as they did before.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="at">@app.get</span>(<span class="st">'/episodes'</span>)                          <span class="co"># outermost</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="at">@chameleon_robyn.template</span>(<span class="st">'episodes/list.pt'</span>)  <span class="co"># directly above the function</span></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> episode_list(request):</span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    ...</span></code></pre></div>

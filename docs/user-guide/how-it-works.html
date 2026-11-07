@@ -86,15 +86,15 @@ ul.task-list li input[type="checkbox"] {
 
   <link rel="alternate" type="text/markdown" href="how-it-works.md">
   <link rel="canonical" href="https://mkennedy.codes/docs/chameleon-robyn/user-guide/how-it-works.html">
-  <meta name="description" content="The library is three small files in chameleon_robyn/. Everything else in the repository is tests, example apps and documentation.">
+  <meta name="description" content="The whole library is three small files in chameleon_robyn/. Everything else in the repository is tests, example apps and this documentation. You can...">
   <meta property="og:type" content="website">
   <meta property="og:title" content="How it works – chameleon-robyn | chameleon-robyn">
-  <meta property="og:description" content="The library is three small files in chameleon_robyn/. Everything else in the repository is tests, example apps and documentation.">
+  <meta property="og:description" content="The whole library is three small files in chameleon_robyn/. Everything else in the repository is tests, example apps and this documentation. You can...">
   <meta property="og:url" content="https://mkennedy.codes/docs/chameleon-robyn/user-guide/how-it-works.html">
   <meta property="og:site_name" content="chameleon-robyn">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="How it works – chameleon-robyn | chameleon-robyn">
-  <meta name="twitter:description" content="The library is three small files in chameleon_robyn/. Everything else in the repository is tests, example apps and documentation.">
+  <meta name="twitter:description" content="The whole library is three small files in chameleon_robyn/. Everything else in the repository is tests, example apps and this documentation. You can...">
 </head>
 
 <body class="nav-sidebar floating nav-fixed quarto-light">
@@ -105,7 +105,7 @@ ul.task-list li input[type="checkbox"] {
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../index.html">
-    <span class="navbar-title">chameleon-robyn</span>
+    <span class="navbar-title">chameleon-robyn <span class="version-badge" title="Released 2026-11-07">v0.1.2</span></span>
     </a>
   </div>
             <div id="quarto-search" class=""></div>
@@ -121,6 +121,10 @@ ul.task-list li input[type="checkbox"] {
   <li class="nav-item">
     <a class="nav-link" href="../reference/index.html"> 
 <span class="menu-text">API Reference</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../changelog.html"> 
+<span class="menu-text">Changelog</span></a>
   </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
@@ -276,14 +280,14 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>The library is three small files in <code>chameleon_robyn/</code>. Everything else in the repository is tests, example apps and documentation.</p>
+<p>The whole library is three small files in <code>chameleon_robyn/</code>. Everything else in the repository is tests, example apps and this documentation. You can read the source in the time it takes to drink a coffee, and this page is the guided tour, so that when something surprises you, you already know which five lines to look at.</p>
 <section id="the-global-loader" class="level1">
 <h1>The global loader</h1>
-<p><a href="../reference/global_init.html#chameleon_robyn.global_init" class="gdls-link gdls-code">global_init()</a> creates one Chameleon <code>PageTemplateLoader</code> for the template folder and stores it, together with the folder path, in module-level state. <a href="../reference/render.html#chameleon_robyn.render" class="gdls-link gdls-code">render()</a> looks a template up in that loader by its relative path and calls Chameleon’s <a href="../reference/render.html#chameleon_robyn.render" class="gdls-link gdls-code">render()</a> with the keyword arguments as the template’s variables. <a href="../reference/response.html#chameleon_robyn.response" class="gdls-link gdls-code">response()</a> calls <a href="../reference/render.html#chameleon_robyn.render" class="gdls-link gdls-code">render()</a> and wraps the string in a Robyn <code>Response</code> with the requested status and content type. <a href="../reference/clear.html#chameleon_robyn.clear" class="gdls-link gdls-code">clear()</a> drops the stored loader so the next <a href="../reference/global_init.html#chameleon_robyn.global_init" class="gdls-link gdls-code">global_init()</a> starts fresh.</p>
+<p><a href="../reference/global_init.html#chameleon_robyn.global_init" class="gdls-link gdls-code">global_init()</a> creates one Chameleon <code>PageTemplateLoader</code> for the template folder and stores it, together with the folder path, in module-level state. That single loader is the engine. <a href="../reference/render.html#chameleon_robyn.render" class="gdls-link gdls-code">render()</a> looks a template up in it by relative path and calls Chameleon’s <a href="../reference/render.html#chameleon_robyn.render" class="gdls-link gdls-code">render()</a> with the keyword arguments as the template’s variables. <a href="../reference/response.html#chameleon_robyn.response" class="gdls-link gdls-code">response()</a> calls <a href="../reference/render.html#chameleon_robyn.render" class="gdls-link gdls-code">render()</a> and wraps the string in a Robyn <code>Response</code> with the requested status and content type. <a href="../reference/clear.html#chameleon_robyn.clear" class="gdls-link gdls-code">clear()</a> drops the stored loader so the next <a href="../reference/global_init.html#chameleon_robyn.global_init" class="gdls-link gdls-code">global_init()</a> starts fresh.</p>
 </section>
 <section id="the-decorator" class="level1">
 <h1>The decorator</h1>
-<p><a href="../reference/template.html#chameleon_robyn.template" class="gdls-link gdls-code">template()</a> returns a wrapper for the handler. It chooses a synchronous or asynchronous wrapper by checking whether the handler is a coroutine function, so <code>await</code> happens where it should. Both wrappers do the same work:</p>
+<p><a href="../reference/template.html#chameleon_robyn.template" class="gdls-link gdls-code">template()</a> returns a wrapper for the handler. It chooses a synchronous or asynchronous wrapper by checking whether the handler is a coroutine function, so <code>await</code> happens exactly where it should. Both wrappers do the same four things:</p>
 <ol type="1">
 <li>Call the handler.</li>
 <li>If the result is a Robyn <code>Response</code>, return it unchanged.</li>
@@ -291,19 +295,19 @@ ul.task-list li input[type="checkbox"] {
 <li>Otherwise raise <a href="../reference/ChameleonRobynException.html#chameleon_robyn.ChameleonRobynException" class="gdls-link gdls-code">ChameleonRobynException</a>.</li>
 </ol>
 <p>Both wrappers also catch <a href="../reference/ChameleonRobynNotFoundException.html#chameleon_robyn.ChameleonRobynNotFoundException" class="gdls-link gdls-code">ChameleonRobynNotFoundException</a>, which <a href="../reference/not_found.html#chameleon_robyn.not_found" class="gdls-link gdls-code">not_found()</a> raises, and render the template it carries with status 404.</p>
-<p>The wrappers use <code>functools.wraps</code>, which keeps the original function’s name and signature visible. Robyn inspects the handler signature when a route is registered to decide which arguments to pass, so this is what keeps <code>request</code> and typed path parameters working through the decorator.</p>
+<p>The wrappers use <code>functools.wraps</code>, which keeps the original function’s name and signature visible. Robyn inspects the handler signature when a route is registered to decide which arguments to pass. That one line is what keeps <code>request</code> and typed path parameters working through the decorator.</p>
 </section>
 <section id="lazy-template-names" class="level1">
 <h1>Lazy template names</h1>
-<p>When the template path is omitted, the wrapper derives <code>&lt;module&gt;/&lt;function&gt;</code> and checks for the <code>.html</code> file on the first request rather than at decoration time. Routes are often decorated at import, before <a href="../reference/global_init.html#chameleon_robyn.global_init" class="gdls-link gdls-code">global_init()</a> has run and before the template folder is known. Once the folder is known the resolved name is cached, so the file check happens once per handler.</p>
+<p>When the template path is omitted, the wrapper derives <code>&lt;module&gt;/&lt;function&gt;</code> and checks for the <code>.html</code> file on the first request rather than at decoration time. The reason is timing: routes are often decorated at import, before <a href="../reference/global_init.html#chameleon_robyn.global_init" class="gdls-link gdls-code">global_init()</a> has run and before anyone knows where the template folder is. Once the folder is known the resolved name is cached, so the file check happens once per handler, not once per request.</p>
 </section>
 <section id="via-an-exception" class="level1">
 <h1>404 via an exception</h1>
-<p><a href="../reference/not_found.html#chameleon_robyn.not_found" class="gdls-link gdls-code">not_found()</a> is declared <code>NoReturn</code>. It raises rather than returns so a handler can call it from inside a nested condition without the surrounding code needing to <code>return</code> its result. The exception carries the template path and message, and the decorator turns it into a response. This is also why it only works inside decorated handlers.</p>
+<p><a href="../reference/not_found.html#chameleon_robyn.not_found" class="gdls-link gdls-code">not_found()</a> is declared <code>NoReturn</code>. It raises rather than returns so a handler can call it from inside a nested condition without the surrounding code having to <code>return</code> its result. The exception carries the template path and message, and the decorator turns it into a response. This is also why it only works inside decorated handlers: the decorator is the net, and without it there is nothing to catch.</p>
 </section>
 <section id="no-jinja2-dependency" class="level1">
 <h1>No Jinja2 dependency</h1>
-<p>Robyn’s <code>TemplateInterface</code> lives in a module that imports Jinja2 at the top. Subclassing it would make Jinja2 a hard dependency of this package. Instead, <a href="../reference/ChameleonTemplate.html#chameleon_robyn.ChameleonTemplate" class="gdls-link gdls-code">ChameleonTemplate</a> implements a local <code>Protocol</code> with the same <a href="../reference/ChameleonTemplate.html#chameleon_robyn.ChameleonTemplate.render_template" class="gdls-link gdls-code">render_template()</a> method, marked <code>runtime_checkable</code> so <code>isinstance()</code> checks still work. Robyn only cares about the method, so the class is interchangeable with <code>JinjaTemplate</code> in practice.</p>
+<p>Robyn’s <code>TemplateInterface</code> lives in a module that imports Jinja2 at the top. Subclassing it would have made Jinja2 a hard dependency of a package whose entire purpose is to let you not use Jinja2. Instead, <a href="../reference/ChameleonTemplate.html#chameleon_robyn.ChameleonTemplate" class="gdls-link gdls-code">ChameleonTemplate</a> implements a local <code>Protocol</code> with the same <a href="../reference/ChameleonTemplate.html#chameleon_robyn.ChameleonTemplate.render_template" class="gdls-link gdls-code">render_template()</a> method, marked <code>runtime_checkable</code> so <code>isinstance()</code> checks still pass. Robyn only cares that the method exists, so the class is interchangeable with <code>JinjaTemplate</code> in practice, and your dependency tree stays honest.</p>
 
 
 </section>

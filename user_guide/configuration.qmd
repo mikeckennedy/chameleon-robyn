@@ -2,7 +2,7 @@
 title: Configuration
 ---
 
-All configuration is one function call at startup. There are no environment variables and no config files.
+All configuration is one function call at startup. There are no environment variables, no config files, and no settings module to discover. Four parameters, one of them required:
 
 ```python
 chameleon_robyn.global_init(
@@ -27,7 +27,7 @@ Either place works:
 - At import time, before the routes, as in the [getting started](getting-started.qmd) example.
 - From `main()` right before `app.start()`, after the routes have been decorated. Auto-named templates are resolved at the first request, so this is fine, and it is the pattern the example apps use.
 
-Build the path from `__file__` so it does not depend on the working directory:
+Build the path from `__file__` so it does not depend on where the process was started:
 
 ```python
 from pathlib import Path
@@ -41,14 +41,14 @@ def main():
 
 ## Calling it twice
 
-With the default `cache_init=True`, a second call is ignored. This is deliberate: a module that calls `global_init()` on import cannot clobber the settings the app chose. It also means changing a setting at runtime requires either `cache_init=False` or a `clear()` first:
+With the default `cache_init=True`, a second call is ignored. This is a feature with a sharp edge. The feature: a module that calls `global_init()` on import cannot clobber the settings your app chose. The edge: when you do want to change a setting at runtime, you have to say so, either with `cache_init=False` or by calling `clear()` first:
 
 ```python
 chameleon_robyn.clear()
 chameleon_robyn.global_init(other_folder, restricted_namespace=False)
 ```
 
-`clear()` resets the engine to its uninitialized state. Rendering after `clear()` and before the next `global_init()` raises `ChameleonRobynException`. Its main use is in tests; see [Testing your handlers](testing.qmd).
+`clear()` resets the engine to its uninitialized state. Rendering after `clear()` and before the next `global_init()` raises `ChameleonRobynException`. Its natural home is a test fixture; see [Testing your handlers](testing.qmd).
 
 ## Development versus production
 
@@ -57,4 +57,4 @@ chameleon_robyn.global_init(other_folder, restricted_namespace=False)
 | `auto_reload` | `True`, so template edits show up on the next request | `False`, so each template is compiled once and cached |
 | `restricted_namespace` | `False` if you use Alpine.js or htmx attributes, otherwise leave the default | same as development |
 
-A `dev_mode` flag driven by your own settings is the usual way to switch, as in the example above.
+A `dev_mode` flag driven by your own settings is the usual switch, as in the example above. Flip it off before you deploy and Chameleon stops watching the disk.

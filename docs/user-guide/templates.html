@@ -121,15 +121,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
   <link rel="alternate" type="text/markdown" href="templates.md">
   <link rel="canonical" href="https://mkennedy.codes/docs/chameleon-robyn/user-guide/templates.html">
-  <meta name="description" content="Chameleon templates are HTML or XML files where the logic lives in attributes. There is no {% ... %} or { ... } syntax. If you know Jinja2, the biggest...">
+  <meta name="description" content="Most template languages ask you to learn a second syntax and sprinkle it through your HTML. Chameleon asks you to learn a handful of attributes. A...">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Writing templates – chameleon-robyn | chameleon-robyn">
-  <meta property="og:description" content="Chameleon templates are HTML or XML files where the logic lives in attributes. There is no {% ... %} or { ... } syntax. If you know Jinja2, the biggest...">
+  <meta property="og:description" content="Most template languages ask you to learn a second syntax and sprinkle it through your HTML. Chameleon asks you to learn a handful of attributes. A...">
   <meta property="og:url" content="https://mkennedy.codes/docs/chameleon-robyn/user-guide/templates.html">
   <meta property="og:site_name" content="chameleon-robyn">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Writing templates – chameleon-robyn | chameleon-robyn">
-  <meta name="twitter:description" content="Chameleon templates are HTML or XML files where the logic lives in attributes. There is no {% ... %} or { ... } syntax. If you know Jinja2, the biggest...">
+  <meta name="twitter:description" content="Most template languages ask you to learn a second syntax and sprinkle it through your HTML. Chameleon asks you to learn a handful of attributes. A...">
 </head>
 
 <body class="nav-sidebar floating nav-fixed quarto-light">
@@ -140,7 +140,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../index.html">
-    <span class="navbar-title">chameleon-robyn</span>
+    <span class="navbar-title">chameleon-robyn <span class="version-badge" title="Released 2026-11-07">v0.1.2</span></span>
     </a>
   </div>
             <div id="quarto-search" class=""></div>
@@ -156,6 +156,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li class="nav-item">
     <a class="nav-link" href="../reference/index.html"> 
 <span class="menu-text">API Reference</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../changelog.html"> 
+<span class="menu-text">Changelog</span></a>
   </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
@@ -312,7 +316,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>Chameleon templates are HTML or XML files where the logic lives in attributes. There is no <code>{% ... %}</code> or <code>{ ... }</code> syntax. If you know Jinja2, the biggest change is that a template is always a well-formed document, and loops and conditions attach to the element they control. The full language reference is at <a href="https://chameleon.readthedocs.io/">chameleon.readthedocs.io</a>.</p>
+<p>Most template languages ask you to learn a second syntax and sprinkle it through your HTML. Chameleon asks you to learn a handful of attributes. A template is always a well-formed document, and every loop and condition attaches to the element it controls. The result is markup you can read top to bottom and know exactly which element repeats, which disappears, and where the data lands. The full language reference lives at <a href="https://chameleon.readthedocs.io/">chameleon.readthedocs.io</a>; this page covers the parts the podcast site needs.</p>
 <section id="tal-cheat-sheet" class="level1">
 <h1>TAL cheat sheet</h1>
 <div class="sourceCode" id="cb1"><pre class="sourceCode xml"><code class="sourceCode xml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">&lt;!-- Variable substitution: any Python expression inside ${ } --&gt;</span></span>
@@ -341,17 +345,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="co">&lt;!-- Define a local variable --&gt;</span></span>
 <span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>&lt;<span class="kw">span</span> <span class="ot">tal:define=</span><span class="st">"total sum(i.price for i in items)"</span>&gt;Total: ${total}&lt;/<span class="kw">span</span>&gt;</span></code></pre></div>
-<p>A literal <code>$</code> followed by <code>{</code> is written <code>$${...}</code>, as in the price example above.</p>
+<p>Two habits pay off quickly. First, the placeholder text inside <code>tal:content</code> and <code>tal:replace</code> is what you see when you open the file in a browser without rendering it, so write something realistic there. Second, a literal <code>$</code> followed by <code>{</code> is written <code>$${...}</code>, as in the price example above.</p>
 </section>
 <section id="escaping-and-structure" class="level1">
 <h1>Escaping and <code>structure</code></h1>
-<p>Everything inserted with <code>${...}</code>, <code>tal:content</code> or <code>tal:replace</code> is HTML-escaped. To insert markup that is already safe, use the <code>structure</code> keyword:</p>
+<p>Everything inserted with <code>${...}</code>, <code>tal:content</code> or <code>tal:replace</code> is HTML-escaped. A guest named <code>&lt;script&gt;</code> becomes harmless text. When you genuinely have markup that is already safe, say so with the <code>structure</code> keyword:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode xml"><code class="sourceCode xml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>&lt;<span class="kw">div</span> <span class="ot">tal:replace=</span><span class="st">"structure rich_html_content"</span> /&gt;</span></code></pre></div>
-<p>Only do this with HTML you generated or sanitized yourself.</p>
+<p>Treat that keyword as a promise. Only make it for HTML you generated or sanitized yourself.</p>
 </section>
 <section id="shared-layouts-with-metal" class="level1">
 <h1>Shared layouts with METAL</h1>
-<p>METAL macros are Chameleon’s template inheritance. The layout defines slots; each page fills them.</p>
+<p>The podcast site has one navigation bar, one footer and one stylesheet link, and nobody wants to paste them into every page. METAL macros are Chameleon’s template inheritance. The layout defines slots; each page fills them.</p>
 <p><code>templates/shared/layout.pt</code>:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode xml"><code class="sourceCode xml"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;!DOCTYPE</span> <span class="dt">html&gt;</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>&lt;<span class="kw">html</span>&gt;</span>
@@ -367,21 +371,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>&lt;/<span class="kw">div</span>&gt;</span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>&lt;/<span class="kw">metal:block</span>&gt;</span></code></pre></div>
 <p>The <code>load:</code> path is resolved relative to the template that uses it, so a page in <code>home/</code> reaches the layout with <code>../shared/layout.pt</code>. Chameleon also falls back to the template folder, so <code>shared/layout.pt</code> works too. The example apps use the relative form.</p>
-<p>The layout sees the same variables as the page, so <code>title</code> above comes from the handler’s dict.</p>
+<p>The layout sees the same variables as the page, which is why <code>title</code> above comes straight from the handler’s dict. Set it once per handler and every page has a title.</p>
 </section>
 <section id="file-extensions" class="level1">
 <h1>File extensions</h1>
-<p>The loader does not care about the extension. <code>.pt</code> is the Chameleon convention and auto-naming looks for <code>.html</code> first and <code>.pt</code> second (see <a href="../user-guide/template-decorator.html#auto-naming">the decorator guide</a>). Any other extension works with an explicit path; the example apps render <code>episodes/feed.xml</code> with <code>content_type='application/xml'</code>.</p>
+<p>The loader does not care about the extension. <code>.pt</code> is the Chameleon convention, and auto-naming looks for <code>.html</code> first and <code>.pt</code> second (see <a href="../user-guide/template-decorator.html#auto-naming">the decorator guide</a>). Any other extension works with an explicit path. The podcast’s <code>episodes/feed.xml</code> is a template like any other, served with <code>content_type='application/xml'</code>.</p>
 </section>
 <section id="alpine-htmx" class="level1">
 <h1>Alpine.js, htmx and other attribute syntaxes</h1>
-<p>By default Chameleon runs with a restricted namespace. Attributes such as <code>@click</code>, <code>:class</code>, or <code>x-on:click</code> look like XML namespace prefixes and are rejected with a <code>KeyError</code> when the template is parsed. Turn the restriction off at startup:</p>
+<p>Here is a surprise waiting for anyone who adds a sprinkle of Alpine.js to a Chameleon page. Chameleon runs with a restricted namespace by default, and attributes such as <code>@click</code>, <code>:class</code>, or <code>x-on:click</code> look to it like XML namespace prefixes it has never heard of. The template refuses to parse and you get a <code>KeyError</code> naming the attribute. The fix is one flag at startup:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>chameleon_robyn.global_init(template_folder, restricted_namespace<span class="op">=</span><span class="va">False</span>)</span></code></pre></div>
-<p>The same flag exists on <a href="../reference/ChameleonTemplate.html"><code>ChameleonTemplate</code></a>. With it off, any attribute syntax is passed through to the browser.</p>
+<p>The same flag exists on <a href="../reference/ChameleonTemplate.html"><code>ChameleonTemplate</code></a>. With the restriction off, any attribute syntax passes through to the browser untouched.</p>
 </section>
 <section id="reusable-components-with-chameleon-partials" class="level1">
 <h1>Reusable components with chameleon-partials</h1>
-<p><a href="https://github.com/mikeckennedy/chameleon-partials">chameleon-partials</a> adds <code>render_partial()</code> for rendering a sub-template from inside a template. It uses its own loader, so initialize both packages at startup with the same folder:</p>
+<p>The episode card appears on the episode list and again on the search results page. Copying it once is fine. Copying it a third time is how layouts drift. <a href="https://github.com/mikeckennedy/chameleon-partials">chameleon-partials</a> adds <code>render_partial()</code> for rendering a sub-template from inside a template. It keeps its own loader, so initialize both packages at startup with the same folder:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> chameleon_partials</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> chameleon_robyn</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -399,7 +403,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode" id="cb8"><pre class="sourceCode xml"><code class="sourceCode xml"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>&lt;<span class="kw">div</span> <span class="ot">tal:repeat=</span><span class="st">"ep episodes"</span>&gt;</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">div</span> <span class="ot">tal:replace=</span><span class="st">"structure render_partial('shared/episode_card.pt', ep=ep)"</span> /&gt;</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>&lt;/<span class="kw">div</span>&gt;</span></code></pre></div>
-<p><code>structure</code> stops Chameleon from escaping the partial’s HTML, and <code>tal:replace</code> swaps out the placeholder element. The <code>example-partials/</code> app in the repository is the core example app refactored this way; compare its episode list template with the one in <code>example/</code>.</p>
+<p><code>structure</code> stops Chameleon from escaping the partial’s HTML, and <code>tal:replace</code> swaps out the placeholder element. The <code>example-partials/</code> app in the repository is the core example refactored this way. Open its episode list template next to the one in <code>example/</code> and watch a block of card markup collapse into one line.</p>
 
 
 </section>

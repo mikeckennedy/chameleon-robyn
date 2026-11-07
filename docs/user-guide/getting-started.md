@@ -1,8 +1,10 @@
 # Getting started
 
-Robyn ships with Jinja2 templating. chameleon-robyn lets you use [Chameleon](https://chameleon.readthedocs.io/) page templates instead: `.pt` files that are valid HTML, with `tal:` attributes for logic and METAL macros for shared layouts. If you have used Chameleon with Pyramid, Flask, or FastAPI, the templates are the same. The package adds a `@template` decorator so a Robyn handler returns a plain `dict` and the caller gets back a rendered Robyn `Response`.
+Every web framework eventually asks the same question: how do you turn data into HTML? Robyn's answer out of the box is Jinja2. This package offers a second answer, the one people who built on Pyramid or Zope tend to miss the moment they leave: [Chameleon](https://chameleon.readthedocs.io/) page templates.
 
-The project is in alpha. The API is small and unlikely to change much, but there are no stability promises yet.
+A Chameleon template is an ordinary HTML file. Open one in a browser before it has ever been rendered and you still see a page, placeholders and all, because the logic lives inside attributes the browser ignores. `tal:repeat` loops, `tal:condition` hides, and `${...}` fills in values with real Python expressions. There is no second language layered over your markup. Your designer can open the file. Your editor can validate it. And chameleon-robyn wires those templates into Robyn with a single decorator: your handler returns a `dict`, and a rendered `Response` comes out the other side.
+
+One honest note before we begin: the project is in alpha. The API is small and unlikely to change much, but there are no stability promises yet.
 
 
 # Install
@@ -17,10 +19,17 @@ Or with pip:
 pip install chameleon-robyn
 ```
 
-This installs `robyn` and `chameleon` as dependencies. Python 3.10 or newer is required.
+This brings in `robyn` and `chameleon` as dependencies. Python 3.10 or newer is required.
+
+
+# The site we are building
+
+This guide follows one project from the first page to the last error message: the website for a small podcast. It has an episode list, a page per episode, a guest directory, a search box, an XML feed for the robots, and the occasional visitor who types a URL that does not exist. Every snippet in the guide comes from that site, and the repository's `example/` folder holds the finished version.
 
 
 # Project layout
+
+Nothing about the layout is enforced, but this is the shape that makes the rest of the guide read naturally:
 
 ``` text
 my_app/
@@ -30,12 +39,12 @@ my_app/
         └── index.pt
 ```
 
-Every template path you give the library is relative to the `templates/` folder you register at startup. The folder name itself is up to you.
+Every template path you hand the library is relative to the `templates/` folder you register at startup. The folder name is yours to choose.
 
 
 # Your first page
 
-Create `templates/home/index.pt`:
+Start with `templates/home/index.pt`. Notice that it is just HTML with two extra ideas: `${name}` to drop in a value, and `tal:repeat` on the element that should repeat.
 
 ``` xml
 <!DOCTYPE html>
@@ -49,7 +58,7 @@ Create `templates/home/index.pt`:
 </html>
 ```
 
-Create `app.py`:
+Now `app.py`. Three lines matter: the import, the [global_init()](../reference/global_init.md#chameleon_robyn.global_init) call that says where templates live, and the decorator above the handler.
 
 ``` python
 from pathlib import Path
@@ -70,20 +79,22 @@ async def index(request):
 app.start(host='127.0.0.1', port=8000)
 ```
 
-Run `python app.py` and open <http://127.0.0.1:8000/>. You should see the heading and a three-item list.
+Run `python app.py` and open <http://127.0.0.1:8000/>. A heading and a three-item list greet you. That handler never touched a string of HTML, and it never will.
 
 
 # What just happened
 
-- [global_init()](../reference/global_init.md#chameleon_robyn.global_init) told Chameleon where the templates live. It runs once at startup. The settings are covered in [Configuration](configuration.md).
-- `@template('home/index.pt')` wrapped the handler. The handler returned a `dict`, and every key in it became a variable in the template.
-- The decorator rendered the template and returned a Robyn `Response` with status 200 and a `Content-Type` of `text/html; charset=utf-8`.
-- Robyn's route decorator stayed on the outside. `@template` goes directly above the function, and it works for both `def` and `async def` handlers.
+- [global_init()](../reference/global_init.md#chameleon_robyn.global_init) told Chameleon where the templates live. It runs once at startup, and its settings are the subject of [Configuration](configuration.md).
+- `@template('home/index.pt')` wrapped the handler. The handler returned a `dict`, and every key in it became a variable the template could see.
+- The decorator rendered the template and handed back a Robyn `Response` with status 200 and a `Content-Type` of `text/html; charset=utf-8`.
+- Robyn's route decorator stayed on the outside. `@template` sits directly above the function, and it is equally happy with `def` and `async def`.
+
+That is the whole mental model. Everything else in this guide is a refinement of it.
 
 
-# Example apps
+# Run the finished examples
 
-The repository has two runnable apps that show every feature: episodes and guests pages, a shared METAL layout, a search page using query parameters, an XML feed, a redirect, a cookie set from a rendered page, and a friendly 404.
+Two runnable apps live in the repository. The first shows every feature on the podcast site: episodes and guests, a shared METAL layout, search by query string, the XML feed, a redirect, a cookie set from a rendered page, and a friendly 404. The second is the same app with the episode card pulled out into a reusable partial.
 
 ``` bash
 git clone https://github.com/mikeckennedy/chameleon-robyn.git
@@ -100,13 +111,13 @@ python example-partials/app.py  # the same app using chameleon-partials
 
 # Where to go next
 
-- [The <span class="citation" cites="template">@template</span> decorator](template-decorator.md): explicit and auto-named templates, async handlers, status codes, redirects, and setting cookies on a rendered page.
-- [Writing templates](templates.md): a TAL cheat sheet, METAL layouts, escaping, Alpine.js and htmx attributes, and chameleon-partials.
-- [Friendly 404 pages](not-found.md): [not_found()](../reference/not_found.md#chameleon_robyn.not_found) and custom 404 templates.
+- [The <span class="citation" cites="template">@template</span> decorator](template-decorator.md): the return-value contract, templates that name themselves, async handlers, status codes, redirects, and setting a cookie on a rendered page.
+- [Writing templates](templates.md): a TAL cheat sheet, shared layouts with METAL, escaping, Alpine.js and htmx attributes, and chameleon-partials.
+- [Friendly 404 pages](not-found.md): one call to [not_found()](../reference/not_found.md#chameleon_robyn.not_found) and the stack trace never reaches the visitor.
 - [Rendering outside handlers](lower-level-api.md): [render()](../reference/render.md#chameleon_robyn.render), [response()](../reference/response.md#chameleon_robyn.response), and the standalone [ChameleonTemplate](../reference/ChameleonTemplate.md#chameleon_robyn.ChameleonTemplate) class.
-- [Configuration](configuration.md): every [global_init()](../reference/global_init.md#chameleon_robyn.global_init) setting, and development versus production.
-- [Testing your handlers](testing.md): call decorated handlers directly, without starting a server.
-- [Errors and how to fix them](troubleshooting.md): what each exception means and what to change.
-- [How it works](how-it-works.md): the three source files and the design choices behind them.
+- [Configuration](configuration.md): every [global_init()](../reference/global_init.md#chameleon_robyn.global_init) setting, and the one that bites people in tests.
+- [Testing your handlers](testing.md): no server, no client, just function calls.
+- [Errors and how to fix them](troubleshooting.md): a field guide to every exception you can meet.
+- [How it works](how-it-works.md): a tour of the three source files.
 - [FAQ](faq.md)
 - [API reference](../reference/index.md)

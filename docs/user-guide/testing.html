@@ -121,15 +121,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
   <link rel="alternate" type="text/markdown" href="testing.md">
   <link rel="canonical" href="https://mkennedy.codes/docs/chameleon-robyn/user-guide/testing.html">
-  <meta name="description" content="You do not need a running Robyn server to test a decorated handler. The decorator returns an ordinary function (or coroutine function) that returns a...">
+  <meta name="description" content="The best thing about a decorated handler is that it is still a function. No server needs to start, no HTTP client needs to connect, and nothing needs...">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Testing your handlers – chameleon-robyn | chameleon-robyn">
-  <meta property="og:description" content="You do not need a running Robyn server to test a decorated handler. The decorator returns an ordinary function (or coroutine function) that returns a...">
+  <meta property="og:description" content="The best thing about a decorated handler is that it is still a function. No server needs to start, no HTTP client needs to connect, and nothing needs...">
   <meta property="og:url" content="https://mkennedy.codes/docs/chameleon-robyn/user-guide/testing.html">
   <meta property="og:site_name" content="chameleon-robyn">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Testing your handlers – chameleon-robyn | chameleon-robyn">
-  <meta name="twitter:description" content="You do not need a running Robyn server to test a decorated handler. The decorator returns an ordinary function (or coroutine function) that returns a...">
+  <meta name="twitter:description" content="The best thing about a decorated handler is that it is still a function. No server needs to start, no HTTP client needs to connect, and nothing needs...">
 </head>
 
 <body class="nav-sidebar floating nav-fixed quarto-light">
@@ -140,7 +140,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../index.html">
-    <span class="navbar-title">chameleon-robyn</span>
+    <span class="navbar-title">chameleon-robyn <span class="version-badge" title="Released 2026-11-07">v0.1.2</span></span>
     </a>
   </div>
             <div id="quarto-search" class=""></div>
@@ -156,6 +156,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li class="nav-item">
     <a class="nav-link" href="../reference/index.html"> 
 <span class="menu-text">API Reference</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../changelog.html"> 
+<span class="menu-text">Changelog</span></a>
   </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
@@ -313,10 +317,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>You do not need a running Robyn server to test a decorated handler. The decorator returns an ordinary function (or coroutine function) that returns a Robyn <code>Response</code>, so call it directly and assert on the result. This is how the package’s own test suite works.</p>
+<p>The best thing about a decorated handler is that it is still a function. No server needs to start, no HTTP client needs to connect, and nothing needs to be mocked. Call the handler, get a Robyn <code>Response</code> back, and assert on it. This is how the package’s own test suite works, and it keeps a full run of the suite well under a second.</p>
 <section id="point-the-engine-at-test-templates" class="level1">
 <h1>Point the engine at test templates</h1>
-<p>Use a fixture that initializes the engine with <code>cache_init=False</code>, so each test gets the folder it asks for, and clears it afterwards:</p>
+<p>The one piece of setup is telling the engine where the test templates live. Use a fixture that initializes with <code>cache_init=False</code>, so each test gets the folder it asks for, and clears afterwards:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># conftest.py</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pytest</span>
@@ -328,7 +332,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    chameleon_robyn.global_init(<span class="bu">str</span>(folder), cache_init<span class="op">=</span><span class="va">False</span>)</span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">yield</span></span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    chameleon_robyn.clear()</span></code></pre></div>
-<p>Without <code>cache_init=False</code>, the first <a href="../reference/global_init.html#chameleon_robyn.global_init" class="gdls-link gdls-code">global_init()</a> in the test session would win and later fixtures would silently keep its settings.</p>
+<p>Skip <code>cache_init=False</code> and you meet the sharp edge from <a href="../user-guide/configuration.html#calling-it-twice">Configuration</a>: the first <a href="../reference/global_init.html#chameleon_robyn.global_init" class="gdls-link gdls-code">global_init()</a> in the session wins, every later fixture silently keeps its settings, and you spend an afternoon wondering why the wrong template renders.</p>
 </section>
 <section id="call-the-handler" class="level1">
 <h1>Call the handler</h1>
@@ -363,6 +367,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="testing-a-404" class="level1">
 <h1>Testing a 404</h1>
+<p>The 404 path is a function call like any other, which makes the “episode does not exist” branch one of the easiest tests you will write:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_missing_episode_is_404(templates):</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">@chameleon_robyn.template</span>(<span class="st">'episodes/detail.pt'</span>)</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> detail(request, episode_id: <span class="bu">int</span>):</span>
@@ -374,7 +379,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="testing-the-response-callback" class="level1">
 <h1>Testing the response callback</h1>
-<p>The callback receives the built <code>Response</code>, so capture it:</p>
+<p>The callback receives the built <code>Response</code>, so check the header it set:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_login_sets_cookie(templates):</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">@chameleon_robyn.template</span>(<span class="st">'account/welcome.pt'</span>)</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> login(request):</span>
@@ -387,14 +392,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="testing-templates-on-their-own" class="level1">
 <h1>Testing templates on their own</h1>
-<p><a href="../reference/render.html#chameleon_robyn.render" class="gdls-link gdls-code">render()</a> returns the HTML as a string, which keeps assertions about markup separate from handler logic:</p>
+<p><a href="../reference/render.html#chameleon_robyn.render" class="gdls-link gdls-code">render()</a> returns the HTML as a string, which keeps assertions about markup separate from assertions about handler logic:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_episode_card_shows_title(templates):</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    html <span class="op">=</span> chameleon_robyn.render(<span class="st">'shared/episode_card.pt'</span>, ep<span class="op">=</span>{<span class="st">'title'</span>: <span class="st">'Async All the Things'</span>})</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">'Async All the Things'</span> <span class="kw">in</span> html</span></code></pre></div>
 </section>
 <section id="what-not-to-test" class="level1">
 <h1>What not to test</h1>
-<p>Chameleon’s own behaviour, such as escaping, <code>tal:repeat</code> ordering, or error messages, is covered by Chameleon’s test suite. Test what your handlers return and what your templates show.</p>
+<p>Chameleon’s own behaviour, such as escaping, <code>tal:repeat</code> ordering, or the wording of its error messages, is covered by Chameleon’s test suite. Spend your tests on what your handlers return and what your templates show.</p>
 
 
 </section>

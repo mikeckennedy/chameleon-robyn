@@ -121,15 +121,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
   <link rel="alternate" type="text/markdown" href="configuration.md">
   <link rel="canonical" href="https://mkennedy.codes/docs/chameleon-robyn/user-guide/configuration.html">
-  <meta name="description" content="All configuration is one function call at startup. There are no environment variables and no config files.">
+  <meta name="description" content="All configuration is one function call at startup. There are no environment variables, no config files, and no settings module to discover. Four...">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Configuration – chameleon-robyn | chameleon-robyn">
-  <meta property="og:description" content="All configuration is one function call at startup. There are no environment variables and no config files.">
+  <meta property="og:description" content="All configuration is one function call at startup. There are no environment variables, no config files, and no settings module to discover. Four...">
   <meta property="og:url" content="https://mkennedy.codes/docs/chameleon-robyn/user-guide/configuration.html">
   <meta property="og:site_name" content="chameleon-robyn">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Configuration – chameleon-robyn | chameleon-robyn">
-  <meta name="twitter:description" content="All configuration is one function call at startup. There are no environment variables and no config files.">
+  <meta name="twitter:description" content="All configuration is one function call at startup. There are no environment variables, no config files, and no settings module to discover. Four...">
 </head>
 
 <body class="nav-sidebar floating nav-fixed quarto-light">
@@ -140,7 +140,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../index.html">
-    <span class="navbar-title">chameleon-robyn</span>
+    <span class="navbar-title">chameleon-robyn <span class="version-badge" title="Released 2026-11-07">v0.1.2</span></span>
     </a>
   </div>
             <div id="quarto-search" class=""></div>
@@ -156,6 +156,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li class="nav-item">
     <a class="nav-link" href="../reference/index.html"> 
 <span class="menu-text">API Reference</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../changelog.html"> 
+<span class="menu-text">Changelog</span></a>
   </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
@@ -309,7 +313,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>All configuration is one function call at startup. There are no environment variables and no config files.</p>
+<p>All configuration is one function call at startup. There are no environment variables, no config files, and no settings module to discover. Four parameters, one of them required:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>chameleon_robyn.global_init(</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    template_folder,              <span class="co"># required</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    auto_reload<span class="op">=</span><span class="va">False</span>,</span>
@@ -354,7 +358,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>At import time, before the routes, as in the <a href="../user-guide/getting-started.html">getting started</a> example.</li>
 <li>From <code>main()</code> right before <code>app.start()</code>, after the routes have been decorated. Auto-named templates are resolved at the first request, so this is fine, and it is the pattern the example apps use.</li>
 </ul>
-<p>Build the path from <code>__file__</code> so it does not depend on the working directory:</p>
+<p>Build the path from <code>__file__</code> so it does not depend on where the process was started:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> main():</span>
@@ -365,10 +369,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="calling-it-twice" class="level1">
 <h1>Calling it twice</h1>
-<p>With the default <code>cache_init=True</code>, a second call is ignored. This is deliberate: a module that calls <a href="../reference/global_init.html#chameleon_robyn.global_init" class="gdls-link gdls-code">global_init()</a> on import cannot clobber the settings the app chose. It also means changing a setting at runtime requires either <code>cache_init=False</code> or a <a href="../reference/clear.html#chameleon_robyn.clear" class="gdls-link gdls-code">clear()</a> first:</p>
+<p>With the default <code>cache_init=True</code>, a second call is ignored. This is a feature with a sharp edge. The feature: a module that calls <a href="../reference/global_init.html#chameleon_robyn.global_init" class="gdls-link gdls-code">global_init()</a> on import cannot clobber the settings your app chose. The edge: when you do want to change a setting at runtime, you have to say so, either with <code>cache_init=False</code> or by calling <a href="../reference/clear.html#chameleon_robyn.clear" class="gdls-link gdls-code">clear()</a> first:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>chameleon_robyn.clear()</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>chameleon_robyn.global_init(other_folder, restricted_namespace<span class="op">=</span><span class="va">False</span>)</span></code></pre></div>
-<p><a href="../reference/clear.html#chameleon_robyn.clear" class="gdls-link gdls-code">clear()</a> resets the engine to its uninitialized state. Rendering after <a href="../reference/clear.html#chameleon_robyn.clear" class="gdls-link gdls-code">clear()</a> and before the next <a href="../reference/global_init.html#chameleon_robyn.global_init" class="gdls-link gdls-code">global_init()</a> raises <a href="../reference/ChameleonRobynException.html#chameleon_robyn.ChameleonRobynException" class="gdls-link gdls-code">ChameleonRobynException</a>. Its main use is in tests; see <a href="../user-guide/testing.html">Testing your handlers</a>.</p>
+<p><a href="../reference/clear.html#chameleon_robyn.clear" class="gdls-link gdls-code">clear()</a> resets the engine to its uninitialized state. Rendering after <a href="../reference/clear.html#chameleon_robyn.clear" class="gdls-link gdls-code">clear()</a> and before the next <a href="../reference/global_init.html#chameleon_robyn.global_init" class="gdls-link gdls-code">global_init()</a> raises <a href="../reference/ChameleonRobynException.html#chameleon_robyn.ChameleonRobynException" class="gdls-link gdls-code">ChameleonRobynException</a>. Its natural home is a test fixture; see <a href="../user-guide/testing.html">Testing your handlers</a>.</p>
 </section>
 <section id="development-versus-production" class="level1">
 <h1>Development versus production</h1>
@@ -393,7 +397,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
-<p>A <code>dev_mode</code> flag driven by your own settings is the usual way to switch, as in the example above.</p>
+<p>A <code>dev_mode</code> flag driven by your own settings is the usual switch, as in the example above. Flip it off before you deploy and Chameleon stops watching the disk.</p>
 
 
 </section>

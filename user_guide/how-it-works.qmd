@@ -2,15 +2,15 @@
 title: How it works
 ---
 
-The library is three small files in `chameleon_robyn/`. Everything else in the repository is tests, example apps and documentation.
+The whole library is three small files in `chameleon_robyn/`. Everything else in the repository is tests, example apps and this documentation. You can read the source in the time it takes to drink a coffee, and this page is the guided tour, so that when something surprises you, you already know which five lines to look at.
 
 ## The global loader
 
-`global_init()` creates one Chameleon `PageTemplateLoader` for the template folder and stores it, together with the folder path, in module-level state. `render()` looks a template up in that loader by its relative path and calls Chameleon's `render()` with the keyword arguments as the template's variables. `response()` calls `render()` and wraps the string in a Robyn `Response` with the requested status and content type. `clear()` drops the stored loader so the next `global_init()` starts fresh.
+`global_init()` creates one Chameleon `PageTemplateLoader` for the template folder and stores it, together with the folder path, in module-level state. That single loader is the engine. `render()` looks a template up in it by relative path and calls Chameleon's `render()` with the keyword arguments as the template's variables. `response()` calls `render()` and wraps the string in a Robyn `Response` with the requested status and content type. `clear()` drops the stored loader so the next `global_init()` starts fresh.
 
 ## The decorator
 
-`template()` returns a wrapper for the handler. It chooses a synchronous or asynchronous wrapper by checking whether the handler is a coroutine function, so `await` happens where it should. Both wrappers do the same work:
+`template()` returns a wrapper for the handler. It chooses a synchronous or asynchronous wrapper by checking whether the handler is a coroutine function, so `await` happens exactly where it should. Both wrappers do the same four things:
 
 1. Call the handler.
 2. If the result is a Robyn `Response`, return it unchanged.
@@ -19,16 +19,16 @@ The library is three small files in `chameleon_robyn/`. Everything else in the r
 
 Both wrappers also catch `ChameleonRobynNotFoundException`, which `not_found()` raises, and render the template it carries with status 404.
 
-The wrappers use `functools.wraps`, which keeps the original function's name and signature visible. Robyn inspects the handler signature when a route is registered to decide which arguments to pass, so this is what keeps `request` and typed path parameters working through the decorator.
+The wrappers use `functools.wraps`, which keeps the original function's name and signature visible. Robyn inspects the handler signature when a route is registered to decide which arguments to pass. That one line is what keeps `request` and typed path parameters working through the decorator.
 
 ## Lazy template names
 
-When the template path is omitted, the wrapper derives `<module>/<function>` and checks for the `.html` file on the first request rather than at decoration time. Routes are often decorated at import, before `global_init()` has run and before the template folder is known. Once the folder is known the resolved name is cached, so the file check happens once per handler.
+When the template path is omitted, the wrapper derives `<module>/<function>` and checks for the `.html` file on the first request rather than at decoration time. The reason is timing: routes are often decorated at import, before `global_init()` has run and before anyone knows where the template folder is. Once the folder is known the resolved name is cached, so the file check happens once per handler, not once per request.
 
 ## 404 via an exception
 
-`not_found()` is declared `NoReturn`. It raises rather than returns so a handler can call it from inside a nested condition without the surrounding code needing to `return` its result. The exception carries the template path and message, and the decorator turns it into a response. This is also why it only works inside decorated handlers.
+`not_found()` is declared `NoReturn`. It raises rather than returns so a handler can call it from inside a nested condition without the surrounding code having to `return` its result. The exception carries the template path and message, and the decorator turns it into a response. This is also why it only works inside decorated handlers: the decorator is the net, and without it there is nothing to catch.
 
 ## No Jinja2 dependency
 
-Robyn's `TemplateInterface` lives in a module that imports Jinja2 at the top. Subclassing it would make Jinja2 a hard dependency of this package. Instead, `ChameleonTemplate` implements a local `Protocol` with the same `render_template()` method, marked `runtime_checkable` so `isinstance()` checks still work. Robyn only cares about the method, so the class is interchangeable with `JinjaTemplate` in practice.
+Robyn's `TemplateInterface` lives in a module that imports Jinja2 at the top. Subclassing it would have made Jinja2 a hard dependency of a package whose entire purpose is to let you not use Jinja2. Instead, `ChameleonTemplate` implements a local `Protocol` with the same `render_template()` method, marked `runtime_checkable` so `isinstance()` checks still pass. Robyn only cares that the method exists, so the class is interchangeable with `JinjaTemplate` in practice, and your dependency tree stays honest.

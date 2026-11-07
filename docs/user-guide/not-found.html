@@ -121,15 +121,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
   <link rel="alternate" type="text/markdown" href="not-found.md">
   <link rel="canonical" href="https://mkennedy.codes/docs/chameleon-robyn/user-guide/not-found.html">
-  <meta name="description" content="A handler that looks something up and finds nothing should return a proper 404 page, not a stack trace or a bare status. Call not_found() from any...">
+  <meta name="description" content="Sooner or later someone will visit /episodes/9999. Maybe a link rotted, maybe they are poking at the URL to see what happens. What they should get is a...">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Friendly 404 pages – chameleon-robyn | chameleon-robyn">
-  <meta property="og:description" content="A handler that looks something up and finds nothing should return a proper 404 page, not a stack trace or a bare status. Call not_found() from any...">
+  <meta property="og:description" content="Sooner or later someone will visit /episodes/9999. Maybe a link rotted, maybe they are poking at the URL to see what happens. What they should get is a...">
   <meta property="og:url" content="https://mkennedy.codes/docs/chameleon-robyn/user-guide/not-found.html">
   <meta property="og:site_name" content="chameleon-robyn">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Friendly 404 pages – chameleon-robyn | chameleon-robyn">
-  <meta name="twitter:description" content="A handler that looks something up and finds nothing should return a proper 404 page, not a stack trace or a bare status. Call not_found() from any...">
+  <meta name="twitter:description" content="Sooner or later someone will visit /episodes/9999. Maybe a link rotted, maybe they are poking at the URL to see what happens. What they should get is a...">
 </head>
 
 <body class="nav-sidebar floating nav-fixed quarto-light">
@@ -140,7 +140,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../index.html">
-    <span class="navbar-title">chameleon-robyn</span>
+    <span class="navbar-title">chameleon-robyn <span class="version-badge" title="Released 2026-11-07">v0.1.2</span></span>
     </a>
   </div>
             <div id="quarto-search" class=""></div>
@@ -156,6 +156,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li class="nav-item">
     <a class="nav-link" href="../reference/index.html"> 
 <span class="menu-text">API Reference</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../changelog.html"> 
+<span class="menu-text">Changelog</span></a>
   </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
@@ -311,7 +315,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>A handler that looks something up and finds nothing should return a proper 404 page, not a stack trace or a bare status. Call <a href="../reference/not_found.html#chameleon_robyn.not_found" class="gdls-link gdls-code">not_found()</a> from any <code>@template</code>-decorated handler:</p>
+<p>Sooner or later someone will visit <code>/episodes/9999</code>. Maybe a link rotted, maybe they are poking at the URL to see what happens. What they should get is a page in your site’s own clothes that says the episode is not here and points the way home. What they should never get is a stack trace. One call makes that the default:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="at">@app.get</span>(<span class="st">'/episodes/:episode_id'</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="at">@chameleon_robyn.template</span>(<span class="st">'episodes/detail.pt'</span>)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> episode_detail(request, episode_id: <span class="bu">int</span>):</span>
@@ -320,11 +324,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        chameleon_robyn.not_found()  <span class="co"># Renders errors/404.pt with status 404</span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {<span class="st">'episode'</span>: episode}</span></code></pre></div>
-<p><a href="../reference/not_found.html#chameleon_robyn.not_found" class="gdls-link gdls-code">not_found()</a> never returns. It raises <a href="../reference/ChameleonRobynNotFoundException.html#chameleon_robyn.ChameleonRobynNotFoundException" class="gdls-link gdls-code">ChameleonRobynNotFoundException</a>, the decorator catches it, renders the 404 template with status 404 and a <code>text/html</code> content type, and returns that <code>Response</code>. The handler’s own <code>status_code</code> and <code>content_type</code> settings do not apply to the 404.</p>
+<p>Notice there is no <code>return</code> in front of <a href="../reference/not_found.html#chameleon_robyn.not_found" class="gdls-link gdls-code">not_found()</a>. It never returns. It raises <a href="../reference/ChameleonRobynNotFoundException.html#chameleon_robyn.ChameleonRobynNotFoundException" class="gdls-link gdls-code">ChameleonRobynNotFoundException</a>, the decorator catches it, renders the 404 template with status 404 and a <code>text/html</code> content type, and sends that <code>Response</code> instead. The handler’s own <code>status_code</code> and <code>content_type</code> settings do not apply to the 404. The rest of your handler can stay blissfully unaware that the lookup can fail.</p>
 <section id="the-default-template" class="level1">
 <h1>The default template</h1>
-<p>By default the library renders <code>errors/404.pt</code>, relative to your template folder. Create that file in every app that calls <a href="../reference/not_found.html#chameleon_robyn.not_found" class="gdls-link gdls-code">not_found()</a>. If it is missing, Chameleon raises a <code>ValueError</code> naming the file.</p>
-<p>The template receives one variable, <code>message</code>, with a short description of the 404. Render it or ignore it:</p>
+<p>By default the library renders <code>errors/404.pt</code>, relative to your template folder. Create that file in every app that calls <a href="../reference/not_found.html#chameleon_robyn.not_found" class="gdls-link gdls-code">not_found()</a>. If it is missing, Chameleon raises a <code>ValueError</code> naming the file, which turns a friendly 404 into an unfriendly 500, so make it the second template you write.</p>
+<p>The template receives one variable, <code>message</code>, with a short description of the 404. Render it or ignore it. Using the site layout keeps the lost visitor inside your navigation:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode xml"><code class="sourceCode xml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>&lt;<span class="kw">metal:block</span> <span class="ot">use-macro=</span><span class="st">"load: ../shared/layout.pt"</span>&gt;</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>&lt;<span class="kw">div</span> <span class="ot">metal:fill-slot=</span><span class="st">"content"</span>&gt;</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">h1</span>&gt;Page not found&lt;/<span class="kw">h1</span>&gt;</span>
@@ -335,11 +339,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="a-different-404-template" class="level1">
 <h1>A different 404 template</h1>
+<p>Perhaps the guest directory deserves its own “no such guest” page:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>chameleon_robyn.not_found(four04template_file<span class="op">=</span><span class="st">'errors/custom_404.pt'</span>)</span></code></pre></div>
 </section>
 <section id="your-own-message" class="level1">
 <h1>Your own message</h1>
-<p><a href="../reference/not_found.html#chameleon_robyn.not_found" class="gdls-link gdls-code">not_found()</a> always uses the same generic message. To put your own text in the page, raise the exception directly. The decorator treats it exactly the same way:</p>
+<p><a href="../reference/not_found.html#chameleon_robyn.not_found" class="gdls-link gdls-code">not_found()</a> always sends the same generic message. To put your own words on the page, raise the exception directly. The decorator treats it exactly the same way:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chameleon_robyn <span class="im">import</span> ChameleonRobynNotFoundException</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">not</span> episode:</span>
@@ -353,7 +358,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="other-error-pages" class="level1">
 <h1>Other error pages</h1>
-<p>For a 500 page or any other status, use <a href="../reference/response.html#chameleon_robyn.response" class="gdls-link gdls-code">response()</a> with the status you need. It works inside decorated handlers too, because a returned <code>Response</code> passes through untouched:</p>
+<p>For a 500 page or any other status, <a href="../reference/response.html#chameleon_robyn.response" class="gdls-link gdls-code">response()</a> is the tool, and it works inside decorated handlers too, because a returned <code>Response</code> passes through untouched:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="at">@app.get</span>(<span class="st">'/report'</span>)</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="at">@chameleon_robyn.template</span>(<span class="st">'reports/view.pt'</span>)</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> report(request):</span>

@@ -1,6 +1,6 @@
 # Writing templates
 
-Chameleon templates are HTML or XML files where the logic lives in attributes. There is no `{% ... %}` or `{ ... }` syntax. If you know Jinja2, the biggest change is that a template is always a well-formed document, and loops and conditions attach to the element they control. The full language reference is at [chameleon.readthedocs.io](https://chameleon.readthedocs.io/).
+Most template languages ask you to learn a second syntax and sprinkle it through your HTML. Chameleon asks you to learn a handful of attributes. A template is always a well-formed document, and every loop and condition attaches to the element it controls. The result is markup you can read top to bottom and know exactly which element repeats, which disappears, and where the data lands. The full language reference lives at [chameleon.readthedocs.io](https://chameleon.readthedocs.io/); this page covers the parts the podcast site needs.
 
 
 # TAL cheat sheet
@@ -34,23 +34,23 @@ Chameleon templates are HTML or XML files where the logic lives in attributes. T
 <span tal:define="total sum(i.price for i in items)">Total: ${total}</span>
 ```
 
-A literal `$` followed by `{` is written `$${...}`, as in the price example above.
+Two habits pay off quickly. First, the placeholder text inside `tal:content` and `tal:replace` is what you see when you open the file in a browser without rendering it, so write something realistic there. Second, a literal `$` followed by `{` is written `$${...}`, as in the price example above.
 
 
 # Escaping and `structure`
 
-Everything inserted with `${...}`, `tal:content` or `tal:replace` is HTML-escaped. To insert markup that is already safe, use the `structure` keyword:
+Everything inserted with `${...}`, `tal:content` or `tal:replace` is HTML-escaped. A guest named `<script>` becomes harmless text. When you genuinely have markup that is already safe, say so with the `structure` keyword:
 
 ``` xml
 
 ```
 
-Only do this with HTML you generated or sanitized yourself.
+Treat that keyword as a promise. Only make it for HTML you generated or sanitized yourself.
 
 
 # Shared layouts with METAL
 
-METAL macros are Chameleon's template inheritance. The layout defines slots; each page fills them.
+The podcast site has one navigation bar, one footer and one stylesheet link, and nobody wants to paste them into every page. METAL macros are Chameleon's template inheritance. The layout defines slots; each page fills them.
 
 `templates/shared/layout.pt`:
 
@@ -76,28 +76,28 @@ METAL macros are Chameleon's template inheritance. The layout defines slots; eac
 
 The `load:` path is resolved relative to the template that uses it, so a page in `home/` reaches the layout with `../shared/layout.pt`. Chameleon also falls back to the template folder, so `shared/layout.pt` works too. The example apps use the relative form.
 
-The layout sees the same variables as the page, so `title` above comes from the handler's dict.
+The layout sees the same variables as the page, which is why `title` above comes straight from the handler's dict. Set it once per handler and every page has a title.
 
 
 # File extensions
 
-The loader does not care about the extension. `.pt` is the Chameleon convention and auto-naming looks for `.html` first and `.pt` second (see [the decorator guide](template-decorator.md#auto-naming)). Any other extension works with an explicit path; the example apps render `episodes/feed.xml` with `content_type='application/xml'`.
+The loader does not care about the extension. `.pt` is the Chameleon convention, and auto-naming looks for `.html` first and `.pt` second (see [the decorator guide](template-decorator.md#auto-naming)). Any other extension works with an explicit path. The podcast's `episodes/feed.xml` is a template like any other, served with `content_type='application/xml'`.
 
 
 # Alpine.js, htmx and other attribute syntaxes
 
-By default Chameleon runs with a restricted namespace. Attributes such as `@click`, `:class`, or `x-on:click` look like XML namespace prefixes and are rejected with a `KeyError` when the template is parsed. Turn the restriction off at startup:
+Here is a surprise waiting for anyone who adds a sprinkle of Alpine.js to a Chameleon page. Chameleon runs with a restricted namespace by default, and attributes such as `@click`, `:class`, or `x-on:click` look to it like XML namespace prefixes it has never heard of. The template refuses to parse and you get a `KeyError` naming the attribute. The fix is one flag at startup:
 
 ``` python
 chameleon_robyn.global_init(template_folder, restricted_namespace=False)
 ```
 
-The same flag exists on [`ChameleonTemplate`](../reference/ChameleonTemplate.md). With it off, any attribute syntax is passed through to the browser.
+The same flag exists on [`ChameleonTemplate`](../reference/ChameleonTemplate.md). With the restriction off, any attribute syntax passes through to the browser untouched.
 
 
 # Reusable components with chameleon-partials
 
-[chameleon-partials](https://github.com/mikeckennedy/chameleon-partials) adds `render_partial()` for rendering a sub-template from inside a template. It uses its own loader, so initialize both packages at startup with the same folder:
+The episode card appears on the episode list and again on the search results page. Copying it once is fine. Copying it a third time is how layouts drift. [chameleon-partials](https://github.com/mikeckennedy/chameleon-partials) adds `render_partial()` for rendering a sub-template from inside a template. It keeps its own loader, so initialize both packages at startup with the same folder:
 
 ``` python
 import chameleon_partials
@@ -127,4 +127,4 @@ Then insert the partial with `tal:replace="structure ..."`:
 
 ```
 
-`structure` stops Chameleon from escaping the partial's HTML, and `tal:replace` swaps out the placeholder element. The `example-partials/` app in the repository is the core example app refactored this way; compare its episode list template with the one in `example/`.
+`structure` stops Chameleon from escaping the partial's HTML, and `tal:replace` swaps out the placeholder element. The `example-partials/` app in the repository is the core example refactored this way. Open its episode list template next to the one in `example/` and watch a block of card markup collapse into one line.
