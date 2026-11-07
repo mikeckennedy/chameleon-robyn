@@ -4,6 +4,8 @@ All notable changes to chameleon-robyn are documented here. The format follows [
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-11-07
+
 ### Fixed
 
 - Bare `@template` on a handler in a script run directly (`python app.py`) now derives the template directory from the script's file name, so `index()` in `app.py` maps to `app/index.pt` instead of the literal module name `__main__/index.pt`. An existing `__main__/index.html` or `.pt` is still used when the script-named file is absent, so apps relying on the old name keep working.
@@ -16,6 +18,8 @@ All notable changes to chameleon-robyn are documented here. The format follows [
 - Added an `Examples` section to every public docstring, and a module docstring naming the entry points.
 - The README now links each section to the guide page that expands it, and documents raising `ChameleonRobynNotFoundException` directly to pass a custom 404 message.
 - `scripts/build_docs.py` runs the latest Great Docs release through `uvx` with the project installed alongside it, and fails if `llms.txt`, `llms-full.txt` or `skill.md` is missing from the output.
+- The user guide and README now follow one running example, the podcast site in `example/`, with each section opening on the problem the feature solves. Code samples are unchanged.
+- The docs site has a changelog page, generated from GitHub Releases and linked from the navbar. Releases 0.1.0 through 0.1.2 were tagged and published as GitHub Releases retroactively.
 
 ## [0.1.2] - 2026-06-11
 
@@ -63,7 +67,8 @@ Initial release.
 - `ChameleonTemplate` class implementing Robyn's `TemplateInterface` through a local Protocol, so the library does not pull in Jinja2.
 - Example apps in `example/` and `example-partials/`.
 
-[Unreleased]: https://github.com/mikeckennedy/chameleon-robyn/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/mikeckennedy/chameleon-robyn/compare/v0.1.3...HEAD
+[0.1.3]: https://github.com/mikeckennedy/chameleon-robyn/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/mikeckennedy/chameleon-robyn/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/mikeckennedy/chameleon-robyn/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/mikeckennedy/chameleon-robyn/releases/tag/v0.1.0
