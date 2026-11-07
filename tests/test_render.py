@@ -81,6 +81,47 @@ def test_auto_naming_resolves_at_first_request(test_templates_path):
         cr.engine.clear()
 
 
+def test_auto_naming_uses_script_stem_for_main_module(setup_global_template):
+    # `python app.py` gives handlers __module__ == '__main__'; the template dir must then be the
+    # script's file stem (test_render/ here), never a literal __main__/ directory.
+    def index(a, b, c):
+        return {'a': a, 'b': b, 'c': c, 'world': 'WORLD'}
+
+    index.__module__ = '__main__'
+    view = cr.template()(index)
+
+    resp = view(1, 2, 3)
+    assert resp.status_code == 200
+    assert 'Hello default WORLD!' in resp.description
+
+
+def test_auto_naming_still_finds_legacy_main_folder(setup_global_template):
+    # Backwards compatibility: an app that already has templates/__main__/<view>.pt keeps
+    # working when no <script-stem>/<view> template exists.
+    def legacy_main(a, b, c):
+        return {'a': a, 'b': b, 'c': c, 'world': 'WORLD'}
+
+    legacy_main.__module__ = '__main__'
+    view = cr.template()(legacy_main)
+
+    resp = view(1, 2, 3)
+    assert resp.status_code == 200
+    assert 'Legacy __main__ template WORLD' in resp.description
+
+
+def test_reserved_encoding_key_raises_clear_error(setup_global_template, test_templates_path):
+    # Chameleon's render() takes `encoding` as a named parameter, so a model key of that name
+    # would otherwise surface as a TypeError from inside Chameleon.
+    with pytest.raises(ChameleonRobynException):
+        cr.render('test/hello.pt', name='World', encoding='utf-8')
+
+    with pytest.raises(ChameleonRobynException):
+        cr.response('test/hello.pt', name='World', encoding='utf-8')
+
+    with pytest.raises(ChameleonRobynException):
+        cr.ChameleonTemplate(str(test_templates_path)).render_template('test/hello.pt', encoding='utf-8')
+
+
 def test_can_decorate_dict_sync_method(setup_global_template):
     @cr.template('home/index.pt')
     def view_method(a, b, c):

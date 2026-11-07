@@ -1,0 +1,66 @@
+# FAQ
+
+
+# Do I have to call [global_init()](../reference/global_init.md#chameleon_robyn.global_init) before decorating routes?
+
+No. Explicit template paths are only used at request time, and auto-named templates are resolved at the first request. Decorate routes at import and call [global_init()](../reference/global_init.md#chameleon_robyn.global_init) from `main()` if you prefer.
+
+
+# Why does my second [global_init()](../reference/global_init.md#chameleon_robyn.global_init) call do nothing?
+
+`cache_init` defaults to `True`, which makes later calls no-ops while the engine is initialized. Pass `cache_init=False`, or call [clear()](../reference/clear.md#chameleon_robyn.clear) first. See [Configuration](configuration.md).
+
+
+# Can one handler render different templates?
+
+Yes. Build the alternative with `response('other.pt', ...)` and return it. A returned `Response` passes through the decorator untouched. See [Rendering outside handlers](lower-level-api.md).
+
+
+# How do I return a 404 outside a decorated handler?
+
+[not_found()](../reference/not_found.md#chameleon_robyn.not_found) only works inside `@template` handlers. Elsewhere, return `response('errors/404.pt', status_code=404, message='...')`. See [Friendly 404 pages](not-found.md).
+
+
+# Why did my 404 page come back as HTML from an XML endpoint?
+
+[not_found()](../reference/not_found.md#chameleon_robyn.not_found) always renders as `text/html` with status 404. For another format, build the response yourself with [response()](../reference/response.md#chameleon_robyn.response).
+
+
+# How do I set a cookie on a rendered page?
+
+Put a callable under the `__response_callback__` key in the returned dict. It is called with the built `Response`. See [the decorator guide](template-decorator.md#setting-cookies-or-headers-on-a-rendered-page).
+
+
+# Can I use `.html` files instead of `.pt`?
+
+Yes. The loader ignores the extension. Auto-naming looks for `.html` first and then `.pt`.
+
+
+# My Alpine.js or htmx attributes break the template
+
+Pass `restricted_namespace=False` to [global_init()](../reference/global_init.md#chameleon_robyn.global_init). See [Writing templates](templates.md#alpine-htmx).
+
+
+# Can Chameleon and Jinja2 templates coexist in one app?
+
+Yes. Nothing in this package touches Robyn's Jinja2 support. Use `@template` or [ChameleonTemplate](../reference/ChameleonTemplate.md#chameleon_robyn.ChameleonTemplate) for Chameleon pages and Robyn's `JinjaTemplate` for the rest.
+
+
+# Does it work with chameleon-partials?
+
+Yes, with no extra configuration. Initialize both packages with the same template folder and pass `render_partial` through the model. See [Writing templates](templates.md#reusable-components-with-chameleon-partials).
+
+
+# How do I test a handler?
+
+Call it directly and assert on the returned `Response`. No server needed. See [Testing your handlers](testing.md).
+
+
+# Is the API stable?
+
+Not yet. The project is in alpha. The surface is small and the current names are expected to stay, but there are no guarantees until 1.0.
+
+
+# Where is the template language documented?
+
+At [chameleon.readthedocs.io](https://chameleon.readthedocs.io/). The [cheat sheet](templates.md#tal-cheat-sheet) covers the parts you need day to day.

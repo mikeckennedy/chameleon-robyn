@@ -1,0 +1,111 @@
+# Testing your handlers
+
+You do not need a running Robyn server to test a decorated handler. The decorator returns an ordinary function (or coroutine function) that returns a Robyn `Response`, so call it directly and assert on the result. This is how the package's own test suite works.
+
+
+# Point the engine at test templates
+
+Use a fixture that initializes the engine with `cache_init=False`, so each test gets the folder it asks for, and clears it afterwards:
+
+``` python
+# conftest.py
+from pathlib import Path
+import pytest
+import chameleon_robyn
+
+@pytest.fixture
+def templates():
+    folder = Path(__file__).parent / 'templates'
+    chameleon_robyn.global_init(str(folder), cache_init=False)
+    yield
+    chameleon_robyn.clear()
+```
+
+Without `cache_init=False`, the first [global_init()](../reference/global_init.md#chameleon_robyn.global_init) in the test session would win and later fixtures would silently keep its settings.
+
+
+# Call the handler
+
+``` python
+from robyn import Response
+import chameleon_robyn
+
+def test_index_renders(templates):
+    @chameleon_robyn.template('home/index.pt')
+    def index(request):
+        return {'name': 'World', 'items': ['a', 'b']}
+
+    resp = index(None)
+    assert isinstance(resp, Response)
+    assert resp.status_code == 200
+    assert 'Hello, World!' in resp.description
+    assert 'text/html' in resp.headers.get('content-type')
+```
+
+The rendered HTML is in `resp.description`. Headers are a Robyn `Headers` object with `get()`.
+
+Handlers usually take a `request` argument. Pass `None` or a simple stand-in when the handler does not use it, or test the handler's logic through a helper function that the handler calls.
+
+
+# Async handlers
+
+Run the coroutine to completion:
+
+``` python
+import asyncio
+
+def test_async_detail(templates):
+    @chameleon_robyn.template('episodes/detail.pt')
+    async def detail(request, episode_id: int):
+        return {'episode': {'id': episode_id, 'title': 'Test'}}
+
+    resp = asyncio.run(detail(None, 7))
+    assert resp.status_code == 200
+```
+
+
+# Testing a 404
+
+``` python
+def test_missing_episode_is_404(templates):
+    @chameleon_robyn.template('episodes/detail.pt')
+    def detail(request, episode_id: int):
+        chameleon_robyn.not_found()
+
+    resp = detail(None, 999)
+    assert resp.status_code == 404
+    assert 'not found' in resp.description.lower()
+```
+
+
+# Testing the response callback
+
+The callback receives the built `Response`, so capture it:
+
+``` python
+def test_login_sets_cookie(templates):
+    @chameleon_robyn.template('account/welcome.pt')
+    def login(request):
+        def set_cookie(resp):
+            resp.headers.append('Set-Cookie', 'session=abc; Path=/')
+        return {'user': 'michael', '__response_callback__': set_cookie}
+
+    resp = login(None)
+    assert resp.headers.get('set-cookie') == 'session=abc; Path=/'
+```
+
+
+# Testing templates on their own
+
+[render()](../reference/render.md#chameleon_robyn.render) returns the HTML as a string, which keeps assertions about markup separate from handler logic:
+
+``` python
+def test_episode_card_shows_title(templates):
+    html = chameleon_robyn.render('shared/episode_card.pt', ep={'title': 'Async All the Things'})
+    assert 'Async All the Things' in html
+```
+
+
+# What not to test
+
+Chameleon's own behaviour, such as escaping, `tal:repeat` ordering, or error messages, is covered by Chameleon's test suite. Test what your handlers return and what your templates show.

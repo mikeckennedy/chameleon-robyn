@@ -13,6 +13,9 @@ response(
 ```
 
 
+Useful where the `@template` decorator does not fit: error handlers, middleware, or a handler that renders different templates depending on the request.
+
+
 ## Parameters
 
 
@@ -34,3 +37,17 @@ Values passed to the template as its model.
 
 `Response`  
 A Robyn Response with the rendered template as its body.
+
+
+## Raises
+
+
+`ChameleonRobynException`  
+If global_init() has not been called, or the model uses the reserved key 'encoding'.
+
+
+## Examples
+
+``` python
+resp = chameleon_robyn.response('errors/500.pt', status_code=500, error=str(e))
+```

@@ -29,7 +29,20 @@ Whether to auto-reload templates on change (use True in development).
 Output encoding for rendered templates (defaults to utf-8).
 
 `restricted_namespace: bool = ``True`  
-If True, only TAL/METAL/i18n namespaces are allowed. Set to False for Alpine.js/htmx-style attributes (<span class="citation" cites="click">@click</span>, :class, etc.).
+If True, only TAL/METAL/i18n namespaces are allowed. Set to False for Alpine.js/htmx-style attributes (`@click`, :class, etc.).
+
+
+## Examples
+
+``` python
+from chameleon_robyn import ChameleonTemplate
+
+chameleon = ChameleonTemplate('templates/', auto_reload=True)
+
+@app.get('/page')
+def page(request):
+    return chameleon.render_template('page.pt', title='Hello')
+```
 
 
 ## Methods
@@ -61,11 +74,20 @@ render_template(template_name, **kwargs)
 The template file path, relative to the directory given at construction.
 
 `**kwargs: Any`  
-Values passed to the template as its model.
+Values passed to the template as its model. The key 'encoding' is reserved.
 
 
 ##### Returns
 
 
 `Response`  
-A Robyn Response with the rendered template as its body.
+A Robyn Response with the rendered template as its body. The status is always 200
+
+and the Content-Type is always text/html.
+
+
+##### Raises
+
+
+`ChameleonRobynException`  
+If the model uses the reserved key 'encoding'.

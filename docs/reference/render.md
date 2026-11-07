@@ -24,7 +24,7 @@ Useful outside of route handlers: emails, middleware, error handlers, etc.
 The template file path, relative to the template folder (e.g. 'emails/welcome.pt').
 
 `**template_data: Any`  
-Values passed to the template as its model.
+Values passed to the template as its model. The key 'encoding' is reserved by Chameleon and cannot be used.
 
 
 ## Returns
@@ -38,4 +38,14 @@ The rendered template as a string.
 
 
 `ChameleonRobynException`  
-If global_init() has not been called.
+If global_init() has not been called, or the model uses the reserved key 'encoding'.
+
+`ValueError`  
+Raised by Chameleon when the template file does not exist.
+
+
+## Examples
+
+``` python
+html = chameleon_robyn.render('emails/welcome.pt', username='Michael')
+```

@@ -44,6 +44,18 @@ def test_friendly_404_message_passed_to_template(setup_global_template):
     assert 'The URL resulted in a 404 response.' in resp.description
 
 
+def test_raising_not_found_exception_directly_passes_custom_message(
+    setup_global_template, view_style, make_view, call_view
+):
+    def body():
+        raise cr.ChameleonRobynNotFoundException('Episode 7 does not exist.', 'errors/404_message.pt')
+
+    view = make_view(view_style, cr.template('home/index.pt'), body)
+    resp = call_view(view)
+    assert resp.status_code == 404
+    assert 'Episode 7 does not exist.' in resp.description
+
+
 def test_friendly_404_async_method(setup_global_template):
     @cr.template('home/index.pt')
     async def view_method(a, b, c):

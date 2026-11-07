@@ -1,0 +1,90 @@
+# Errors and how to fix them
+
+Every error below was reproduced against the current release. The exception type tells you which layer raised it: [ChameleonRobynException](../reference/ChameleonRobynException.md#chameleon_robyn.ChameleonRobynException) comes from this package, while `ValueError`, `NameError` and `KeyError` come from Chameleon.
+
+
+# From chameleon-robyn
+
+
+## `You must call global_init() before rendering templates.`
+
+A template was rendered before the engine was initialized. Call [global_init()](../reference/global_init.md#chameleon_robyn.global_init) at startup, before the first request. In tests this usually means a fixture called [clear()](../reference/clear.md#chameleon_robyn.clear) and nothing re-initialized afterwards; see [Testing your handlers](testing.md).
+
+
+## `The specified template folder must be a folder, it's not: ...`
+
+The path passed to [global_init()](../reference/global_init.md#chameleon_robyn.global_init) does not exist or is a file. Build it from `__file__` rather than relying on the working directory:
+
+``` python
+template_folder = (Path(__file__).resolve().parent / 'templates').as_posix()
+```
+
+
+## `Invalid return type <class '...'>, we expected a dict or Response as the return value.`
+
+A decorated handler returned something other than a `dict` or a Robyn `Response`. Returning `None` by falling off the end of the function is the common cause, often after a [not_found()](../reference/not_found.md#chameleon_robyn.not_found) call that was commented out. Return the model dict.
+
+
+## `__response_callback__ must be callable, got <class '...'>.`
+
+The reserved key holds a value that is not a function. Pass the function itself, not the result of calling it: `'__response_callback__': set_cookie`, not `set_cookie()`.
+
+
+## `'encoding' is reserved by Chameleon's render() and cannot be a template variable; rename the key.`
+
+Chameleon's [render()](../reference/render.md#chameleon_robyn.render) takes `encoding` as a named parameter. Pick another name for that variable, such as `charset` or `file_encoding`.
+
+
+## [ChameleonRobynNotFoundException](../reference/ChameleonRobynNotFoundException.md#chameleon_robyn.ChameleonRobynNotFoundException) escapes to Robyn
+
+[not_found()](../reference/not_found.md#chameleon_robyn.not_found) was called outside a `@template`-decorated handler, so nothing caught it. Either decorate the handler or return `chameleon_robyn.response('errors/404.pt', status_code=404, message='...')` instead.
+
+
+# From Chameleon
+
+
+## `ValueError` naming a template file
+
+The template does not exist under the template folder. Check these in order:
+
+1.  The path is relative to the folder you passed to [global_init()](../reference/global_init.md#chameleon_robyn.global_init), not to the current file.
+2.  With auto-naming, the expected file is `<module>/<function>.html` or `<module>/<function>.pt`, where `<module>` is the last segment of the handler's module name. For a script run directly it is the script's file name, so `index()` in `app.py` expects `app/index.pt` (with `__main__/index.pt` as a fallback).
+3.  A [not_found()](../reference/not_found.md#chameleon_robyn.not_found) call expects `errors/404.pt` to exist unless you passed another template.
+
+
+## `NameError: <name>`
+
+The template uses a variable the handler did not pass. Chameleon reports the expression, the file and the line. Add the key to the returned dict, or guard the expression in the template with `tal:condition`.
+
+
+## `KeyError: ':class'`, `KeyError: '@click'` or similar
+
+An Alpine.js, htmx or Vue-style attribute was parsed under Chameleon's restricted namespace. Pass `restricted_namespace=False` to [global_init()](../reference/global_init.md#chameleon_robyn.global_init) or to [ChameleonTemplate](../reference/ChameleonTemplate.md#chameleon_robyn.ChameleonTemplate). See [Writing templates](templates.md#alpine-htmx).
+
+
+## A parse error naming a file and line
+
+Chameleon templates must be well-formed. Unclosed tags, a stray `<` in text, or an attribute without quotes stop the parser. Fix the markup at the reported line. Write `<` for a literal less-than sign and `&` for an ampersand in text.
+
+
+# Things that look like bugs but are not
+
+
+## Template edits do not show up
+
+`auto_reload` is `False`, which is the default. Pass `auto_reload=True` in development. See [Configuration](configuration.md).
+
+
+## A second [global_init()](../reference/global_init.md#chameleon_robyn.global_init) call changed nothing
+
+`cache_init` defaults to `True`, so a call made while the engine is initialized is ignored. Pass `cache_init=False` or call [clear()](../reference/clear.md#chameleon_robyn.clear) first.
+
+
+## The 404 page came back as `text/html` from an XML handler
+
+By design. [not_found()](../reference/not_found.md#chameleon_robyn.not_found) always renders with status 404 and `text/html`, regardless of the handler's `content_type` and `status_code`. To return a 404 in another format, build it with `response(..., status_code=404, content_type='application/xml')` and return it.
+
+
+## A `$` shows up wrong in the page
+
+`${` starts an expression. Write `$${price}` to output a dollar sign followed by the value.

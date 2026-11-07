@@ -1,0 +1,60 @@
+---
+title: Configuration
+---
+
+All configuration is one function call at startup. There are no environment variables and no config files.
+
+```python
+chameleon_robyn.global_init(
+    template_folder,              # required
+    auto_reload=False,
+    cache_init=True,
+    restricted_namespace=True,
+)
+```
+
+| Parameter | Default | What it does |
+|---|---|---|
+| `template_folder` | required | Path to the directory holding your templates. Must exist, or `ChameleonRobynException` is raised. Every template path elsewhere in the API is relative to it. |
+| `auto_reload` | `False` | When `True`, Chameleon re-reads a template when the file changes on disk. Use it in development. Leave it off in production so compiled templates stay cached. |
+| `cache_init` | `True` | When `True` and the engine is already initialized, the call does nothing and the earlier settings stay in effect. Pass `False` to re-initialize with new settings. |
+| `restricted_namespace` | `True` | When `True`, only the `tal:`, `metal:` and `i18n:` attribute namespaces are allowed. Set it to `False` for Alpine.js, htmx and other libraries that use `@click`, `:class` or similar attributes. |
+
+## Where to call it
+
+Either place works:
+
+- At import time, before the routes, as in the [getting started](getting-started.qmd) example.
+- From `main()` right before `app.start()`, after the routes have been decorated. Auto-named templates are resolved at the first request, so this is fine, and it is the pattern the example apps use.
+
+Build the path from `__file__` so it does not depend on the working directory:
+
+```python
+from pathlib import Path
+
+def main():
+    dev_mode = True
+    template_folder = (Path(__file__).resolve().parent / 'templates').as_posix()
+    chameleon_robyn.global_init(template_folder, auto_reload=dev_mode)
+    app.start(host='127.0.0.1', port=5555)
+```
+
+## Calling it twice
+
+With the default `cache_init=True`, a second call is ignored. This is deliberate: a module that calls `global_init()` on import cannot clobber the settings the app chose. It also means changing a setting at runtime requires either `cache_init=False` or a `clear()` first:
+
+```python
+chameleon_robyn.clear()
+chameleon_robyn.global_init(other_folder, restricted_namespace=False)
+```
+
+`clear()` resets the engine to its uninitialized state. Rendering after `clear()` and before the next `global_init()` raises `ChameleonRobynException`. Its main use is in tests; see [Testing your handlers](testing.qmd).
+
+## Development versus production
+
+| | Development | Production |
+|---|---|---|
+| `auto_reload` | `True`, so template edits show up on the next request | `False`, so each template is compiled once and cached |
+| `restricted_namespace` | `False` if you use Alpine.js or htmx attributes, otherwise leave the default | same as development |
+
+A `dev_mode` flag driven by your own settings is the usual way to switch, as in the example above.

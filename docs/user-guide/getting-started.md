@@ -1,0 +1,112 @@
+# Getting started
+
+Robyn ships with Jinja2 templating. chameleon-robyn lets you use [Chameleon](https://chameleon.readthedocs.io/) page templates instead: `.pt` files that are valid HTML, with `tal:` attributes for logic and METAL macros for shared layouts. If you have used Chameleon with Pyramid, Flask, or FastAPI, the templates are the same. The package adds a `@template` decorator so a Robyn handler returns a plain `dict` and the caller gets back a rendered Robyn `Response`.
+
+The project is in alpha. The API is small and unlikely to change much, but there are no stability promises yet.
+
+
+# Install
+
+``` bash
+uv pip install chameleon-robyn
+```
+
+Or with pip:
+
+``` bash
+pip install chameleon-robyn
+```
+
+This installs `robyn` and `chameleon` as dependencies. Python 3.10 or newer is required.
+
+
+# Project layout
+
+``` text
+my_app/
+├── app.py
+└── templates/
+    └── home/
+        └── index.pt
+```
+
+Every template path you give the library is relative to the `templates/` folder you register at startup. The folder name itself is up to you.
+
+
+# Your first page
+
+Create `templates/home/index.pt`:
+
+``` xml
+<!DOCTYPE html>
+<html>
+<body>
+    <h1>Hello, ${name}!</h1>
+    <ul>
+        <li tal:repeat="item items">${item}</li>
+    </ul>
+</body>
+</html>
+```
+
+Create `app.py`:
+
+``` python
+from pathlib import Path
+from robyn import Robyn
+import chameleon_robyn
+
+app = Robyn(__file__)
+
+# Point Chameleon at your templates folder (do this once at startup)
+template_folder = (Path(__file__).resolve().parent / 'templates').as_posix()
+chameleon_robyn.global_init(template_folder, auto_reload=True)
+
+@app.get('/')
+@chameleon_robyn.template('home/index.pt')
+async def index(request):
+    return {'name': 'World', 'items': ['Robyn', 'Chameleon', 'Python']}
+
+app.start(host='127.0.0.1', port=8000)
+```
+
+Run `python app.py` and open <http://127.0.0.1:8000/>. You should see the heading and a three-item list.
+
+
+# What just happened
+
+- [global_init()](../reference/global_init.md#chameleon_robyn.global_init) told Chameleon where the templates live. It runs once at startup. The settings are covered in [Configuration](configuration.md).
+- `@template('home/index.pt')` wrapped the handler. The handler returned a `dict`, and every key in it became a variable in the template.
+- The decorator rendered the template and returned a Robyn `Response` with status 200 and a `Content-Type` of `text/html; charset=utf-8`.
+- Robyn's route decorator stayed on the outside. `@template` goes directly above the function, and it works for both `def` and `async def` handlers.
+
+
+# Example apps
+
+The repository has two runnable apps that show every feature: episodes and guests pages, a shared METAL layout, a search page using query parameters, an XML feed, a redirect, a cookie set from a rendered page, and a friendly 404.
+
+``` bash
+git clone https://github.com/mikeckennedy/chameleon-robyn.git
+cd chameleon-robyn
+python -m venv venv
+source venv/bin/activate      # Windows: venv\Scripts\activate
+pip install -e ".[examples]"
+
+python example/app.py           # core features
+python example-partials/app.py  # the same app using chameleon-partials
+# Open http://127.0.0.1:5555
+```
+
+
+# Where to go next
+
+- [The <span class="citation" cites="template">@template</span> decorator](template-decorator.md): explicit and auto-named templates, async handlers, status codes, redirects, and setting cookies on a rendered page.
+- [Writing templates](templates.md): a TAL cheat sheet, METAL layouts, escaping, Alpine.js and htmx attributes, and chameleon-partials.
+- [Friendly 404 pages](not-found.md): [not_found()](../reference/not_found.md#chameleon_robyn.not_found) and custom 404 templates.
+- [Rendering outside handlers](lower-level-api.md): [render()](../reference/render.md#chameleon_robyn.render), [response()](../reference/response.md#chameleon_robyn.response), and the standalone [ChameleonTemplate](../reference/ChameleonTemplate.md#chameleon_robyn.ChameleonTemplate) class.
+- [Configuration](configuration.md): every [global_init()](../reference/global_init.md#chameleon_robyn.global_init) setting, and development versus production.
+- [Testing your handlers](testing.md): call decorated handlers directly, without starting a server.
+- [Errors and how to fix them](troubleshooting.md): what each exception means and what to change.
+- [How it works](how-it-works.md): the three source files and the design choices behind them.
+- [FAQ](faq.md)
+- [API reference](../reference/index.md)

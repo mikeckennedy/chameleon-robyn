@@ -6,7 +6,13 @@ Use [Chameleon](https://chameleon.readthedocs.io/) page templates in your [Robyn
 
 ## Documentation
 
-Full documentation, including a browsable API reference, lives at [mkennedy.codes/docs/chameleon-robyn](https://mkennedy.codes/docs/chameleon-robyn/). This README covers the same ground in guide form if you'd rather keep reading here.
+Full documentation lives at [mkennedy.codes/docs/chameleon-robyn](https://mkennedy.codes/docs/chameleon-robyn/). This README covers the same ground in short form; the user guide goes deeper on each section:
+
+- [Getting started](https://mkennedy.codes/docs/chameleon-robyn/user-guide/getting-started.html), [the @template decorator](https://mkennedy.codes/docs/chameleon-robyn/user-guide/template-decorator.html), [writing templates](https://mkennedy.codes/docs/chameleon-robyn/user-guide/templates.html), [friendly 404 pages](https://mkennedy.codes/docs/chameleon-robyn/user-guide/not-found.html)
+- [Rendering outside handlers](https://mkennedy.codes/docs/chameleon-robyn/user-guide/lower-level-api.html), [configuration](https://mkennedy.codes/docs/chameleon-robyn/user-guide/configuration.html), [testing your handlers](https://mkennedy.codes/docs/chameleon-robyn/user-guide/testing.html), [errors and how to fix them](https://mkennedy.codes/docs/chameleon-robyn/user-guide/troubleshooting.html)
+- [How it works](https://mkennedy.codes/docs/chameleon-robyn/user-guide/how-it-works.html), [FAQ](https://mkennedy.codes/docs/chameleon-robyn/user-guide/faq.html), and the [API reference](https://mkennedy.codes/docs/chameleon-robyn/reference/)
+
+Coding agents can read [llms-full.txt](https://mkennedy.codes/docs/chameleon-robyn/llms-full.txt) or install the [agent skill](https://mkennedy.codes/docs/chameleon-robyn/skills.html).
 
 ## Installation
 
@@ -63,7 +69,7 @@ async def index(request):
 app.start(host='127.0.0.1', port=8000)
 ```
 
-That's it. Your handler returns a `dict`, the `@template` decorator renders it through the Chameleon template and wraps the result in a Robyn `Response`.
+That's it. Your handler returns a `dict`, the `@template` decorator renders it through the Chameleon template and wraps the result in a Robyn `Response`. The [getting started guide](https://mkennedy.codes/docs/chameleon-robyn/user-guide/getting-started.html) walks through this in more detail.
 
 ## The `@template` decorator
 
@@ -98,6 +104,8 @@ You can even skip the parentheses:
 def index(request):
     return {'message': 'Hello!'}
 ```
+
+Two details: a script run directly (`python app.py`) has the module name `__main__`, so the script's file name is used instead and `index()` in `app.py` maps to `app/index.pt` (an existing `__main__/index.pt` is still found for apps built on the old behavior). And the name is resolved at the first request, not when the decorator runs, so `global_init()` can be called after the routes are decorated.
 
 ### Async handlers - just works
 
@@ -175,6 +183,8 @@ A few details:
 - Mutate the `Response` in place; the callback's return value is ignored.
 - The value must be callable - anything else raises `ChameleonRobynException`.
 
+Everything the decorator does, including the exact return-value contract, is in [the decorator guide](https://mkennedy.codes/docs/chameleon-robyn/user-guide/template-decorator.html).
+
 ## Friendly 404 pages
 
 Call `not_found()` from any decorated handler to render a 404 page:
@@ -196,7 +206,7 @@ By default it renders `errors/404.pt`, but you can specify any template:
 chameleon_robyn.not_found(four04template_file='errors/custom_404.pt')
 ```
 
-The 404 template receives a `message` variable describing the 404, which you can render with `${message}` if you want.
+The 404 template receives a `message` variable describing the 404, which you can render with `${message}` if you want. To supply your own message, raise `ChameleonRobynNotFoundException('your text')` directly; the decorator handles it the same way. `not_found()` only works inside `@template`-decorated handlers; see [friendly 404 pages](https://mkennedy.codes/docs/chameleon-robyn/user-guide/not-found.html) for the alternatives.
 
 ## Lower-level API
 
@@ -216,6 +226,8 @@ resp = chameleon_robyn.response('errors/500.pt', status_code=500, error=str(e))
 # Returns a fully-formed Robyn Response object
 ```
 
+One reserved name: a template variable called `encoding` cannot be passed, because Chameleon's own `render()` takes it as a parameter. The library raises `ChameleonRobynException` if you try. More in [rendering outside handlers](https://mkennedy.codes/docs/chameleon-robyn/user-guide/lower-level-api.html).
+
 ## `ChameleonTemplate` class (Robyn's TemplateInterface)
 
 If you prefer Robyn's built-in template pattern, `ChameleonTemplate` implements the same `render_template()` interface as Robyn's `JinjaTemplate` (via a structural protocol, so importing `chameleon_robyn` never pulls in Jinja2):
@@ -230,7 +242,7 @@ def page(request):
     return chameleon.render_template('page.pt', title='Hello')
 ```
 
-This is a standalone class with its own template loader - it doesn't require `global_init()`.
+This is a standalone class with its own template loader - it doesn't require `global_init()`. `render_template()` always returns a 200 `text/html` response.
 
 ## `global_init()` reference
 
@@ -251,7 +263,7 @@ Chameleon's default namespace rules reject attributes like `@click` or `:class` 
 chameleon_robyn.global_init(template_folder, restricted_namespace=False)
 ```
 
-This tells Chameleon to allow any attribute syntax in your templates.
+This tells Chameleon to allow any attribute syntax in your templates. Every `global_init()` setting is described in [configuration](https://mkennedy.codes/docs/chameleon-robyn/user-guide/configuration.html).
 
 ## Works with chameleon-partials
 
@@ -372,7 +384,11 @@ Chameleon uses TAL (Template Attribute Language) - a few patterns to get you goi
 </metal:block>
 ```
 
-Full docs: [chameleon.readthedocs.io](https://chameleon.readthedocs.io/)
+Full docs: [chameleon.readthedocs.io](https://chameleon.readthedocs.io/). The [writing templates](https://mkennedy.codes/docs/chameleon-robyn/user-guide/templates.html) guide covers layouts, escaping, and partials in more depth.
+
+## Testing and troubleshooting
+
+Decorated handlers are plain functions that return a Robyn `Response`, so tests call them directly without starting a server; see [testing your handlers](https://mkennedy.codes/docs/chameleon-robyn/user-guide/testing.html). When something goes wrong, [errors and how to fix them](https://mkennedy.codes/docs/chameleon-robyn/user-guide/troubleshooting.html) lists every exception the library and Chameleon raise and what to change.
 
 ## License
 

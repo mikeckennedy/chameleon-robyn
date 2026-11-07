@@ -12,13 +12,33 @@ global_init(template_folder: str, auto_reload: bool = False, cache_init: bool = 
 
 Initialize the Chameleon template engine.
 
+Call this once at startup, before the first request is rendered. Routes may be
+decorated with `@template` before this runs; auto-named templates are resolved
+lazily at the first request.
+
 Args:
-    template_folder: Path to the template directory
-    auto_reload: Whether to auto-reload templates on change
-    cache_init: Whether to cache initialization (skip if already initialized)
-    restricted_namespace: If True, only TAL/METAL/i18n namespaces are allowed.
-                        If False, allows attribute-based JS frameworks like Alpine.js
-                        to use shorthand syntax (@click, :class, etc.)
+    template_folder: Path to the template directory. All template paths passed to
+        `@template`, render(), response() and not_found() are relative to this folder.
+    auto_reload: Whether to re-read templates when they change on disk. Use True in
+        development only; it disables caching.
+    cache_init: If True (the default) and the engine is already initialized, the call
+        is ignored and the earlier settings stay in effect. Pass False to re-initialize
+        with new settings (tests do this), or call clear() first.
+    restricted_namespace: If True, only TAL/METAL/i18n namespaces are allowed in
+        attributes. If False, attribute-based JS frameworks like Alpine.js and htmx can
+        use shorthand syntax (`@click`, :class, etc.).
+
+Raises:
+    ChameleonRobynException: If template_folder is empty or is not an existing directory.
+
+Examples:
+    ```python
+    from pathlib import Path
+    import chameleon_robyn
+
+    templates = (Path(__file__).resolve().parent / 'templates').as_posix()
+    chameleon_robyn.global_init(templates, auto_reload=True)  # auto_reload for development only
+    ```
 
 clear() -> None
 
@@ -27,10 +47,22 @@ Reset the template engine to its uninitialized state.
 After calling this, global_init() must be called again before rendering.
 Mostly useful in tests to isolate template configuration between cases.
 
+Examples:
+    ```python
+    import pytest
+    import chameleon_robyn
+
+    @pytest.fixture
+    def templates(tmp_path):
+        chameleon_robyn.global_init(str(tmp_path), cache_init=False)
+        yield
+        chameleon_robyn.clear()
+    ```
+
 
 ## Rendering views
 
-The @template decorator and friendly 404s for Robyn route handlers.
+The `@template` decorator and friendly 404s for Robyn route handlers.
 
 
 template(template_file: Callable | str | None = None, content_type: str = 'text/html', status_code: int = 200) -> Callable
@@ -39,10 +71,14 @@ Decorate a Robyn view method to render an HTML response.
 
 The decorated handler returns a dict (the template model). If the template path is
 omitted, it is derived from the module and function name: module/function.html if that
-file exists, otherwise module/function.pt. The auto-derived name is resolved at first
-request, so global_init() may be called after route decoration. Handlers that return a
-Robyn Response are passed through untouched (redirects, custom errors). Works with sync
-and async handlers.
+file exists, otherwise module/function.pt. For a script run directly (module __main__)
+the script's file name is used instead, so index() in app.py maps to app/index.pt; a
+legacy __main__/function.html or .pt is still found if the script-named file does not
+exist. The auto-derived name is resolved at first request, so global_init() may be called after
+route decoration. Handlers that return a Robyn Response are passed through untouched
+(redirects, custom errors). Works with sync and async handlers.
+
+Place `@template` directly above the handler, below Robyn's route decorator.
 
 Args:
     template_file: Optional, the Chameleon template file (path relative to template folder, *.pt).
@@ -52,14 +88,31 @@ Args:
 Returns:
     Decorator for Robyn route handlers.
 
+Raises:
+    ChameleonRobynException: At request time, if the handler returns something other than a
+        dict or a Robyn Response, or if '__response_callback__' is not callable.
+
+Examples:
+    ```python
+    @app.get('/episodes/:episode_id')
+    @chameleon_robyn.template('episodes/detail.pt')
+    async def episode_detail(request, episode_id: int):
+        return {'episode': await get_episode(episode_id)}
+
+    @app.get('/')
+    @chameleon_robyn.template  # renders <module>/index.html or <module>/index.pt
+    def index(request):
+        return {'title': 'Home'}
+    ```
+
 not_found(four04template_file: str = 'errors/404.pt') -> NoReturn
 
-Render a friendly 404 page from within a @template-decorated handler.
+Render a friendly 404 page from within a `@template`-decorated handler.
 
-Raises an exception that the @template decorator catches and converts into a
+Raises an exception that the `@template` decorator catches and converts into a
 404 response rendered through the given template. The template receives a
 `message` variable describing the 404. Only works inside handlers decorated
-with @template.
+with `@template`.
 
 Args:
     four04template_file: The template to render, relative to the template folder
@@ -67,6 +120,17 @@ Args:
 
 Raises:
     ChameleonRobynNotFoundException: Always; carries the 404 template path.
+
+Examples:
+    ```python
+    @app.get('/episodes/:episode_id')
+    @chameleon_robyn.template('episodes/detail.pt')
+    def episode_detail(request, episode_id: int):
+        episode = get_episode(episode_id)
+        if not episode:
+            chameleon_robyn.not_found()  # renders errors/404.pt with status 404
+        return {'episode': episode}
+    ```
 
 
 ## Lower-level rendering
@@ -82,17 +146,28 @@ Useful outside of route handlers: emails, middleware, error handlers, etc.
 
 Args:
     template_file: The template file path, relative to the template folder (e.g. 'emails/welcome.pt').
-    **template_data: Values passed to the template as its model.
+    **template_data: Values passed to the template as its model. The key 'encoding' is
+        reserved by Chameleon and cannot be used.
 
 Returns:
     The rendered template as a string.
 
 Raises:
-    ChameleonRobynException: If global_init() has not been called.
+    ChameleonRobynException: If global_init() has not been called, or the model uses the
+        reserved key 'encoding'.
+    ValueError: Raised by Chameleon when the template file does not exist.
+
+Examples:
+    ```python
+    html = chameleon_robyn.render('emails/welcome.pt', username='Michael')
+    ```
 
 response(template_file: str, content_type: str = 'text/html', status_code: int = 200, **template_data: Any) -> Response
 
 Render a Chameleon template and wrap it in a fully-formed Robyn Response.
+
+Useful where the `@template` decorator does not fit: error handlers, middleware, or a
+handler that renders different templates depending on the request.
 
 Args:
     template_file: The template file path, relative to the template folder.
@@ -102,6 +177,15 @@ Args:
 
 Returns:
     A Robyn Response with the rendered template as its body.
+
+Raises:
+    ChameleonRobynException: If global_init() has not been called, or the model uses the
+        reserved key 'encoding'.
+
+Examples:
+    ```python
+    resp = chameleon_robyn.response('errors/500.pt', status_code=500, error=str(e))
+    ```
 
 
 ## Robyn TemplateInterface
@@ -122,7 +206,18 @@ Args:
     auto_reload: Whether to auto-reload templates on change (use True in development).
     encoding: Output encoding for rendered templates (defaults to utf-8).
     restricted_namespace: If True, only TAL/METAL/i18n namespaces are allowed.
-        Set to False for Alpine.js/htmx-style attributes (@click, :class, etc.).
+        Set to False for Alpine.js/htmx-style attributes (`@click`, :class, etc.).
+
+Examples:
+    ```python
+    from chameleon_robyn import ChameleonTemplate
+
+    chameleon = ChameleonTemplate('templates/', auto_reload=True)
+
+    @app.get('/page')
+    def page(request):
+        return chameleon.render_template('page.pt', title='Hello')
+    ```
 
 
 ## Exceptions
@@ -134,13 +229,897 @@ ChameleonRobynException
 
 Base exception for all chameleon-robyn errors (bad configuration, invalid return types, etc.).
 
+Examples:
+    ```python
+    try:
+        chameleon_robyn.render('home/index.pt', title='Home')
+    except chameleon_robyn.ChameleonRobynException as e:
+        log.error('template setup problem: %s', e)
+    ```
+
 ChameleonRobynNotFoundException(message: str | None = None, four04template_file: str = 'errors/404.pt')
 
-Raised by not_found() to signal a 404 from within a @template-decorated handler.
+Raised by not_found() to signal a 404 from within a `@template`-decorated handler.
 
-The @template decorator catches this exception and renders the template it
+The `@template` decorator catches this exception and renders the template it
 carries with a 404 status code, passing the message to the template as `message`.
 
 Args:
     message: Optional human-readable description of the 404.
     four04template_file: The 404 template to render, relative to the template folder.
+
+Examples:
+    Raise it directly to supply your own message to the 404 template:
+
+    ```python
+    raise ChameleonRobynNotFoundException(f'No episode with id {episode_id}.')
+    ```
+
+
+----------------------------------------------------------------------
+This is the User Guide documentation for the package.
+----------------------------------------------------------------------
+
+
+## Get started
+
+### Getting started
+
+Robyn ships with Jinja2 templating. chameleon-robyn lets you use [Chameleon](https://chameleon.readthedocs.io/) page templates instead: `.pt` files that are valid HTML, with `tal:` attributes for logic and METAL macros for shared layouts. If you have used Chameleon with Pyramid, Flask, or FastAPI, the templates are the same. The package adds a `@template` decorator so a Robyn handler returns a plain `dict` and the caller gets back a rendered Robyn `Response`.
+
+The project is in alpha. The API is small and unlikely to change much, but there are no stability promises yet.
+
+## Install
+
+```bash
+uv pip install chameleon-robyn
+```
+
+Or with pip:
+
+```bash
+pip install chameleon-robyn
+```
+
+This installs `robyn` and `chameleon` as dependencies. Python 3.10 or newer is required.
+
+## Project layout
+
+```text
+my_app/
+├── app.py
+└── templates/
+    └── home/
+        └── index.pt
+```
+
+Every template path you give the library is relative to the `templates/` folder you register at startup. The folder name itself is up to you.
+
+## Your first page
+
+Create `templates/home/index.pt`:
+
+```xml
+<!DOCTYPE html>
+<html>
+<body>
+    <h1>Hello, ${name}!</h1>
+    <ul>
+        <li tal:repeat="item items">${item}</li>
+    </ul>
+</body>
+</html>
+```
+
+Create `app.py`:
+
+```python
+from pathlib import Path
+from robyn import Robyn
+import chameleon_robyn
+
+app = Robyn(__file__)
+
+# Point Chameleon at your templates folder (do this once at startup)
+template_folder = (Path(__file__).resolve().parent / 'templates').as_posix()
+chameleon_robyn.global_init(template_folder, auto_reload=True)
+
+@app.get('/')
+@chameleon_robyn.template('home/index.pt')
+async def index(request):
+    return {'name': 'World', 'items': ['Robyn', 'Chameleon', 'Python']}
+
+app.start(host='127.0.0.1', port=8000)
+```
+
+Run `python app.py` and open <http://127.0.0.1:8000/>. You should see the heading and a three-item list.
+
+## What just happened
+
+- `global_init()` told Chameleon where the templates live. It runs once at startup. The settings are covered in [Configuration](configuration.qmd).
+- `@template('home/index.pt')` wrapped the handler. The handler returned a `dict`, and every key in it became a variable in the template.
+- The decorator rendered the template and returned a Robyn `Response` with status 200 and a `Content-Type` of `text/html; charset=utf-8`.
+- Robyn's route decorator stayed on the outside. `@template` goes directly above the function, and it works for both `def` and `async def` handlers.
+
+## Example apps
+
+The repository has two runnable apps that show every feature: episodes and guests pages, a shared METAL layout, a search page using query parameters, an XML feed, a redirect, a cookie set from a rendered page, and a friendly 404.
+
+```bash
+git clone https://github.com/mikeckennedy/chameleon-robyn.git
+cd chameleon-robyn
+python -m venv venv
+source venv/bin/activate      # Windows: venv\Scripts\activate
+pip install -e ".[examples]"
+
+python example/app.py           # core features
+python example-partials/app.py  # the same app using chameleon-partials
+# Open http://127.0.0.1:5555
+```
+
+## Where to go next
+
+- [The @template decorator](template-decorator.qmd): explicit and auto-named templates, async handlers, status codes, redirects, and setting cookies on a rendered page.
+- [Writing templates](templates.qmd): a TAL cheat sheet, METAL layouts, escaping, Alpine.js and htmx attributes, and chameleon-partials.
+- [Friendly 404 pages](not-found.qmd): `not_found()` and custom 404 templates.
+- [Rendering outside handlers](lower-level-api.qmd): `render()`, `response()`, and the standalone `ChameleonTemplate` class.
+- [Configuration](configuration.qmd): every `global_init()` setting, and development versus production.
+- [Testing your handlers](testing.qmd): call decorated handlers directly, without starting a server.
+- [Errors and how to fix them](troubleshooting.qmd): what each exception means and what to change.
+- [How it works](how-it-works.qmd): the three source files and the design choices behind them.
+- [FAQ](faq.qmd)
+- [API reference](../reference/index.qmd)
+
+
+### The @template decorator
+
+The decorator is the main way you use this package. It wraps a Robyn route handler, takes the handler's return value, and turns it into a Robyn `Response`.
+
+## What the handler returns
+
+| Handler returns | What the decorator does |
+|---|---|
+| a `dict` | Renders the template with the dict as its variables and returns a 200 `Response` (or the status you configured). |
+| a Robyn `Response` | Returns it untouched. No template is rendered. Use this for redirects and hand-built responses. |
+| anything else | Raises `ChameleonRobynException` at request time. `None`, strings and numbers are all rejected. |
+
+Return the dict directly. The decorator copies it before rendering, so returning a shared or module-level dict is safe.
+
+## Explicit template path
+
+```python
+@app.get('/episodes')
+@chameleon_robyn.template('episodes/list.pt')
+def episode_list(request):
+    return {'episodes': get_all_episodes()}
+```
+
+The path is relative to the folder passed to `global_init()`. Any file extension works; `.pt` is the convention, and the example apps also render a `.xml` feed.
+
+## Auto-naming
+
+Omit the path and the template name is derived from the handler's location:
+
+1. Take the last segment of the handler's module name and the function name.
+2. Look for `<module>/<function>.html` under the template folder.
+3. If that file does not exist, use `<module>/<function>.pt`.
+
+So `index()` in `views/home_views.py` renders `home_views/index.html` if it exists, otherwise `home_views/index.pt`.
+
+```python
+# Looks for templates/home_views/index.pt
+@app.get('/')
+@chameleon_robyn.template()
+def index(request):
+    return {'message': 'Hello!'}
+```
+
+The parentheses are optional:
+
+```python
+@app.get('/')
+@chameleon_robyn.template
+def index(request):
+    return {'message': 'Hello!'}
+```
+
+Two details worth knowing:
+
+- A script run directly (`python app.py`) has the module name `__main__`. The library uses the script's file name instead, so `index()` in `app.py` maps to `app/index.pt`. If no such file exists but `__main__/index.html` or `__main__/index.pt` does, that is used, so apps built on the old behavior keep working.
+- The name is resolved at the first request, not when the decorator runs. That is why routes can be decorated at import time and `global_init()` can be called later from `main()`. The `.html` or `.pt` file has to exist by the time the first request arrives.
+
+## Async handlers
+
+Nothing to configure. The decorator detects `async def` and awaits the handler.
+
+```python
+@app.get('/dashboard')
+@chameleon_robyn.template('dashboard.pt')
+async def dashboard(request):
+    stats = await fetch_stats_from_db()
+    return {'stats': stats}
+```
+
+Robyn's typed path parameters pass straight through:
+
+```python
+@app.get('/episodes/:episode_id')
+@chameleon_robyn.template('episodes/detail.pt')
+async def episode_detail(request, episode_id: int):
+    return {'episode': await get_episode(episode_id)}
+```
+
+## Status codes and content types
+
+```python
+# Return a 201 after creating a resource
+@app.post('/items')
+@chameleon_robyn.template('items/created.pt', status_code=201)
+async def create_item(request):
+    item = await save_item(request.json())
+    return {'item': item}
+
+# Serve an XML feed
+@app.get('/feed.xml')
+@chameleon_robyn.template('episodes/feed.xml', content_type='application/xml')
+def xml_feed(request):
+    return {'episodes': get_recent_episodes()}
+```
+
+The `charset=utf-8` suffix is added to the content type for you. These settings apply to rendered responses only. A pass-through `Response` keeps its own status and headers, and a 404 from `not_found()` always renders as `text/html` with status 404.
+
+## Redirects and other pass-through responses
+
+Return a Robyn `Response` and the decorator hands it back unchanged:
+
+```python
+from robyn import Response, Headers
+
+@app.get('/old-page')
+@chameleon_robyn.template('home/index.pt')
+def old_page(request):
+    return Response(
+        status_code=302,
+        description='',
+        headers=Headers({'Location': '/new-page'}),
+    )
+```
+
+This also lets one handler choose between templates at runtime: build the alternative with [`response()`](lower-level-api.qmd) and return it.
+
+## Setting cookies or headers on a rendered page
+
+Sometimes you want the template rendered and a change to the final `Response`, for example a session cookie after login. Put a callable under the reserved key `__response_callback__` in the returned dict. After rendering, the decorator calls it with the `Response` it built.
+
+```python
+from robyn import Response
+
+@app.post('/account/login')
+@chameleon_robyn.template('account/welcome.pt')
+async def login(request):
+    user = await authenticate(request)
+    if not user:
+        return chameleon_robyn.response('account/login_failed.pt', status_code=401)
+
+    token = create_session_token(user)
+
+    def set_session_cookie(resp: Response):
+        resp.headers.append('Set-Cookie', f'session={token}; HttpOnly; Path=/')
+
+    return {
+        'user': user,
+        '__response_callback__': set_session_cookie,
+    }
+```
+
+Rules for the callback:
+
+- It is removed from the model before rendering, so the template never sees it. Your dict is not modified.
+- Change the `Response` in place. The return value is ignored.
+- It must be callable. Anything else raises `ChameleonRobynException`.
+
+## Decorator order
+
+Robyn's route decorator goes on the outside and `@template` goes directly above the function. Robyn reads the handler's signature when the route is registered, and the decorator preserves the original signature, so request and path parameters keep working.
+
+```python
+@app.get('/episodes')                       # outermost
+@chameleon_robyn.template('episodes/list.pt')  # directly above the function
+def episode_list(request):
+    ...
+```
+
+
+### Writing templates
+
+Chameleon templates are HTML or XML files where the logic lives in attributes. There is no `{% ... %}` or `{{ ... }}` syntax. If you know Jinja2, the biggest change is that a template is always a well-formed document, and loops and conditions attach to the element they control. The full language reference is at [chameleon.readthedocs.io](https://chameleon.readthedocs.io/).
+
+## TAL cheat sheet
+
+```xml
+<!-- Variable substitution: any Python expression inside ${ } -->
+<h1>${title}</h1>
+<p>${user.name.title()} has ${len(items)} item(s)</p>
+
+<!-- Conditionals: the element is omitted entirely when the expression is falsy -->
+<div tal:condition="show_banner">Special offer!</div>
+<div tal:condition="not items">Nothing here yet.</div>
+
+<!-- Loops -->
+<li tal:repeat="item items">${item.name} - $${item.price}</li>
+
+<!-- The repeat variable exposes index, number, even, odd, first and last -->
+<tr tal:repeat="row data" class="${'odd' if repeat.row.odd else 'even'}">
+    <td>${repeat.row.number}. ${row.title}</td>
+</tr>
+
+<!-- Attributes: interpolate directly, or set several with tal:attributes -->
+<a href="/items/${item.id}" class="${'active' if is_current else ''}">${item.name}</a>
+<a tal:attributes="href item.url; class item.css_class">${item.name}</a>
+
+<!-- Replace element content, or the whole element -->
+<span tal:content="message">placeholder shown in a browser preview</span>
+<span tal:replace="formatted_date">2024-01-01</span>
+
+<!-- Define a local variable -->
+<span tal:define="total sum(i.price for i in items)">Total: ${total}</span>
+```
+
+A literal `$` followed by `{` is written `$${...}`, as in the price example above.
+
+## Escaping and `structure`
+
+Everything inserted with `${...}`, `tal:content` or `tal:replace` is HTML-escaped. To insert markup that is already safe, use the `structure` keyword:
+
+```xml
+<div tal:replace="structure rich_html_content" />
+```
+
+Only do this with HTML you generated or sanitized yourself.
+
+## Shared layouts with METAL
+
+METAL macros are Chameleon's template inheritance. The layout defines slots; each page fills them.
+
+`templates/shared/layout.pt`:
+
+```xml
+<!DOCTYPE html>
+<html>
+<head><title>${title}</title></head>
+<body>
+    <main metal:define-slot="content">Default content</main>
+</body>
+</html>
+```
+
+`templates/home/index.pt`:
+
+```xml
+<metal:block use-macro="load: ../shared/layout.pt">
+<div metal:fill-slot="content">
+    <h1>${title}</h1>
+</div>
+</metal:block>
+```
+
+The `load:` path is resolved relative to the template that uses it, so a page in `home/` reaches the layout with `../shared/layout.pt`. Chameleon also falls back to the template folder, so `shared/layout.pt` works too. The example apps use the relative form.
+
+The layout sees the same variables as the page, so `title` above comes from the handler's dict.
+
+## File extensions
+
+The loader does not care about the extension. `.pt` is the Chameleon convention and auto-naming looks for `.html` first and `.pt` second (see [the decorator guide](template-decorator.qmd#auto-naming)). Any other extension works with an explicit path; the example apps render `episodes/feed.xml` with `content_type='application/xml'`.
+
+## Alpine.js, htmx and other attribute syntaxes {#alpine-htmx}
+
+By default Chameleon runs with a restricted namespace. Attributes such as `@click`, `:class`, or `x-on:click` look like XML namespace prefixes and are rejected with a `KeyError` when the template is parsed. Turn the restriction off at startup:
+
+```python
+chameleon_robyn.global_init(template_folder, restricted_namespace=False)
+```
+
+The same flag exists on [`ChameleonTemplate`](../reference/ChameleonTemplate.qmd). With it off, any attribute syntax is passed through to the browser.
+
+## Reusable components with chameleon-partials
+
+[chameleon-partials](https://github.com/mikeckennedy/chameleon-partials) adds `render_partial()` for rendering a sub-template from inside a template. It uses its own loader, so initialize both packages at startup with the same folder:
+
+```python
+import chameleon_partials
+import chameleon_robyn
+
+chameleon_robyn.global_init(template_folder, auto_reload=dev_mode)
+chameleon_partials.register_extensions(template_folder, auto_reload=dev_mode)
+```
+
+Pass `render_partial` through the handler's dict:
+
+```python
+@app.get('/')
+@chameleon_robyn.template('home/index.pt')
+def index(request):
+    return {
+        'render_partial': chameleon_partials.render_partial,
+        'episodes': get_episodes(),
+    }
+```
+
+Then insert the partial with `tal:replace="structure ..."`:
+
+```xml
+<div tal:repeat="ep episodes">
+    <div tal:replace="structure render_partial('shared/episode_card.pt', ep=ep)" />
+</div>
+```
+
+`structure` stops Chameleon from escaping the partial's HTML, and `tal:replace` swaps out the placeholder element. The `example-partials/` app in the repository is the core example app refactored this way; compare its episode list template with the one in `example/`.
+
+
+### Friendly 404 pages
+
+A handler that looks something up and finds nothing should return a proper 404 page, not a stack trace or a bare status. Call `not_found()` from any `@template`-decorated handler:
+
+```python
+@app.get('/episodes/:episode_id')
+@chameleon_robyn.template('episodes/detail.pt')
+async def episode_detail(request, episode_id: int):
+    episode = await get_episode(episode_id)
+    if not episode:
+        chameleon_robyn.not_found()  # Renders errors/404.pt with status 404
+
+    return {'episode': episode}
+```
+
+`not_found()` never returns. It raises `ChameleonRobynNotFoundException`, the decorator catches it, renders the 404 template with status 404 and a `text/html` content type, and returns that `Response`. The handler's own `status_code` and `content_type` settings do not apply to the 404.
+
+## The default template
+
+By default the library renders `errors/404.pt`, relative to your template folder. Create that file in every app that calls `not_found()`. If it is missing, Chameleon raises a `ValueError` naming the file.
+
+The template receives one variable, `message`, with a short description of the 404. Render it or ignore it:
+
+```xml
+<metal:block use-macro="load: ../shared/layout.pt">
+<div metal:fill-slot="content">
+    <h1>Page not found</h1>
+    <p>${message}</p>
+    <a href="/">Back to the home page</a>
+</div>
+</metal:block>
+```
+
+## A different 404 template
+
+```python
+chameleon_robyn.not_found(four04template_file='errors/custom_404.pt')
+```
+
+## Your own message
+
+`not_found()` always uses the same generic message. To put your own text in the page, raise the exception directly. The decorator treats it exactly the same way:
+
+```python
+from chameleon_robyn import ChameleonRobynNotFoundException
+
+if not episode:
+    raise ChameleonRobynNotFoundException(f'There is no episode {episode_id}.')
+```
+
+The second argument is the template path, defaulting to `errors/404.pt`.
+
+## Outside a decorated handler
+
+`not_found()` only works inside handlers wrapped with `@template`, because the decorator is what catches the exception. Anywhere else, build the response yourself with [`response()`](lower-level-api.qmd):
+
+```python
+return chameleon_robyn.response('errors/404.pt', status_code=404, message='No such page.')
+```
+
+## Other error pages
+
+For a 500 page or any other status, use `response()` with the status you need. It works inside decorated handlers too, because a returned `Response` passes through untouched:
+
+```python
+@app.get('/report')
+@chameleon_robyn.template('reports/view.pt')
+def report(request):
+    try:
+        data = build_report()
+    except ReportError as e:
+        return chameleon_robyn.response('errors/500.pt', status_code=500, error=str(e))
+    return {'data': data}
+```
+
+
+
+## Going further
+
+### Rendering outside handlers
+
+The decorator covers route handlers. Three other entry points cover everything else: middleware, error handlers, email bodies, and apps that prefer Robyn's built-in template-engine pattern.
+
+## `render()`: get a string
+
+```python
+html = chameleon_robyn.render('emails/welcome.pt', username='Michael')
+```
+
+Returns the rendered template as a `str`. Keyword arguments are the template variables. It requires `global_init()` to have been called and raises `ChameleonRobynException` otherwise.
+
+## `response()`: get a Robyn Response
+
+```python
+resp = chameleon_robyn.response('errors/500.pt', status_code=500, error=str(e))
+```
+
+Renders the template and wraps it in a `Response` with the given status (default 200) and content type (default `text/html`, with `charset=utf-8` appended). The remaining keyword arguments are the template variables.
+
+Because `@template` passes a returned `Response` through untouched, `response()` is also how a decorated handler renders a different template than the one in the decorator:
+
+```python
+@app.post('/account/login')
+@chameleon_robyn.template('account/welcome.pt')
+async def login(request):
+    user = await authenticate(request)
+    if not user:
+        return chameleon_robyn.response('account/login_failed.pt', status_code=401)
+    return {'user': user}
+```
+
+## A reserved variable name
+
+Chameleon's own `render()` takes the output encoding as a named parameter, so a template variable called `encoding` cannot be passed. The library raises `ChameleonRobynException` with a clear message if you try. Rename the key.
+
+## `ChameleonTemplate`: Robyn's TemplateInterface pattern
+
+Robyn's own templating module exposes a `JinjaTemplate` class with a `render_template()` method. `ChameleonTemplate` has the same shape:
+
+```python
+from chameleon_robyn import ChameleonTemplate
+
+chameleon = ChameleonTemplate('templates/', auto_reload=True)
+
+@app.get('/page')
+def page(request):
+    return chameleon.render_template('page.pt', title='Hello')
+```
+
+Points to know:
+
+- It owns its own template loader and does not use or require `global_init()`. You can mix it with the decorator API in one app, but each has its own folder setting.
+- `render_template()` always returns status 200 with `text/html`. For other statuses use `response()`.
+- The constructor takes `directory`, `auto_reload`, `encoding` and `restricted_namespace`. See the [reference](../reference/ChameleonTemplate.qmd).
+- It matches Robyn's `TemplateInterface` through a structural Protocol rather than by subclassing Robyn's abstract class. Importing Robyn's class would import Jinja2, and this package deliberately has no Jinja2 dependency.
+
+
+### Configuration
+
+All configuration is one function call at startup. There are no environment variables and no config files.
+
+```python
+chameleon_robyn.global_init(
+    template_folder,              # required
+    auto_reload=False,
+    cache_init=True,
+    restricted_namespace=True,
+)
+```
+
+| Parameter | Default | What it does |
+|---|---|---|
+| `template_folder` | required | Path to the directory holding your templates. Must exist, or `ChameleonRobynException` is raised. Every template path elsewhere in the API is relative to it. |
+| `auto_reload` | `False` | When `True`, Chameleon re-reads a template when the file changes on disk. Use it in development. Leave it off in production so compiled templates stay cached. |
+| `cache_init` | `True` | When `True` and the engine is already initialized, the call does nothing and the earlier settings stay in effect. Pass `False` to re-initialize with new settings. |
+| `restricted_namespace` | `True` | When `True`, only the `tal:`, `metal:` and `i18n:` attribute namespaces are allowed. Set it to `False` for Alpine.js, htmx and other libraries that use `@click`, `:class` or similar attributes. |
+
+## Where to call it
+
+Either place works:
+
+- At import time, before the routes, as in the [getting started](getting-started.qmd) example.
+- From `main()` right before `app.start()`, after the routes have been decorated. Auto-named templates are resolved at the first request, so this is fine, and it is the pattern the example apps use.
+
+Build the path from `__file__` so it does not depend on the working directory:
+
+```python
+from pathlib import Path
+
+def main():
+    dev_mode = True
+    template_folder = (Path(__file__).resolve().parent / 'templates').as_posix()
+    chameleon_robyn.global_init(template_folder, auto_reload=dev_mode)
+    app.start(host='127.0.0.1', port=5555)
+```
+
+## Calling it twice
+
+With the default `cache_init=True`, a second call is ignored. This is deliberate: a module that calls `global_init()` on import cannot clobber the settings the app chose. It also means changing a setting at runtime requires either `cache_init=False` or a `clear()` first:
+
+```python
+chameleon_robyn.clear()
+chameleon_robyn.global_init(other_folder, restricted_namespace=False)
+```
+
+`clear()` resets the engine to its uninitialized state. Rendering after `clear()` and before the next `global_init()` raises `ChameleonRobynException`. Its main use is in tests; see [Testing your handlers](testing.qmd).
+
+## Development versus production
+
+| | Development | Production |
+|---|---|---|
+| `auto_reload` | `True`, so template edits show up on the next request | `False`, so each template is compiled once and cached |
+| `restricted_namespace` | `False` if you use Alpine.js or htmx attributes, otherwise leave the default | same as development |
+
+A `dev_mode` flag driven by your own settings is the usual way to switch, as in the example above.
+
+
+### Testing your handlers
+
+You do not need a running Robyn server to test a decorated handler. The decorator returns an ordinary function (or coroutine function) that returns a Robyn `Response`, so call it directly and assert on the result. This is how the package's own test suite works.
+
+## Point the engine at test templates
+
+Use a fixture that initializes the engine with `cache_init=False`, so each test gets the folder it asks for, and clears it afterwards:
+
+```python
+# conftest.py
+from pathlib import Path
+import pytest
+import chameleon_robyn
+
+@pytest.fixture
+def templates():
+    folder = Path(__file__).parent / 'templates'
+    chameleon_robyn.global_init(str(folder), cache_init=False)
+    yield
+    chameleon_robyn.clear()
+```
+
+Without `cache_init=False`, the first `global_init()` in the test session would win and later fixtures would silently keep its settings.
+
+## Call the handler
+
+```python
+from robyn import Response
+import chameleon_robyn
+
+def test_index_renders(templates):
+    @chameleon_robyn.template('home/index.pt')
+    def index(request):
+        return {'name': 'World', 'items': ['a', 'b']}
+
+    resp = index(None)
+    assert isinstance(resp, Response)
+    assert resp.status_code == 200
+    assert 'Hello, World!' in resp.description
+    assert 'text/html' in resp.headers.get('content-type')
+```
+
+The rendered HTML is in `resp.description`. Headers are a Robyn `Headers` object with `get()`.
+
+Handlers usually take a `request` argument. Pass `None` or a simple stand-in when the handler does not use it, or test the handler's logic through a helper function that the handler calls.
+
+## Async handlers
+
+Run the coroutine to completion:
+
+```python
+import asyncio
+
+def test_async_detail(templates):
+    @chameleon_robyn.template('episodes/detail.pt')
+    async def detail(request, episode_id: int):
+        return {'episode': {'id': episode_id, 'title': 'Test'}}
+
+    resp = asyncio.run(detail(None, 7))
+    assert resp.status_code == 200
+```
+
+## Testing a 404
+
+```python
+def test_missing_episode_is_404(templates):
+    @chameleon_robyn.template('episodes/detail.pt')
+    def detail(request, episode_id: int):
+        chameleon_robyn.not_found()
+
+    resp = detail(None, 999)
+    assert resp.status_code == 404
+    assert 'not found' in resp.description.lower()
+```
+
+## Testing the response callback
+
+The callback receives the built `Response`, so capture it:
+
+```python
+def test_login_sets_cookie(templates):
+    @chameleon_robyn.template('account/welcome.pt')
+    def login(request):
+        def set_cookie(resp):
+            resp.headers.append('Set-Cookie', 'session=abc; Path=/')
+        return {'user': 'michael', '__response_callback__': set_cookie}
+
+    resp = login(None)
+    assert resp.headers.get('set-cookie') == 'session=abc; Path=/'
+```
+
+## Testing templates on their own
+
+`render()` returns the HTML as a string, which keeps assertions about markup separate from handler logic:
+
+```python
+def test_episode_card_shows_title(templates):
+    html = chameleon_robyn.render('shared/episode_card.pt', ep={'title': 'Async All the Things'})
+    assert 'Async All the Things' in html
+```
+
+## What not to test
+
+Chameleon's own behaviour, such as escaping, `tal:repeat` ordering, or error messages, is covered by Chameleon's test suite. Test what your handlers return and what your templates show.
+
+
+### Errors and how to fix them
+
+Every error below was reproduced against the current release. The exception type tells you which layer raised it: `ChameleonRobynException` comes from this package, while `ValueError`, `NameError` and `KeyError` come from Chameleon.
+
+## From chameleon-robyn
+
+### `You must call global_init() before rendering templates.`
+
+A template was rendered before the engine was initialized. Call `global_init()` at startup, before the first request. In tests this usually means a fixture called `clear()` and nothing re-initialized afterwards; see [Testing your handlers](testing.qmd).
+
+### `The specified template folder must be a folder, it's not: ...`
+
+The path passed to `global_init()` does not exist or is a file. Build it from `__file__` rather than relying on the working directory:
+
+```python
+template_folder = (Path(__file__).resolve().parent / 'templates').as_posix()
+```
+
+### `Invalid return type <class '...'>, we expected a dict or Response as the return value.`
+
+A decorated handler returned something other than a `dict` or a Robyn `Response`. Returning `None` by falling off the end of the function is the common cause, often after a `not_found()` call that was commented out. Return the model dict.
+
+### `__response_callback__ must be callable, got <class '...'>.`
+
+The reserved key holds a value that is not a function. Pass the function itself, not the result of calling it: `'__response_callback__': set_cookie`, not `set_cookie()`.
+
+### `'encoding' is reserved by Chameleon's render() and cannot be a template variable; rename the key.`
+
+Chameleon's `render()` takes `encoding` as a named parameter. Pick another name for that variable, such as `charset` or `file_encoding`.
+
+### `ChameleonRobynNotFoundException` escapes to Robyn
+
+`not_found()` was called outside a `@template`-decorated handler, so nothing caught it. Either decorate the handler or return `chameleon_robyn.response('errors/404.pt', status_code=404, message='...')` instead.
+
+## From Chameleon
+
+### `ValueError` naming a template file
+
+The template does not exist under the template folder. Check these in order:
+
+1. The path is relative to the folder you passed to `global_init()`, not to the current file.
+2. With auto-naming, the expected file is `<module>/<function>.html` or `<module>/<function>.pt`, where `<module>` is the last segment of the handler's module name. For a script run directly it is the script's file name, so `index()` in `app.py` expects `app/index.pt` (with `__main__/index.pt` as a fallback).
+3. A `not_found()` call expects `errors/404.pt` to exist unless you passed another template.
+
+### `NameError: <name>`
+
+The template uses a variable the handler did not pass. Chameleon reports the expression, the file and the line. Add the key to the returned dict, or guard the expression in the template with `tal:condition`.
+
+### `KeyError: ':class'`, `KeyError: '@click'` or similar
+
+An Alpine.js, htmx or Vue-style attribute was parsed under Chameleon's restricted namespace. Pass `restricted_namespace=False` to `global_init()` or to `ChameleonTemplate`. See [Writing templates](templates.qmd#alpine-htmx).
+
+### A parse error naming a file and line
+
+Chameleon templates must be well-formed. Unclosed tags, a stray `<` in text, or an attribute without quotes stop the parser. Fix the markup at the reported line. Write `&lt;` for a literal less-than sign and `&amp;` for an ampersand in text.
+
+## Things that look like bugs but are not
+
+### Template edits do not show up
+
+`auto_reload` is `False`, which is the default. Pass `auto_reload=True` in development. See [Configuration](configuration.qmd).
+
+### A second `global_init()` call changed nothing
+
+`cache_init` defaults to `True`, so a call made while the engine is initialized is ignored. Pass `cache_init=False` or call `clear()` first.
+
+### The 404 page came back as `text/html` from an XML handler
+
+By design. `not_found()` always renders with status 404 and `text/html`, regardless of the handler's `content_type` and `status_code`. To return a 404 in another format, build it with `response(..., status_code=404, content_type='application/xml')` and return it.
+
+### A `$` shows up wrong in the page
+
+`${` starts an expression. Write `$${price}` to output a dollar sign followed by the value.
+
+
+
+## Background
+
+### How it works
+
+The library is three small files in `chameleon_robyn/`. Everything else in the repository is tests, example apps and documentation.
+
+## The global loader
+
+`global_init()` creates one Chameleon `PageTemplateLoader` for the template folder and stores it, together with the folder path, in module-level state. `render()` looks a template up in that loader by its relative path and calls Chameleon's `render()` with the keyword arguments as the template's variables. `response()` calls `render()` and wraps the string in a Robyn `Response` with the requested status and content type. `clear()` drops the stored loader so the next `global_init()` starts fresh.
+
+## The decorator
+
+`template()` returns a wrapper for the handler. It chooses a synchronous or asynchronous wrapper by checking whether the handler is a coroutine function, so `await` happens where it should. Both wrappers do the same work:
+
+1. Call the handler.
+2. If the result is a Robyn `Response`, return it unchanged.
+3. If it is a `dict`, copy it, pop `__response_callback__`, render the template, build the `Response`, and call the callback with it.
+4. Otherwise raise `ChameleonRobynException`.
+
+Both wrappers also catch `ChameleonRobynNotFoundException`, which `not_found()` raises, and render the template it carries with status 404.
+
+The wrappers use `functools.wraps`, which keeps the original function's name and signature visible. Robyn inspects the handler signature when a route is registered to decide which arguments to pass, so this is what keeps `request` and typed path parameters working through the decorator.
+
+## Lazy template names
+
+When the template path is omitted, the wrapper derives `<module>/<function>` and checks for the `.html` file on the first request rather than at decoration time. Routes are often decorated at import, before `global_init()` has run and before the template folder is known. Once the folder is known the resolved name is cached, so the file check happens once per handler.
+
+## 404 via an exception
+
+`not_found()` is declared `NoReturn`. It raises rather than returns so a handler can call it from inside a nested condition without the surrounding code needing to `return` its result. The exception carries the template path and message, and the decorator turns it into a response. This is also why it only works inside decorated handlers.
+
+## No Jinja2 dependency
+
+Robyn's `TemplateInterface` lives in a module that imports Jinja2 at the top. Subclassing it would make Jinja2 a hard dependency of this package. Instead, `ChameleonTemplate` implements a local `Protocol` with the same `render_template()` method, marked `runtime_checkable` so `isinstance()` checks still work. Robyn only cares about the method, so the class is interchangeable with `JinjaTemplate` in practice.
+
+
+## Do I have to call `global_init()` before decorating routes?
+
+No. Explicit template paths are only used at request time, and auto-named templates are resolved at the first request. Decorate routes at import and call `global_init()` from `main()` if you prefer.
+
+## Why does my second `global_init()` call do nothing?
+
+`cache_init` defaults to `True`, which makes later calls no-ops while the engine is initialized. Pass `cache_init=False`, or call `clear()` first. See [Configuration](configuration.qmd).
+
+## Can one handler render different templates?
+
+Yes. Build the alternative with `response('other.pt', ...)` and return it. A returned `Response` passes through the decorator untouched. See [Rendering outside handlers](lower-level-api.qmd).
+
+## How do I return a 404 outside a decorated handler?
+
+`not_found()` only works inside `@template` handlers. Elsewhere, return `response('errors/404.pt', status_code=404, message='...')`. See [Friendly 404 pages](not-found.qmd).
+
+## Why did my 404 page come back as HTML from an XML endpoint?
+
+`not_found()` always renders as `text/html` with status 404. For another format, build the response yourself with `response()`.
+
+## How do I set a cookie on a rendered page?
+
+Put a callable under the `__response_callback__` key in the returned dict. It is called with the built `Response`. See [the decorator guide](template-decorator.qmd#setting-cookies-or-headers-on-a-rendered-page).
+
+## Can I use `.html` files instead of `.pt`?
+
+Yes. The loader ignores the extension. Auto-naming looks for `.html` first and then `.pt`.
+
+## My Alpine.js or htmx attributes break the template
+
+Pass `restricted_namespace=False` to `global_init()`. See [Writing templates](templates.qmd#alpine-htmx).
+
+## Can Chameleon and Jinja2 templates coexist in one app?
+
+Yes. Nothing in this package touches Robyn's Jinja2 support. Use `@template` or `ChameleonTemplate` for Chameleon pages and Robyn's `JinjaTemplate` for the rest.
+
+## Does it work with chameleon-partials?
+
+Yes, with no extra configuration. Initialize both packages with the same template folder and pass `render_partial` through the model. See [Writing templates](templates.qmd#reusable-components-with-chameleon-partials).
+
+## How do I test a handler?
+
+Call it directly and assert on the returned `Response`. No server needed. See [Testing your handlers](testing.qmd).
+
+## Is the API stable?
+
+Not yet. The project is in alpha. The surface is small and the current names are expected to stay, but there are no guarantees until 1.0.
+
+## Where is the template language documented?
+
+At [chameleon.readthedocs.io](https://chameleon.readthedocs.io/). The [cheat sheet](templates.qmd#tal-cheat-sheet) covers the parts you need day to day.
+

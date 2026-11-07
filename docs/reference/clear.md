@@ -12,3 +12,17 @@ clear()
 
 
 After calling this, global_init() must be called again before rendering. Mostly useful in tests to isolate template configuration between cases.
+
+
+## Examples
+
+``` python
+import pytest
+import chameleon_robyn
+
+@pytest.fixture
+def templates(tmp_path):
+    chameleon_robyn.global_init(str(tmp_path), cache_init=False)
+    yield
+    chameleon_robyn.clear()
+```

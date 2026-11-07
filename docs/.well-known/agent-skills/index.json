@@ -2,7 +2,7 @@
   "skills": [
     {
       "name": "chameleon-robyn",
-      "description": "Adds integration of the Chameleon template language to Robyn. Use when writing Python code that uses the chameleon_robyn package.",
+      "description": "Render Chameleon page templates (.pt files using TAL and METAL) from Robyn web handlers. A handler returns a dict and the @template decorator turns it into a Robyn Response. Use when adding Chameleon templates to a Robyn app, when a handler should return a dict that becomes an HTML page, when a ChameleonRobynException or a Chameleon ValueError, NameError or KeyError appears while rendering, when choosing between @template, response(), render() and ChameleonTemplate, when a 404 page or a cookie must be set on a rendered page, or when Alpine.js or htmx attributes fail to parse in a template.",
       "files": [
         "SKILL.md"
       ]

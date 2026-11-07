@@ -1,7 +1,7 @@
 # API Reference
 
 
-Everything chameleon-robyn exports: setup, the <span class="citation" cites="template">@template</span> decorator, lower-level rendering, and the Robyn TemplateInterface implementation.
+Everything chameleon-robyn exports: setup, the `@template` decorator, lower-level rendering, and the Robyn TemplateInterface implementation.
 
 
 ## Setup & configuration
@@ -20,14 +20,14 @@ Reset the template engine to its uninitialized state.
 ## Rendering views
 
 
-The <span class="citation" cites="template">@template</span> decorator and friendly 404s for Robyn route handlers.
+The `@template` decorator and friendly 404s for Robyn route handlers.
 
 
 [template()](template.md#chameleon_robyn.template)  
 Decorate a Robyn view method to render an HTML response.
 
 [not_found()](not_found.md#chameleon_robyn.not_found)  
-Render a friendly 404 page from within a <span class="citation" cites="template-decorated">@template-decorated</span> handler.
+Render a friendly 404 page from within a `@template`-decorated handler.
 
 
 ## Lower-level rendering
@@ -63,4 +63,4 @@ Exception types raised by the library.
 Base exception for all chameleon-robyn errors (bad configuration, invalid return types, etc.).
 
 [ChameleonRobynNotFoundException](ChameleonRobynNotFoundException.md#chameleon_robyn.ChameleonRobynNotFoundException)  
-Raised by not_found() to signal a 404 from within a <span class="citation" cites="template-decorated">@template-decorated</span> handler.
+Raised by not_found() to signal a 404 from within a `@template`-decorated handler.

@@ -1,4 +1,15 @@
-"""chameleon-robyn - Adds integration of the Chameleon template language to Robyn."""
+"""chameleon-robyn - Adds integration of the Chameleon template language to Robyn.
+
+Entry points:
+
+- global_init(template_folder, ...): call once at startup to point the engine at your templates.
+- @template(...): decorate a Robyn handler; it returns a dict and the decorator renders it to a Response.
+- not_found(): raise a friendly 404 from inside a decorated handler.
+- render() and response(): render a template to a str or a Response outside the decorator.
+- ChameleonTemplate: a standalone engine class matching Robyn's TemplateInterface.
+
+There is no CLI and no environment variable configuration. Docs: https://mkennedy.codes/docs/chameleon-robyn/
+"""
 
 from importlib.metadata import PackageNotFoundError
 from importlib.metadata import version as _get_version
