@@ -103,7 +103,7 @@ ul.task-list li input[type="checkbox"] {
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="./index.html">
-    <span class="navbar-title">chameleon-robyn <span class="version-badge" title="Released 2026-11-07">v0.1.2</span></span>
+    <span class="navbar-title">chameleon-robyn <span class="version-badge" title="Released 2026-11-07">v0.1.3</span></span>
     </a>
   </div>
             <div id="quarto-search" class=""></div>
@@ -147,7 +147,8 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul class="collapse">
-  <li><a href="#v0.1.2" id="toc-v0.1.2" class="nav-link active" data-scroll-target="#v0.1.2">v0.1.2</a></li>
+  <li><a href="#v0.1.3" id="toc-v0.1.3" class="nav-link active" data-scroll-target="#v0.1.3">v0.1.3</a></li>
+  <li><a href="#v0.1.2" id="toc-v0.1.2" class="nav-link" data-scroll-target="#v0.1.2">v0.1.2</a></li>
   <li><a href="#v0.1.1" id="toc-v0.1.1" class="nav-link" data-scroll-target="#v0.1.1">v0.1.1</a></li>
   <li><a href="#v0.1.0" id="toc-v0.1.0" class="nav-link" data-scroll-target="#v0.1.0">v0.1.0</a></li>
   </ul>
@@ -176,13 +177,38 @@ ul.task-list li input[type="checkbox"] {
 
 
 <p>This changelog is generated automatically from <a href="https://github.com/mikeckennedy/chameleon-robyn/releases">GitHub Releases</a>.</p>
+<section id="v0.1.3" class="level1 changelog-version">
+<h1 class="changelog-version">v0.1.3</h1>
+<p><em>2026-11-07</em> · <a href="https://github.com/mikeckennedy/chameleon-robyn/releases/tag/v0.1.3">GitHub</a></p>
+<p>Released to PyPI on 2026-11-07: https://pypi.org/project/chameleon-robyn/0.1.3/</p>
+<section id="fixed" class="level3">
+<h3 class="anchored" data-anchor-id="fixed">Fixed</h3>
+<ul>
+<li>Bare <code>[@template](https://github.com/template)</code> on a handler in a script run directly (<code>python app.py</code>) now derives the template directory from the script’s file name, so <code>index()</code> in <code>app.py</code> maps to <code>app/index.pt</code> instead of the literal module name <code>__main__/index.pt</code>. An existing <code>__main__/index.html</code> or <code>.pt</code> is still used when the script-named file is absent, so apps relying on the old name keep working.</li>
+<li>A template variable named <code>encoding</code> passed to <a href="reference/render.html#chameleon_robyn.render" class="gdls-link gdls-code">render()</a>, <a href="reference/response.html#chameleon_robyn.response" class="gdls-link gdls-code">response()</a>, a decorated handler or <a href="reference/ChameleonTemplate.html#chameleon_robyn.ChameleonTemplate.render_template" class="gdls-link gdls-code">ChameleonTemplate.render_template()</a> now raises <a href="reference/ChameleonRobynException.html#chameleon_robyn.ChameleonRobynException" class="gdls-link gdls-code">ChameleonRobynException</a> with a clear message. The name is a parameter of Chameleon’s own <a href="reference/render.html#chameleon_robyn.render" class="gdls-link gdls-code">render()</a>, so it previously failed with a <code>TypeError</code> from inside Chameleon.</li>
+</ul>
+</section>
+<section id="documentation" class="level3">
+<h3 class="anchored" data-anchor-id="documentation">Documentation</h3>
+<ul>
+<li>Added a user guide to the docs site: getting started, the <code>[@template](https://github.com/template)</code> decorator, writing templates, friendly 404 pages, rendering outside handlers, configuration, testing, errors and how to fix them, how it works, and an FAQ. The guide is included in <code>llms-full.txt</code>.</li>
+<li>Replaced the auto-generated agent skill with a hand-written <code>skills/chameleon-robyn/SKILL.md</code> covering the package’s rules, a decision table and the API in one page.</li>
+<li>Added an <code>Examples</code> section to every public docstring, and a module docstring naming the entry points.</li>
+<li>The README now links each section to the guide page that expands it, and documents raising <a href="reference/ChameleonRobynNotFoundException.html#chameleon_robyn.ChameleonRobynNotFoundException" class="gdls-link gdls-code">ChameleonRobynNotFoundException</a> directly to pass a custom 404 message.</li>
+<li><code>scripts/build_docs.py</code> runs the latest Great Docs release through <code>uvx</code> with the project installed alongside it, and fails if <code>llms.txt</code>, <code>llms-full.txt</code> or <code>skill.md</code> is missing from the output.</li>
+<li>The user guide and README now follow one running example, the podcast site in <code>example/</code>, with each section opening on the problem the feature solves. Code samples are unchanged.</li>
+<li>The docs site has a changelog page, generated from GitHub Releases and linked from the navbar. Releases 0.1.0 through 0.1.2 were tagged and published as GitHub Releases retroactively.</li>
+</ul>
+<p>Full changelog: https://github.com/mikeckennedy/chameleon-robyn/blob/main/CHANGELOG.md</p>
+</section>
+</section>
 <section id="v0.1.2" class="level1 changelog-version">
 <h1 class="changelog-version">v0.1.2</h1>
 <p><em>2026-11-07</em> · <a href="https://github.com/mikeckennedy/chameleon-robyn/releases/tag/v0.1.2">GitHub</a></p>
 <p>Released to PyPI on 2026-06-11: https://pypi.org/project/chameleon-robyn/0.1.2/</p>
 <p>Review pass that fixed several decorator bugs reported in <a href="https://github.com/mikeckennedy/chameleon-robyn/issues/1">#1</a>, added docstrings and a documentation site, and broadened the test suite.</p>
-<section id="fixed" class="level3">
-<h3 class="anchored" data-anchor-id="fixed">Fixed</h3>
+<section id="fixed-1" class="level3">
+<h3 class="anchored" data-anchor-id="fixed-1">Fixed</h3>
 <ul>
 <li>Auto-named templates are now resolved lazily at the first request instead of at decoration time, so <a href="reference/global_init.html#chameleon_robyn.global_init" class="gdls-link gdls-code">global_init()</a> can run after routes are decorated and the <code>.html</code>-or-<code>.pt</code> check looks in the real template folder rather than a working-directory-relative <code>templates</code> default.</li>
 <li>Reusing one <code>[@template](https://github.com/template)()</code> decorator instance across several handlers no longer leaks the first handler’s auto-derived template name into the others.</li>
